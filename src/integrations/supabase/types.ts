@@ -164,7 +164,6 @@ export type Database = {
       }
       properties: {
         Row: {
-          address: string | null
           amenities: string[] | null
           bathrooms: number
           bedrooms: number
@@ -173,6 +172,7 @@ export type Database = {
           country: string
           created_at: string
           description: string | null
+          house_number: string | null
           id: string
           is_active: boolean
           latitude: number | null
@@ -180,11 +180,11 @@ export type Database = {
           max_guests: number
           owner_id: string
           property_type: Database["public"]["Enums"]["property_type"]
+          street: string | null
           title: string
           updated_at: string
         }
         Insert: {
-          address?: string | null
           amenities?: string[] | null
           bathrooms?: number
           bedrooms?: number
@@ -193,6 +193,7 @@ export type Database = {
           country: string
           created_at?: string
           description?: string | null
+          house_number?: string | null
           id?: string
           is_active?: boolean
           latitude?: number | null
@@ -200,11 +201,11 @@ export type Database = {
           max_guests?: number
           owner_id: string
           property_type?: Database["public"]["Enums"]["property_type"]
+          street?: string | null
           title: string
           updated_at?: string
         }
         Update: {
-          address?: string | null
           amenities?: string[] | null
           bathrooms?: number
           bedrooms?: number
@@ -213,6 +214,7 @@ export type Database = {
           country?: string
           created_at?: string
           description?: string | null
+          house_number?: string | null
           id?: string
           is_active?: boolean
           latitude?: number | null
@@ -220,6 +222,7 @@ export type Database = {
           max_guests?: number
           owner_id?: string
           property_type?: Database["public"]["Enums"]["property_type"]
+          street?: string | null
           title?: string
           updated_at?: string
         }

@@ -36,6 +36,8 @@ function NewPropertyPage() {
   const [maxGuests, setMaxGuests] = useState(2);
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
+  const [street, setStreet] = useState("");
+  const [houseNumber, setHouseNumber] = useState("");
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -59,7 +61,7 @@ function NewPropertyPage() {
         data: {
           title, description: description || null, property_type: type,
           bedrooms, beds, bathrooms, max_guests: maxGuests,
-          amenities, city, country, address: null,
+          amenities, city, country, street: street || null, house_number: houseNumber || null,
         },
       });
 
@@ -137,6 +139,19 @@ function NewPropertyPage() {
               ))}
             </select>
           </Field>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div className="col-span-2">
+            <Field label="Street">
+              <input maxLength={200} value={street} onChange={(e) => setStreet(e.target.value)} className="input" placeholder="Main Street" />
+            </Field>
+          </div>
+          <div>
+            <Field label="No.">
+              <input maxLength={20} value={houseNumber} onChange={(e) => setHouseNumber(e.target.value)} className="input" placeholder="42" />
+            </Field>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
