@@ -143,6 +143,10 @@ function NewPropertyPage() {
           </Field>
         </div>
 
+        <Field label="ZIP / Postal code">
+          <input maxLength={20} value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="input" placeholder="1000" />
+        </Field>
+
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
             <Field label="Street">
