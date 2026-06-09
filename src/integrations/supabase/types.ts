@@ -14,16 +14,378 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      availabilities: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          property_id: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          property_id: string
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          property_id?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availabilities_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          created_at: string
+          id: string
+          property_a: string
+          property_b: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_a: string
+          property_b: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_a?: string
+          property_b?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_property_a_fkey"
+            columns: ["property_a"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_property_b_fkey"
+            columns: ["property_b"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          match_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          match_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          match_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          birth_date: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          languages: string[] | null
+          onboarded: boolean
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          birth_date?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          languages?: string[] | null
+          onboarded?: boolean
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          birth_date?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          languages?: string[] | null
+          onboarded?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          address: string | null
+          amenities: string[] | null
+          bathrooms: number
+          bedrooms: number
+          beds: number
+          city: string
+          country: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          max_guests: number
+          owner_id: string
+          property_type: Database["public"]["Enums"]["property_type"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[] | null
+          bathrooms?: number
+          bedrooms?: number
+          beds?: number
+          city: string
+          country: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          max_guests?: number
+          owner_id: string
+          property_type?: Database["public"]["Enums"]["property_type"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[] | null
+          bathrooms?: number
+          bedrooms?: number
+          beds?: number
+          city?: string
+          country?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          max_guests?: number
+          owner_id?: string
+          property_type?: Database["public"]["Enums"]["property_type"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      property_images: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          property_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position?: number
+          property_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          property_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      swap_proposals: {
+        Row: {
+          created_at: string
+          end_date: string
+          guests: number
+          id: string
+          match_id: string
+          message: string | null
+          proposer_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["proposal_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          guests?: number
+          id?: string
+          match_id: string
+          message?: string | null
+          proposer_id: string
+          start_date: string
+          status?: Database["public"]["Enums"]["proposal_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          guests?: number
+          id?: string
+          match_id?: string
+          message?: string | null
+          proposer_id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["proposal_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swap_proposals_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      swipes: {
+        Row: {
+          created_at: string
+          direction: Database["public"]["Enums"]["swipe_direction"]
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          direction: Database["public"]["Enums"]["swipe_direction"]
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          direction?: Database["public"]["Enums"]["swipe_direction"]
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swipes_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "admin" | "super_admin"
+      property_type:
+        | "house"
+        | "apartment"
+        | "villa"
+        | "cabin"
+        | "loft"
+        | "other"
+      proposal_status:
+        | "pending"
+        | "accepted"
+        | "rejected"
+        | "cancelled"
+        | "confirmed"
+      swipe_direction: "like" | "pass"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +512,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "admin", "super_admin"],
+      property_type: ["house", "apartment", "villa", "cabin", "loft", "other"],
+      proposal_status: [
+        "pending",
+        "accepted",
+        "rejected",
+        "cancelled",
+        "confirmed",
+      ],
+      swipe_direction: ["like", "pass"],
+    },
   },
 } as const
