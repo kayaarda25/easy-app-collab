@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { createProperty } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { COUNTRIES, LOCATIONS } from "@/lib/locations";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Upload, X } from "lucide-react";
 
@@ -109,8 +110,33 @@ function NewPropertyPage() {
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="City" required><input required maxLength={80} value={city} onChange={(e) => setCity(e.target.value)} className="input" /></Field>
-          <Field label="Country" required><input required maxLength={80} value={country} onChange={(e) => setCountry(e.target.value)} className="input" /></Field>
+          <Field label="Country" required>
+            <select
+              required
+              value={country}
+              onChange={(e) => { setCountry(e.target.value); setCity(""); }}
+              className="input"
+            >
+              <option value="">Select country</option>
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="City / Region" required>
+            <select
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              disabled={!country}
+              className="input disabled:opacity-50"
+            >
+              <option value="">{country ? "Select city" : "Select country first"}</option>
+              {(LOCATIONS[country] ?? []).map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </Field>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
