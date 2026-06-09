@@ -2,9 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMyProfile, getMyProperties, updateMyProfile } from "@/lib/flatch.functions";
+import { getMyEntitlement } from "@/lib/subscription.functions";
+import { PLAN_INFO } from "@/lib/subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/BottomNav";
-import { LogOut, Plus, Settings, Pencil } from "lucide-react";
+import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -19,9 +21,11 @@ function ProfilePage() {
   const fetchProfile = useServerFn(getMyProfile);
   const fetchProps = useServerFn(getMyProperties);
   const updateFn = useServerFn(updateMyProfile);
+  const fetchEnt = useServerFn(getMyEntitlement);
 
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const props = useQuery({ queryKey: ["my-properties"], queryFn: () => fetchProps() });
+  const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -114,7 +118,20 @@ function ProfilePage() {
 
       <section className="mt-8 px-6 pb-6">
         <h2 className="text-lg font-semibold">Settings</h2>
-        <div className="mt-3 rounded-2xl border border-border bg-card">
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
+          <button
+            onClick={() => navigate({ to: "/paywall" })}
+            className="flex w-full items-center gap-3 border-b border-border p-4 text-left hover:bg-secondary/50"
+          >
+            <Crown className="h-5 w-5 text-primary" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">{PLAN_INFO[ent.data?.effectivePlan ?? "basic"].name} plan</p>
+              <p className="text-xs text-muted-foreground">
+                {ent.data?.effectivePlan === "basic" ? "Upgrade for more homes & swipes" : `Status: ${ent.data?.status}`}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
           <div className="flex items-center gap-3 p-4 text-sm text-muted-foreground">
             <Settings className="h-4 w-4" /> Notifications, language, payments — coming soon
           </div>
