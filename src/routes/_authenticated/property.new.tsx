@@ -61,7 +61,7 @@ function NewPropertyPage() {
         data: {
           title, description: description || null, property_type: type,
           bedrooms, beds, bathrooms, max_guests: maxGuests,
-          amenities, city, country, address: null,
+          amenities, city, country, street: street || null, house_number: houseNumber || null,
         },
       });
 
