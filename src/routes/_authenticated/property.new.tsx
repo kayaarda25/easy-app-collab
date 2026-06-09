@@ -38,6 +38,7 @@ function NewPropertyPage() {
   const [country, setCountry] = useState("");
   const [street, setStreet] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
