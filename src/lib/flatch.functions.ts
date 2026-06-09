@@ -54,6 +54,7 @@ const propertySchema = z.object({
   country: z.string().trim().min(1).max(80),
   street: z.string().trim().max(200).optional().nullable(),
   house_number: z.string().trim().max(20).optional().nullable(),
+  zip_code: z.string().trim().max(20).optional().nullable(),
 });
 
 export const createProperty = createServerFn({ method: "POST" })
