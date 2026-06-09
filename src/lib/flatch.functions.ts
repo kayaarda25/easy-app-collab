@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { readEntitlement } from "./subscription.functions";
 
 // ---- PROFILE ----
 export const getMyProfile = createServerFn({ method: "GET" })
@@ -62,6 +63,16 @@ export const createProperty = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => propertySchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { limits, effectivePlan } = await readEntitlement(supabase, userId);
+    const { count } = await supabase
+      .from("properties")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", userId);
+    if ((count ?? 0) >= limits.maxProperties) {
+      throw new Error(
+        `PLAN_LIMIT:Your ${effectivePlan} plan allows up to ${limits.maxProperties} home${limits.maxProperties === 1 ? "" : "s"}. Upgrade to add more.`,
+      );
+    }
     const { data: row, error } = await supabase
       .from("properties")
       .insert({ ...data, owner_id: userId })
@@ -129,6 +140,21 @@ export const recordSwipe = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => swipeInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Enforce daily swipe limit (counts likes + passes today)
+    const { limits, effectivePlan } = await readEntitlement(supabase, userId);
+    const since = new Date();
+    since.setUTCHours(0, 0, 0, 0);
+    const { count: todayCount } = await supabase
+      .from("swipes")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("created_at", since.toISOString());
+    if ((todayCount ?? 0) >= limits.dailySwipes) {
+      throw new Error(
+        `PLAN_LIMIT:You've reached your daily swipe limit (${limits.dailySwipes}) on the ${effectivePlan} plan. Upgrade for more.`,
+      );
+    }
 
     const { error: swipeErr } = await supabase
       .from("swipes")
