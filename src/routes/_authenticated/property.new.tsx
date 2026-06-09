@@ -36,6 +36,8 @@ function NewPropertyPage() {
   const [maxGuests, setMaxGuests] = useState(2);
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
+  const [street, setStreet] = useState("");
+  const [houseNumber, setHouseNumber] = useState("");
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
