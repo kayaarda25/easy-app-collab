@@ -141,6 +141,15 @@ function NewPropertyPage() {
           </Field>
         </div>
 
+        <div className="grid grid-cols-3 gap-3">
+          <Field label="Street" className="col-span-2">
+            <input maxLength={200} value={street} onChange={(e) => setStreet(e.target.value)} className="input" placeholder="Main Street" />
+          </Field>
+          <Field label="No.">
+            <input maxLength={20} value={houseNumber} onChange={(e) => setHouseNumber(e.target.value)} className="input" placeholder="42" />
+          </Field>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <Field label="Bedrooms"><input type="number" min={0} max={20} value={bedrooms} onChange={(e) => setBedrooms(+e.target.value)} className="input" /></Field>
           <Field label="Beds"><input type="number" min={1} max={40} value={beds} onChange={(e) => setBeds(+e.target.value)} className="input" /></Field>
