@@ -263,6 +263,60 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          entitlement: string | null
+          expires_at: string | null
+          id: string
+          original_purchase_at: string | null
+          period_type: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          product_id: string | null
+          raw_event: Json | null
+          revenuecat_customer_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          store: Database["public"]["Enums"]["subscription_store"]
+          updated_at: string
+          user_id: string
+          will_renew: boolean
+        }
+        Insert: {
+          created_at?: string
+          entitlement?: string | null
+          expires_at?: string | null
+          id?: string
+          original_purchase_at?: string | null
+          period_type?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          product_id?: string | null
+          raw_event?: Json | null
+          revenuecat_customer_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          store?: Database["public"]["Enums"]["subscription_store"]
+          updated_at?: string
+          user_id: string
+          will_renew?: boolean
+        }
+        Update: {
+          created_at?: string
+          entitlement?: string | null
+          expires_at?: string | null
+          id?: string
+          original_purchase_at?: string | null
+          period_type?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          product_id?: string | null
+          raw_event?: Json | null
+          revenuecat_customer_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          store?: Database["public"]["Enums"]["subscription_store"]
+          updated_at?: string
+          user_id?: string
+          will_renew?: boolean
+        }
+        Relationships: []
+      }
       swap_proposals: {
         Row: {
           created_at: string
@@ -391,6 +445,15 @@ export type Database = {
         | "rejected"
         | "cancelled"
         | "confirmed"
+      subscription_plan: "basic" | "standard" | "premium"
+      subscription_status:
+        | "free"
+        | "trialing"
+        | "active"
+        | "cancelled"
+        | "expired"
+        | "payment_failed"
+      subscription_store: "app_store" | "play_store" | "none"
       swipe_direction: "like" | "pass"
     }
     CompositeTypes: {
@@ -528,6 +591,16 @@ export const Constants = {
         "cancelled",
         "confirmed",
       ],
+      subscription_plan: ["basic", "standard", "premium"],
+      subscription_status: [
+        "free",
+        "trialing",
+        "active",
+        "cancelled",
+        "expired",
+        "payment_failed",
+      ],
+      subscription_store: ["app_store", "play_store", "none"],
       swipe_direction: ["like", "pass"],
     },
   },
