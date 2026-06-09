@@ -183,6 +183,7 @@ export type Database = {
           street: string | null
           title: string
           updated_at: string
+          zip_code: string | null
         }
         Insert: {
           amenities?: string[] | null
@@ -204,6 +205,7 @@ export type Database = {
           street?: string | null
           title: string
           updated_at?: string
+          zip_code?: string | null
         }
         Update: {
           amenities?: string[] | null
@@ -225,6 +227,7 @@ export type Database = {
           street?: string | null
           title?: string
           updated_at?: string
+          zip_code?: string | null
         }
         Relationships: []
       }
