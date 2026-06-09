@@ -38,6 +38,7 @@ function NewPropertyPage() {
   const [country, setCountry] = useState("");
   const [street, setStreet] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -61,7 +62,8 @@ function NewPropertyPage() {
         data: {
           title, description: description || null, property_type: type,
           bedrooms, beds, bathrooms, max_guests: maxGuests,
-          amenities, city, country, street: street || null, house_number: houseNumber || null,
+          amenities, city, country,
+          street: street || null, house_number: houseNumber || null, zip_code: zipCode || null,
         },
       });
 
@@ -140,6 +142,10 @@ function NewPropertyPage() {
             </select>
           </Field>
         </div>
+
+        <Field label="ZIP / Postal code">
+          <input maxLength={20} value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="input" placeholder="1000" />
+        </Field>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
