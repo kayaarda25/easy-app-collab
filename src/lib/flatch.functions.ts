@@ -1313,3 +1313,55 @@ export const adminListSubscriptions = createServerFn({ method: "GET" })
     for (const p of profs ?? []) byId[(p as any).id] = p;
     return (subs ?? []).map((s: any) => ({ ...s, profile: byId[s.user_id] ?? null }));
   });
+// ---- PUBLIC PROFILE (for matched users) ----
+export const getPublicProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ user_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Only allow viewing profiles you have a match with (or your own).
+    if (data.user_id !== userId) {
+      const { data: m } = await supabase
+        .from("matches")
+        .select("id")
+        .or(
+          `and(user_a.eq.${userId},user_b.eq.${data.user_id}),and(user_a.eq.${data.user_id},user_b.eq.${userId})`,
+        )
+        .limit(1);
+      if (!m || m.length === 0) throw new Error("Not allowed");
+    }
+
+    const [{ data: profile }, { data: properties }, { data: reviews }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, bio, city, country, languages, occupation, email_verified_at, phone_verified_at, created_at")
+        .eq("id", data.user_id)
+        .single(),
+      supabase
+        .from("properties")
+        .select("id, title, city, country, property_type, bedrooms, beds, bathrooms, max_guests, property_images(url, position)")
+        .eq("owner_id", data.user_id)
+        .eq("is_active", true)
+        .in("status", ["published", "active", "approved"]),
+      supabase
+        .from("reviews")
+        .select("rating, body, created_at")
+        .eq("reviewee_id", data.user_id)
+        .order("created_at", { ascending: false })
+        .limit(20),
+    ]);
+
+    const ratingAvg =
+      reviews && reviews.length
+        ? reviews.reduce((s: number, r: any) => s + (r.rating ?? 0), 0) / reviews.length
+        : null;
+
+    return {
+      profile,
+      properties: properties ?? [],
+      reviews: reviews ?? [],
+      rating_avg: ratingAvg,
+      rating_count: reviews?.length ?? 0,
+    };
+  });
