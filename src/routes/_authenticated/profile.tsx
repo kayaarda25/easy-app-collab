@@ -104,9 +104,29 @@ function ProfilePage() {
 
       <section className="px-6 pt-6">
         <div className="flex items-center gap-4">
-          <div className="h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent">
-            {profile.data?.avatar_url && <img src={profile.data.avatar_url} alt="" className="h-full w-full object-cover" />}
-          </div>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent"
+          >
+            {profile.data?.avatar_url ? (
+              <img src={profile.data.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <Camera className="m-auto h-7 w-7 text-muted-foreground" />
+            )}
+            {uploadingAvatar && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            )}
+            {!uploadingAvatar && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+            )}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatar} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xl font-bold">{profile.data?.display_name ?? "—"}</p>
             <p className="text-sm text-muted-foreground">{profile.data?.city}{profile.data?.city && profile.data?.country && ", "}{profile.data?.country}</p>
