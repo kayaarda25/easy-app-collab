@@ -19,22 +19,28 @@ export type Database = {
           created_at: string
           end_date: string
           id: string
+          note: string | null
           property_id: string
           start_date: string
+          status: Database["public"]["Enums"]["availability_status"]
         }
         Insert: {
           created_at?: string
           end_date: string
           id?: string
+          note?: string | null
           property_id: string
           start_date: string
+          status?: Database["public"]["Enums"]["availability_status"]
         }
         Update: {
           created_at?: string
           end_date?: string
           id?: string
+          note?: string | null
           property_id?: string
           start_date?: string
+          status?: Database["public"]["Enums"]["availability_status"]
         }
         Relationships: [
           {
@@ -180,11 +186,14 @@ export type Database = {
           bathrooms: number
           bedrooms: number
           beds: number
+          check_in_instructions: string | null
+          check_out_instructions: string | null
           city: string
           country: string
           created_at: string
           description: string | null
           house_number: string | null
+          house_rules: string | null
           id: string
           is_active: boolean
           latitude: number | null
@@ -192,6 +201,10 @@ export type Database = {
           max_guests: number
           owner_id: string
           property_type: Database["public"]["Enums"]["property_type"]
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["property_status"]
           street: string | null
           title: string
           updated_at: string
@@ -203,11 +216,14 @@ export type Database = {
           bathrooms?: number
           bedrooms?: number
           beds?: number
+          check_in_instructions?: string | null
+          check_out_instructions?: string | null
           city: string
           country: string
           created_at?: string
           description?: string | null
           house_number?: string | null
+          house_rules?: string | null
           id?: string
           is_active?: boolean
           latitude?: number | null
@@ -215,6 +231,10 @@ export type Database = {
           max_guests?: number
           owner_id: string
           property_type?: Database["public"]["Enums"]["property_type"]
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["property_status"]
           street?: string | null
           title: string
           updated_at?: string
@@ -226,11 +246,14 @@ export type Database = {
           bathrooms?: number
           bedrooms?: number
           beds?: number
+          check_in_instructions?: string | null
+          check_out_instructions?: string | null
           city?: string
           country?: string
           created_at?: string
           description?: string | null
           house_number?: string | null
+          house_rules?: string | null
           id?: string
           is_active?: boolean
           latitude?: number | null
@@ -238,6 +261,10 @@ export type Database = {
           max_guests?: number
           owner_id?: string
           property_type?: Database["public"]["Enums"]["property_type"]
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["property_status"]
           street?: string | null
           title?: string
           updated_at?: string
@@ -562,6 +589,13 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "admin" | "super_admin"
+      availability_status:
+        | "available"
+        | "blocked"
+        | "reserved"
+        | "pending_swap"
+        | "confirmed_swap"
+      property_status: "draft" | "pending" | "approved" | "rejected" | "flagged"
       property_type:
         | "house"
         | "apartment"
@@ -719,6 +753,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "admin", "super_admin"],
+      availability_status: [
+        "available",
+        "blocked",
+        "reserved",
+        "pending_swap",
+        "confirmed_swap",
+      ],
+      property_status: ["draft", "pending", "approved", "rejected", "flagged"],
       property_type: ["house", "apartment", "villa", "cabin", "loft", "other"],
       proposal_status: [
         "pending",
