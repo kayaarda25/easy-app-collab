@@ -26,6 +26,7 @@ import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/h
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedChatMatchIdRouteImport } from './routes/_authenticated/chat.$matchId'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
@@ -117,6 +118,11 @@ const AuthenticatedChatMatchIdRoute =
     path: '/chat/$matchId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminPropertiesRoute =
   AuthenticatedAdminPropertiesRouteImport.update({
     id: '/admin/properties',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/swipe'
     | '/admin/properties'
+    | '/admin/users'
     | '/chat/$matchId'
     | '/property/new'
     | '/admin/'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/swipe'
     | '/admin/properties'
+    | '/admin/users'
     | '/chat/$matchId'
     | '/property/new'
     | '/admin'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/swipe'
     | '/_authenticated/admin/properties'
+    | '/_authenticated/admin/users'
     | '/_authenticated/chat/$matchId'
     | '/_authenticated/property/new'
     | '/_authenticated/admin/'
@@ -398,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatMatchIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/properties': {
       id: '/_authenticated/admin/properties'
       path: '/admin/properties'
@@ -434,6 +453,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedChatMatchIdRoute: typeof AuthenticatedChatMatchIdRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -451,6 +471,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedChatMatchIdRoute: AuthenticatedChatMatchIdRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
