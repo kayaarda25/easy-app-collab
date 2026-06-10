@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Compass, Heart, Home as HomeIcon, MessageCircle, Settings as SettingsIcon, User } from "lucide-react";
+import { Compass, Heart, Home as HomeIcon, MessageCircle, User } from "lucide-react";
 
 const items = [
   { to: "/home", label: "Home", icon: HomeIcon },
@@ -7,7 +7,6 @@ const items = [
   { to: "/matches", label: "Matches", icon: Heart },
   { to: "/inbox", label: "Inbox", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 
 export function BottomNav() {
