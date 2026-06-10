@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSwipeRouteImport } from './routes/_authenticated/swipe'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPaywallRouteImport } from './routes/_authenticated/paywall'
@@ -50,6 +51,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedSwipeRoute = AuthenticatedSwipeRouteImport.update({
   id: '/swipe',
   path: '/swipe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/paywall': typeof AuthenticatedPaywallRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/paywall': typeof AuthenticatedPaywallRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/paywall': typeof AuthenticatedPaywallRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/_authenticated/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/paywall'
     | '/profile'
     | '/search'
+    | '/settings'
     | '/swipe'
     | '/admin/properties'
     | '/chat/$matchId'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/paywall'
     | '/profile'
     | '/search'
+    | '/settings'
     | '/swipe'
     | '/admin/properties'
     | '/chat/$matchId'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/_authenticated/paywall'
     | '/_authenticated/profile'
     | '/_authenticated/search'
+    | '/_authenticated/settings'
     | '/_authenticated/swipe'
     | '/_authenticated/admin/properties'
     | '/_authenticated/chat/$matchId'
@@ -288,6 +300,13 @@ declare module '@tanstack/react-router' {
       path: '/swipe'
       fullPath: '/swipe'
       preLoaderRoute: typeof AuthenticatedSwipeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/search': {
@@ -393,6 +412,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPaywallRoute: typeof AuthenticatedPaywallRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
   AuthenticatedChatMatchIdRoute: typeof AuthenticatedChatMatchIdRoute
@@ -408,6 +428,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPaywallRoute: AuthenticatedPaywallRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
   AuthenticatedChatMatchIdRoute: AuthenticatedChatMatchIdRoute,
@@ -428,3 +449,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
