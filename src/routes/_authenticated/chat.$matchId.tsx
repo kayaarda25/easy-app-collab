@@ -98,7 +98,6 @@ function ChatPage() {
         <Link
           to="/u/$userId"
           params={{ userId: match?.other_user?.id ?? "" }}
-          disabled={!match?.other_user?.id}
           className="flex min-w-0 flex-1 items-center gap-3 rounded-full px-1 py-1 -mx-1 hover:bg-secondary"
         >
           <div className="h-10 w-10 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent">
