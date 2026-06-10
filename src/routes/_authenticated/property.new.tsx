@@ -5,6 +5,7 @@ import { createProperty } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES, LOCATIONS } from "@/lib/locations";
 import { PRE_MADE_HOUSE_RULES, HOUSE_RULE_CATEGORIES } from "@/lib/house-rules";
+import { AddressAutocomplete, type ResolvedAddress } from "@/components/AddressAutocomplete";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Upload, X, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
 
@@ -50,6 +51,14 @@ function NewPropertyPage() {
   const [loading, setLoading] = useState(false);
   const [ruleSearch, setRuleSearch] = useState("");
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
+
+  const applyAddress = (a: ResolvedAddress) => {
+    if (a.country) setCountry(a.country);
+    if (a.city) setCity(a.city);
+    if (a.zipCode) setZipCode(a.zipCode);
+    if (a.street) setStreet(a.street);
+    if (a.houseNumber) setHouseNumber(a.houseNumber);
+  };
 
   const toggleAmenity = (a: string) => {
     setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
@@ -150,6 +159,11 @@ function NewPropertyPage() {
               <button type="button" key={t.value} onClick={() => setType(t.value)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${type === t.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t.label}</button>
             ))}
           </div>
+        </Field>
+
+        <Field label="Find address">
+          <AddressAutocomplete onSelect={applyAddress} />
+          <p className="mt-1 text-xs text-muted-foreground">Start typing — we'll fill in the fields below.</p>
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
