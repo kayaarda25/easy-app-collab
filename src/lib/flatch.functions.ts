@@ -440,7 +440,12 @@ export const getMessages = createServerFn({ method: "POST" })
 
 const sendMessageInput = z.object({
   match_id: z.string().uuid(),
-  body: z.string().trim().min(1).max(2000),
+  body: z.string().trim().max(2000).optional().default(""),
+  attachment_url: z.string().url().max(2000).optional(),
+  attachment_kind: z.enum(["image", "video", "audio"]).optional(),
+  attachment_mime: z.string().max(120).optional(),
+}).refine((d) => (d.body && d.body.length > 0) || !!d.attachment_url, {
+  message: "Message must have text or an attachment",
 });
 
 export const sendMessage = createServerFn({ method: "POST" })
@@ -448,10 +453,20 @@ export const sendMessage = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => sendMessageInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const meta = data.attachment_url
+      ? {
+          attachment: {
+            url: data.attachment_url,
+            kind: data.attachment_kind ?? "image",
+            mime: data.attachment_mime ?? null,
+          },
+        }
+      : null;
     const { error } = await supabase.from("messages").insert({
       match_id: data.match_id,
       sender_id: userId,
-      body: data.body,
+      body: data.body && data.body.length > 0 ? data.body : "",
+      meta,
     });
     if (error) throw error;
     return { ok: true };
