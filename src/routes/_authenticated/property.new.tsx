@@ -161,6 +161,11 @@ function NewPropertyPage() {
           </div>
         </Field>
 
+        <Field label="Find address">
+          <AddressAutocomplete onSelect={applyAddress} />
+          <p className="mt-1 text-xs text-muted-foreground">Start typing — we'll fill in the fields below.</p>
+        </Field>
+
         <div className="grid grid-cols-2 gap-3">
           <Field label="Country" required>
             <select
