@@ -129,9 +129,13 @@ export type Database = {
           country: string | null
           created_at: string
           display_name: string | null
+          email_verified_at: string | null
           id: string
+          identity_verified_at: string | null
           languages: string[] | null
           onboarded: boolean
+          phone_verified_at: string | null
+          trusted_host: boolean
           updated_at: string
         }
         Insert: {
@@ -142,9 +146,13 @@ export type Database = {
           country?: string | null
           created_at?: string
           display_name?: string | null
+          email_verified_at?: string | null
           id: string
+          identity_verified_at?: string | null
           languages?: string[] | null
           onboarded?: boolean
+          phone_verified_at?: string | null
+          trusted_host?: boolean
           updated_at?: string
         }
         Update: {
@@ -155,9 +163,13 @@ export type Database = {
           country?: string | null
           created_at?: string
           display_name?: string | null
+          email_verified_at?: string | null
           id?: string
+          identity_verified_at?: string | null
           languages?: string[] | null
           onboarded?: boolean
+          phone_verified_at?: string | null
+          trusted_host?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -183,6 +195,7 @@ export type Database = {
           street: string | null
           title: string
           updated_at: string
+          verified_at: string | null
           zip_code: string | null
         }
         Insert: {
@@ -205,6 +218,7 @@ export type Database = {
           street?: string | null
           title: string
           updated_at?: string
+          verified_at?: string | null
           zip_code?: string | null
         }
         Update: {
@@ -227,6 +241,7 @@ export type Database = {
           street?: string | null
           title?: string
           updated_at?: string
+          verified_at?: string | null
           zip_code?: string | null
         }
         Relationships: []
