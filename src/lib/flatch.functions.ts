@@ -2,6 +2,47 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { readEntitlement } from "./subscription.functions";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+// ---- GEOCODING (Google Maps gateway) ----
+async function geocodeAddress(parts: {
+  street?: string | null;
+  house_number?: string | null;
+  zip_code?: string | null;
+  city?: string | null;
+  country?: string | null;
+}): Promise<{ lat: number; lng: number } | null> {
+  const address = [
+    [parts.street, parts.house_number].filter(Boolean).join(" "),
+    [parts.zip_code, parts.city].filter(Boolean).join(" "),
+    parts.country,
+  ]
+    .map((s) => (s ?? "").trim())
+    .filter(Boolean)
+    .join(", ");
+  if (!address) return null;
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const gmapsKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!lovableKey || !gmapsKey) return null;
+  try {
+    const res = await fetch(
+      `https://connector-gateway.lovable.dev/google_maps/maps/api/geocode/json?address=${encodeURIComponent(address)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": gmapsKey,
+        },
+      },
+    );
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    const loc = json?.results?.[0]?.geometry?.location;
+    if (!loc || typeof loc.lat !== "number" || typeof loc.lng !== "number") return null;
+    return { lat: loc.lat, lng: loc.lng };
+  } catch {
+    return null;
+  }
+}
 
 // ---- PROFILE ----
 export const getMyProfile = createServerFn({ method: "GET" })
@@ -79,6 +120,16 @@ export const createProperty = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw error;
+    // Geocode address (best-effort, non-blocking failure)
+    const coords = await geocodeAddress(data);
+    if (coords && row?.id) {
+      await supabase
+        .from("properties")
+        .update({ latitude: coords.lat, longitude: coords.lng })
+        .eq("id", row.id);
+      (row as any).latitude = coords.lat;
+      (row as any).longitude = coords.lng;
+    }
     return row;
   });
 
@@ -105,7 +156,26 @@ export const getAllPropertyLocations = createServerFn({ method: "GET" })
       .select("id, title, city, country, street, house_number, zip_code, latitude, longitude, property_type, property_images(url, position)")
       .eq("is_active", true);
     if (error) throw error;
-    return data ?? [];
+    const rows = data ?? [];
+    // Backfill missing coordinates via Google geocoding (best-effort)
+    const missing = rows.filter(
+      (r: any) => r.latitude == null || r.longitude == null,
+    );
+    if (missing.length > 0) {
+      await Promise.all(
+        missing.map(async (r: any) => {
+          const coords = await geocodeAddress(r);
+          if (!coords) return;
+          r.latitude = coords.lat;
+          r.longitude = coords.lng;
+          await supabaseAdmin
+            .from("properties")
+            .update({ latitude: coords.lat, longitude: coords.lng })
+            .eq("id", r.id);
+        }),
+      );
+    }
+    return rows;
   });
 
 // ---- SEARCH / SWIPE FEED ----

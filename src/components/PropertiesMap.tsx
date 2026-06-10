@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
 type PropertyPoint = {
@@ -14,6 +14,32 @@ type PropertyPoint = {
   property_images?: { url: string; position: number }[];
 };
 
+declare global {
+  interface Window {
+    google?: any;
+    __flatchInitMap?: () => void;
+  }
+}
+
+let mapsLoader: Promise<void> | null = null;
+function loadGoogleMaps(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.google?.maps) return Promise.resolve();
+  if (mapsLoader) return mapsLoader;
+  const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY;
+  const channel = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID;
+  mapsLoader = new Promise<void>((resolve, reject) => {
+    window.__flatchInitMap = () => resolve();
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=__flatchInitMap${channel ? `&channel=${channel}` : ""}`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = () => reject(new Error("Failed to load Google Maps"));
+    document.head.appendChild(script);
+  });
+  return mapsLoader;
+}
+
 export function PropertiesMap({
   points,
   style,
@@ -21,45 +47,11 @@ export function PropertiesMap({
   points: PropertyPoint[];
   style?: CSSProperties;
 }) {
-  const [mod, setMod] = useState<null | {
-    MapContainer: any;
-    TileLayer: any;
-    Marker: any;
-    Popup: any;
-    icon: any;
-  }>(null);
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const [rl, L] = await Promise.all([
-        import("react-leaflet"),
-        import("leaflet"),
-      ]);
-      await import("leaflet/dist/leaflet.css");
-      const icon = L.icon({
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41],
-      });
-      if (active) {
-        setMod({
-          MapContainer: rl.MapContainer,
-          TileLayer: rl.TileLayer,
-          Marker: rl.Marker,
-          Popup: rl.Popup,
-          icon,
-        });
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const valid = points
     .map((p) => ({
@@ -71,53 +63,86 @@ export function PropertiesMap({
       PropertyPoint & { lat: number; lng: number }
     >;
 
-  if (!mod) {
+  useEffect(() => {
+    loadGoogleMaps()
+      .then(() => setReady(true))
+      .catch((e) => setError(e.message ?? "Failed to load map"));
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !containerRef.current || !window.google?.maps) return;
+    const google = window.google;
+    const center =
+      valid.length > 0 ? { lat: valid[0].lat, lng: valid[0].lng } : { lat: 48.137, lng: 11.575 };
+
+    if (!mapRef.current) {
+      mapRef.current = new google.maps.Map(containerRef.current, {
+        center,
+        zoom: valid.length > 0 ? 12 : 2,
+        disableDefaultUI: true,
+        zoomControl: true,
+        gestureHandling: "greedy",
+      });
+    }
+
+    // Clear previous markers
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+
+    const bounds = new google.maps.LatLngBounds();
+    valid.forEach((p) => {
+      const pos = { lat: p.lat, lng: p.lng };
+      const marker = new google.maps.Marker({
+        position: pos,
+        map: mapRef.current,
+        title: p.title,
+      });
+      const addr = [
+        [p.street, p.house_number].filter(Boolean).join(" "),
+        [p.zip_code, p.city].filter(Boolean).join(" "),
+        p.country,
+      ]
+        .filter(Boolean)
+        .join(", ");
+      const info = new google.maps.InfoWindow({
+        content: `<div style="font-family:inherit"><strong>${escapeHtml(p.title)}</strong><br/><span style="font-size:12px;color:#666">${escapeHtml(addr || `${p.city}, ${p.country}`)}</span></div>`,
+      });
+      marker.addListener("click", () => info.open({ anchor: marker, map: mapRef.current }));
+      markersRef.current.push(marker);
+      bounds.extend(pos);
+    });
+
+    if (valid.length > 1) {
+      mapRef.current.fitBounds(bounds, 48);
+    } else if (valid.length === 1) {
+      mapRef.current.setCenter({ lat: valid[0].lat, lng: valid[0].lng });
+      mapRef.current.setZoom(13);
+    }
+  }, [ready, valid]);
+
+  if (error) {
     return (
       <div
         className="flex h-full w-full items-center justify-center rounded-2xl bg-muted text-xs text-muted-foreground"
         style={style}
       >
-        Loading map…
+        {error}
       </div>
     );
   }
 
-  const { MapContainer, TileLayer, Marker, Popup, icon } = mod;
-  const center: [number, number] =
-    valid.length > 0 ? [valid[0].lat, valid[0].lng] : [48.137, 11.575]; // fallback: Munich
-
   return (
     <div className="overflow-hidden rounded-2xl border border-border" style={style}>
-      <MapContainer
-        center={center}
-        zoom={valid.length > 0 ? 4 : 2}
-        scrollWheelZoom={false}
-        style={{ height: "100%", width: "100%" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {valid.map((p) => {
-          const addr = [
-            [p.street, p.house_number].filter(Boolean).join(" "),
-            [p.zip_code, p.city].filter(Boolean).join(" "),
-            p.country,
-          ]
-            .filter(Boolean)
-            .join(", ");
-          return (
-            <Marker key={p.id} position={[p.lat, p.lng]} icon={icon}>
-              <Popup>
-                <div className="space-y-1">
-                  <p className="font-semibold">{p.title}</p>
-                  <p className="text-xs text-muted-foreground">{addr || `${p.city}, ${p.country}`}</p>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
-      </MapContainer>
+      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
     </div>
   );
+}
+
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
