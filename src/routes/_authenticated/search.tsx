@@ -4,8 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/BottomNav";
 import { Search as SearchIcon, MapPin, Lock, Crown } from "lucide-react";
-import { readEntitlement as _ignored } from "@/lib/subscription";
-import { getEntitlement } from "@/lib/subscription.functions";
+import { getMyEntitlement } from "@/lib/subscription.functions";
 import { getAllPropertyLocations } from "@/lib/flatch.functions";
 import { PropertiesMap } from "@/components/PropertiesMap";
 
@@ -19,7 +18,7 @@ const SUGGESTIONS = ["Paris", "Lisbon", "Tokyo", "New York", "Barcelona", "Bali"
 function SearchPage() {
   const navigate = useNavigate();
   const [city, setCity] = useState("");
-  const fetchEnt = useServerFn(getEntitlement);
+  const fetchEnt = useServerFn(getMyEntitlement);
   const fetchLocations = useServerFn(getAllPropertyLocations);
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
   const locations = useQuery({
