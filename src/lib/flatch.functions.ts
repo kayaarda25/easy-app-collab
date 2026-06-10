@@ -97,6 +97,9 @@ const propertySchema = z.object({
   street: z.string().trim().max(200).optional().nullable(),
   house_number: z.string().trim().max(20).optional().nullable(),
   zip_code: z.string().trim().max(20).optional().nullable(),
+  house_rules: z.string().trim().max(2000).optional().nullable(),
+  check_in_instructions: z.string().trim().max(2000).optional().nullable(),
+  check_out_instructions: z.string().trim().max(2000).optional().nullable(),
 });
 
 export const createProperty = createServerFn({ method: "POST" })
