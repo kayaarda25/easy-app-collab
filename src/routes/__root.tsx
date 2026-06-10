@@ -87,10 +87,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "flatch." },
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { property: "og:title", content: "flatch. — Swap your home, see the world" },
-      { property: "og:description", content: "Premium home swapping platform. Trade your home with verified travelers." },
+      { property: "og:description", content: "Premium home swapping platform. Trade your home with verified travelers instead of booking hotels." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@flatch" },
+      { name: "twitter:title", content: "flatch. — Swap your home, see the world" },
+      { name: "twitter:description", content: "Premium home swapping platform. Trade your home with verified travelers instead of booking hotels." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1f110b86-2b00-42e1-bd24-a84f39f9f8d9/id-preview-24a28af7--f28f49ae-f17f-41c1-93f2-a0dd45e34b99.lovable.app-1781085644324.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1f110b86-2b00-42e1-bd24-a84f39f9f8d9/id-preview-24a28af7--f28f49ae-f17f-41c1-93f2-a0dd45e34b99.lovable.app-1781085644324.png" },
     ],
     links: [
       {
