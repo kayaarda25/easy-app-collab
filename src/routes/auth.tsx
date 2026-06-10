@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).default("signup"),
@@ -135,10 +136,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-accent/40 via-background to-background px-6 py-12">
       <div className="w-full max-w-sm">
         <Link to="/" className="flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-glow text-primary-foreground font-bold text-lg">
-            f
-          </div>
-          <span className="text-xl font-bold tracking-tight">flatch.</span>
+          <Logo size={40} withWordmark wordmarkClassName="text-xl" />
         </Link>
 
         {mfaChallenge ? (
