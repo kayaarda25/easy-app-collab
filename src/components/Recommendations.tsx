@@ -288,100 +288,112 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
       </div>
 
       {list.isLoading ? (
-        <div className="mt-3 h-32 animate-pulse rounded-2xl bg-muted" />
+        <div className="mt-4 h-96 animate-pulse rounded-2xl bg-muted" />
       ) : (list.data ?? []).length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-4 rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
           No recommendations yet. Be the first to share one!
         </p>
       ) : (
-        <div className="mt-3 flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 snap-x">
+        <div className="mt-4 -mx-6 flex flex-col">
           {(list.data ?? []).map((r: any) => {
             const meta = categoryMeta[r.category as Category] ?? categoryMeta.other;
             const Icon = meta.icon;
             const isMine = currentUserId && r.user_id === currentUserId;
+            const created = r.created_at ? new Date(r.created_at) : null;
             return (
-              <article
-                key={r.id}
-                className="w-64 flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card"
-              >
+              <article key={r.id} className="border-b border-border bg-background">
+                {/* Post header */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    {r.author?.avatar_url ? (
+                      <img
+                        src={r.author.avatar_url}
+                        alt=""
+                        className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/30"
+                      />
+                    ) : (
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/30 to-accent" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold leading-tight">
+                        {r.author?.display_name ?? "Traveler"}
+                      </p>
+                      {(r.city || r.country) && (
+                        <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          {[r.city, r.country].filter(Boolean).join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.color}`}
+                  >
+                    <Icon className="h-3 w-3" /> {meta.label}
+                  </span>
+                </div>
+
+                {/* Media */}
                 {r.video_url ? (
                   <video
                     src={r.video_url}
-                    className="h-32 w-full bg-black object-cover"
+                    className="aspect-square w-full bg-black object-cover"
                     controls
                     playsInline
                     preload="metadata"
                     poster={r.image_url ?? undefined}
                   />
                 ) : r.image_url ? (
-                  <div className="h-32 w-full overflow-hidden bg-muted">
-                    <img
-                      src={r.image_url}
-                      alt={r.title}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
+                  <img
+                    src={r.image_url}
+                    alt={r.title}
+                    className="aspect-square w-full bg-muted object-cover"
+                    loading="lazy"
+                  />
                 ) : (
-                  <div className={`flex h-32 w-full items-center justify-center ${meta.color}`}>
-                    <Icon className="h-10 w-10" />
+                  <div className={`flex aspect-square w-full items-center justify-center ${meta.color}`}>
+                    <Icon className="h-16 w-16 opacity-70" />
                   </div>
                 )}
-                <div className="p-3">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.color}`}
-                    >
-                      <Icon className="h-3 w-3" /> {meta.label}
-                    </span>
-                    {(r.city || r.country) && (
-                      <span className="truncate text-[10px] text-muted-foreground">
-                        {[r.city, r.country].filter(Boolean).join(", ")}
-                      </span>
+
+                {/* Footer */}
+                <div className="px-4 pb-4 pt-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <h4 className="text-base font-semibold leading-tight">{r.title}</h4>
+                    {isMine && (
+                      <button
+                        onClick={() => remove.mutate(r.id)}
+                        className="shrink-0 text-muted-foreground hover:text-destructive"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     )}
                   </div>
-                  <h4 className="mt-1.5 truncate text-sm font-semibold">{r.title}</h4>
                   {r.description && (
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    <p className="mt-1.5 whitespace-pre-line text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">
+                        {r.author?.display_name ?? "Traveler"}
+                      </span>{" "}
                       {r.description}
                     </p>
                   )}
                   <div className="mt-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      {r.author?.avatar_url ? (
-                        <img
-                          src={r.author.avatar_url}
-                          alt=""
-                          className="h-5 w-5 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-5 w-5 rounded-full bg-muted" />
-                      )}
-                      <span className="truncate text-[11px] text-muted-foreground">
-                        {r.author?.display_name ?? "Traveler"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {r.link_url && (
-                        <a
-                          href={r.link_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[11px] font-semibold text-primary"
-                        >
-                          Visit
-                        </a>
-                      )}
-                      {isMine && (
-                        <button
-                          onClick={() => remove.mutate(r.id)}
-                          className="text-muted-foreground hover:text-destructive"
-                          aria-label="Delete"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
+                    {created && (
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {created.toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                      </p>
+                    )}
+                    {r.link_url && (
+                      <a
+                        href={r.link_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-semibold text-primary"
+                      >
+                        Visit link →
+                      </a>
+                    )}
                   </div>
                 </div>
               </article>
