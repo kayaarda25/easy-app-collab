@@ -9,9 +9,10 @@ import {
   createSwapProposal,
   getProposals,
   updateProposalStatus,
+  markMatchRead,
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Send, Calendar, Check, X } from "lucide-react";
+import { ArrowLeft, Send, Calendar, Check, X, CheckCircle2, Info } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/chat/$matchId")({
@@ -30,6 +31,7 @@ function ChatPage() {
   const proposalsFn = useServerFn(getProposals);
   const createProposalFn = useServerFn(createSwapProposal);
   const updateProposalFn = useServerFn(updateProposalStatus);
+  const markReadFn = useServerFn(markMatchRead);
 
   const matches = useQuery({ queryKey: ["matches"], queryFn: () => matchesFn() });
   const match = matches.data?.find((m) => m.id === matchId);
@@ -70,6 +72,14 @@ function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.data?.length]);
 
+  // Mark as read when messages arrive / viewed
+  useEffect(() => {
+    if (!messages.data) return;
+    markReadFn({ data: { match_id: matchId } })
+      .then(() => qc.invalidateQueries({ queryKey: ["matches"] }))
+      .catch(() => {});
+  }, [matchId, messages.data?.length, markReadFn, qc]);
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
@@ -87,7 +97,14 @@ function ChatPage() {
           {match?.other_user?.avatar_url && <img src={match.other_user.avatar_url} alt="" className="h-full w-full object-cover" />}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold">{match?.other_user?.display_name ?? "User"}</p>
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-semibold">{match?.other_user?.display_name ?? "User"}</p>
+            {(match as any)?.ready_to_switch && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="h-3 w-3" /> Ready to switch
+              </span>
+            )}
+          </div>
           <p className="truncate text-xs text-muted-foreground">{match?.their_property?.title}</p>
         </div>
         <button onClick={() => setShowProposal(true)} className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
@@ -110,8 +127,16 @@ function ChatPage() {
 
         <div className="space-y-2">
           {(messages.data ?? []).map((m) => {
-            const mine = m.sender_id === match?.user_a ? match?.user_a !== match?.user_b : false;
-            // Determine "mine" by checking if sender_id is NOT the other_user id
+            if ((m as any).kind === "system") {
+              return (
+                <div key={m.id} className="my-2 flex justify-center">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
+                    <Info className="h-3 w-3" />
+                    {m.body}
+                  </div>
+                </div>
+              );
+            }
             const isMine = m.sender_id !== match?.other_user?.id;
             return (
               <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
