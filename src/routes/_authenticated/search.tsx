@@ -17,6 +17,19 @@ import {
 
 export const Route = createFileRoute("/_authenticated/search")({
   head: () => ({ meta: [{ title: "Search — flatch." }] }),
+  beforeLoad: async () => {
+    const { redirect } = await import("@tanstack/react-router");
+    const { getMyEntitlement } = await import("@/lib/subscription.functions");
+    try {
+      const ent = await getMyEntitlement();
+      if (ent?.effectivePlan !== "premium") {
+        throw redirect({ to: "/paywall" });
+      }
+    } catch (e: any) {
+      if (e?.isRedirect) throw e;
+      throw redirect({ to: "/paywall" });
+    }
+  },
   component: SearchPage,
 });
 
