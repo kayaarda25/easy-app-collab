@@ -304,7 +304,16 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 key={r.id}
                 className="w-64 flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card"
               >
-                {r.image_url ? (
+                {r.video_url ? (
+                  <video
+                    src={r.video_url}
+                    className="h-32 w-full bg-black object-cover"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    poster={r.image_url ?? undefined}
+                  />
+                ) : r.image_url ? (
                   <div className="h-32 w-full overflow-hidden bg-muted">
                     <img
                       src={r.image_url}
