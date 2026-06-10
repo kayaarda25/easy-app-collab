@@ -6,12 +6,14 @@ import { getMyEntitlement } from "@/lib/subscription.functions";
 import { PLAN_INFO } from "@/lib/subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/BottomNav";
-import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight, Camera, Loader2 } from "lucide-react";
+import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight, Camera, Loader2, Shield } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationBadges, VerificationChecklist } from "@/components/VerificationBadges";
 import { ReviewsSection } from "@/components/Reviews";
+import { useServerFn } from "@tanstack/react-start";
+import { isAdmin } from "@/lib/flatch.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — flatch." }] }),
@@ -29,6 +31,8 @@ function ProfilePage() {
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const props = useQuery({ queryKey: ["my-properties"], queryFn: () => fetchProps() });
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
+  const checkAdmin = useServerFn(isAdmin);
+  const admin = useQuery({ queryKey: ["is-admin"], queryFn: () => checkAdmin() });
 
   const verificationSource = {
     email_verified_at: profile.data?.email_verified_at,
@@ -179,8 +183,14 @@ function ProfilePage() {
                 {p.property_images?.[0]?.url && <img src={p.property_images[0].url} alt="" className="h-full w-full object-cover" loading="lazy" />}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{p.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-semibold">{p.title}</p>
+                  <PropertyStatusPill status={(p as any).status} />
+                </div>
                 <p className="text-xs text-muted-foreground">{p.city}, {p.country}</p>
+                {(p as any).status === "rejected" && (p as any).review_notes && (
+                  <p className="mt-1 text-[11px] text-destructive">Reviewer: {(p as any).review_notes}</p>
+                )}
               </div>
             </div>
           ))}
@@ -193,6 +203,19 @@ function ProfilePage() {
       <section className="mt-8 px-6 pb-6">
         <h2 className="text-lg font-semibold">Settings</h2>
         <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
+          {admin.data === true && (
+            <button
+              onClick={() => navigate({ to: "/admin/properties" })}
+              className="flex w-full items-center gap-3 border-b border-border p-4 text-left hover:bg-secondary/50"
+            >
+              <Shield className="h-5 w-5 text-primary" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Admin · Property review</p>
+                <p className="text-xs text-muted-foreground">Approve, reject or flag listings</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          )}
           <button
             onClick={() => navigate({ to: "/paywall" })}
             className="flex w-full items-center gap-3 border-b border-border p-4 text-left hover:bg-secondary/50"
