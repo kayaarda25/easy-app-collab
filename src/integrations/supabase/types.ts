@@ -278,6 +278,48 @@ export type Database = {
           },
         ]
       }
+      recommendations: {
+        Row: {
+          category: Database["public"]["Enums"]["recommendation_category"]
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["recommendation_category"]
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["recommendation_category"]
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -460,6 +502,12 @@ export type Database = {
         | "rejected"
         | "cancelled"
         | "confirmed"
+      recommendation_category:
+        | "destination"
+        | "bar"
+        | "restaurant"
+        | "sightseeing"
+        | "other"
       subscription_plan: "basic" | "standard" | "premium"
       subscription_status:
         | "free"
@@ -605,6 +653,13 @@ export const Constants = {
         "rejected",
         "cancelled",
         "confirmed",
+      ],
+      recommendation_category: [
+        "destination",
+        "bar",
+        "restaurant",
+        "sightseeing",
+        "other",
       ],
       subscription_plan: ["basic", "standard", "premium"],
       subscription_status: [
