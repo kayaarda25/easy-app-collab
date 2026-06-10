@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Home, MessageCircle, Sparkles } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Home as HomeIcon, MessageCircle, Sparkles } from "lucide-react";
+import { useRef, useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,72 +14,128 @@ export const Route = createFileRoute("/")({
   component: Welcome,
 });
 
+const slides = [
+  {
+    icon: HomeIcon,
+    title: "Liste dein Zuhause",
+    body: "Fotos, Daten, Ausstattung — in wenigen Minuten online. Du entscheidest, wann es verfügbar ist.",
+    gradient: "from-primary to-primary-glow",
+  },
+  {
+    icon: Sparkles,
+    title: "Swipe & Match",
+    body: "Entdecke Wohnungen weltweit. Wenn ihr euch beide liked, ist es ein Match.",
+    gradient: "from-primary-glow to-primary",
+  },
+  {
+    icon: MessageCircle,
+    title: "Chatte & tausche",
+    body: "Plant Termine, klärt Details und tauscht eure Zuhause — alles sicher in der App.",
+    gradient: "from-primary to-primary-glow",
+  },
+];
+
 function Welcome() {
+  const navigate = useNavigate();
+  const [index, setIndex] = useState(0);
+  const startX = useRef<number | null>(null);
+
+  const next = () => {
+    if (index < slides.length - 1) setIndex(index + 1);
+    else navigate({ to: "/auth", search: { mode: "signup" } });
+  };
+  const prev = () => index > 0 && setIndex(index - 1);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (startX.current == null) return;
+    const dx = e.changedTouches[0].clientX - startX.current;
+    if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
+    startX.current = null;
+  };
+
+  const slide = slides[index];
+  const Icon = slide.icon;
+  const isLast = index === slides.length - 1;
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/40" />
-        <div className="relative mx-auto max-w-md px-6 pt-16 pb-12 md:max-w-3xl md:pt-24">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-glow text-primary-foreground font-bold text-lg">
-              f
-            </div>
-            <span className="text-xl font-bold tracking-tight">flatch.</span>
+    <div className="fixed inset-0 flex flex-col bg-background overflow-hidden">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-4">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-primary-foreground font-bold text-sm">
+            f
           </div>
-
-          <h1 className="mt-12 text-4xl font-bold tracking-tight md:text-6xl">
-            Swap your home,<br />
-            <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              see the world.
-            </span>
-          </h1>
-          <p className="mt-5 text-base text-muted-foreground md:text-lg">
-            Premium home exchange with verified members. Skip the hotel — live like a local.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              to="/auth"
-              search={{ mode: "signup" }}
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition hover:bg-primary/90"
-            >
-              Get started
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              to="/auth"
-              search={{ mode: "login" }}
-              className="inline-flex items-center justify-center rounded-full border border-border bg-background px-6 py-3.5 text-sm font-semibold text-foreground transition hover:bg-secondary"
-            >
-              Log in
-            </Link>
-          </div>
+          <span className="text-base font-bold tracking-tight">flatch.</span>
         </div>
-      </header>
+        {!isLast && (
+          <button
+            onClick={() => navigate({ to: "/auth", search: { mode: "signup" } })}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Skip
+          </button>
+        )}
+      </div>
 
-      {/* Features */}
-      <section className="mx-auto max-w-md px-6 py-12 md:max-w-3xl">
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            { icon: Home, title: "List your home", body: "Photos, dates, amenities. Done in minutes." },
-            { icon: Sparkles, title: "Swipe & match", body: "Discover homes worldwide. Match when you both like." },
-            { icon: MessageCircle, title: "Chat & swap", body: "Plan dates, agree, swap. All in one place." },
-          ].map((f) => (
-            <div key={f.title} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
-                <f.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-base font-semibold">{f.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>
-            </div>
-          ))}
+      {/* Slide content */}
+      <div
+        className="flex flex-1 flex-col items-center justify-center px-8 text-center"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <div
+          key={index}
+          className={`flex h-40 w-40 items-center justify-center rounded-[2.5rem] bg-gradient-to-br ${slide.gradient} text-primary-foreground shadow-[var(--shadow-elegant)] animate-[scale-in_0.35s_ease-out]`}
+        >
+          <Icon className="h-16 w-16" strokeWidth={1.8} />
         </div>
-      </section>
+        <h1
+          key={`t-${index}`}
+          className="mt-10 text-3xl font-bold tracking-tight animate-[fade-in_0.4s_ease-out]"
+        >
+          {slide.title}
+        </h1>
+        <p
+          key={`b-${index}`}
+          className="mt-4 max-w-xs text-base text-muted-foreground animate-[fade-in_0.5s_ease-out]"
+        >
+          {slide.body}
+        </p>
+      </div>
 
-      <footer className="px-6 py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} flatch. — Made for travelers.
-      </footer>
+      {/* Dots */}
+      <div className="flex justify-center gap-2 pb-6">
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            aria-label={`Slide ${i + 1}`}
+            className={`h-2 rounded-full transition-all ${
+              i === index ? "w-6 bg-primary" : "w-2 bg-border"
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <button
+          onClick={next}
+          className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-base font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition active:scale-[0.98]"
+        >
+          {isLast ? "Loslegen" : "Weiter"}
+          <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+        </button>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Schon dabei?{" "}
+          <Link to="/auth" search={{ mode: "login" }} className="font-semibold text-primary">
+            Anmelden
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
