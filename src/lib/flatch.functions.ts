@@ -302,7 +302,10 @@ export const recordSwipe = createServerFn({ method: "POST" })
         ? [userId, target.owner_id, myMatchedProp, target.id]
         : [target.owner_id, userId, target.id, myMatchedProp];
 
-    const { data: matchRow, error: matchErr } = await supabase
+    // Insert via admin client — mutual-like check above already validated the match.
+    // RLS on `matches` has no INSERT policy (user-scoped client cannot insert).
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: matchRow, error: matchErr } = await supabaseAdmin
       .from("matches")
       .upsert(
         { user_a, user_b, property_a, property_b },
