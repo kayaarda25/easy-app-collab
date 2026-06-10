@@ -58,7 +58,7 @@ function ProfilePage() {
   const recos = useQuery({ queryKey: ["recommendations"], queryFn: () => fetchRecos() });
   const reviews = useQuery({
     queryKey: ["reviews", profile.data?.id],
-    queryFn: () => fetchReviews({ data: { userId: profile.data!.id } }),
+    queryFn: () => fetchReviews({ data: { user_id: profile.data!.id } }),
     enabled: !!profile.data?.id,
   });
 
