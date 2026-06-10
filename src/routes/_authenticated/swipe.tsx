@@ -49,14 +49,20 @@ function SwipePage() {
   return (
     <PageShell>
       <header className="flex items-center justify-between px-6 pt-6">
-        <button onClick={() => navigate({ to: "/search" })} className="rounded-full bg-secondary p-2">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <p className="text-sm font-medium text-muted-foreground">
-          {city ? `in ${city}` : "All homes"}
-        </p>
-        <div className="w-9" />
+        <h1 className="text-xl font-bold tracking-tight">Discover</h1>
+        <Link
+          to="/search"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition hover:bg-secondary/80"
+        >
+          <Search className="h-5 w-5" />
+        </Link>
       </header>
+
+      <div className="px-6 pt-2">
+        <p className="text-sm text-muted-foreground">
+          {city ? `Showing homes in ${city}` : "All homes worldwide"}
+        </p>
+      </div>
 
       <div className="px-6 pt-4">
         {feed.isLoading ? (
