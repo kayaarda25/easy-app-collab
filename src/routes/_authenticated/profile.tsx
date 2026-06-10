@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getMyProfile, getMyProperties, updateMyProfile } from "@/lib/flatch.functions";
+import { getMyProfile, getMyProperties, updateMyProfile, isAdmin } from "@/lib/flatch.functions";
 import { getMyEntitlement } from "@/lib/subscription.functions";
 import { PLAN_INFO } from "@/lib/subscription";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationBadges, VerificationChecklist } from "@/components/VerificationBadges";
 import { ReviewsSection } from "@/components/Reviews";
-import { isAdmin } from "@/lib/flatch.functions";
 
 function PropertyStatusPill({ status }: { status?: string }) {
   if (!status || status === "approved") return null;
