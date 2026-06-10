@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import onboardingHome from "@/assets/onboarding-home.jpg";
 import onboardingTravel from "@/assets/onboarding-travel.jpg";
 import onboardingChat from "@/assets/onboarding-chat.jpg";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
