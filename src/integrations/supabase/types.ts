@@ -668,6 +668,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_any_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       post_system_message: {
         Args: { _body: string; _match_id: string; _meta?: Json }
         Returns: undefined
