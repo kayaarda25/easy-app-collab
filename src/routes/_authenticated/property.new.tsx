@@ -42,6 +42,9 @@ function NewPropertyPage() {
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [houseRules, setHouseRules] = useState("");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
   const [loading, setLoading] = useState(false);
 
   const toggleAmenity = (a: string) => {
@@ -64,6 +67,9 @@ function NewPropertyPage() {
           bedrooms, beds, bathrooms, max_guests: maxGuests,
           amenities, city, country,
           street: street || null, house_number: houseNumber || null, zip_code: zipCode || null,
+          house_rules: houseRules || null,
+          check_in_instructions: checkIn || null,
+          check_out_instructions: checkOut || null,
         },
       });
 
@@ -173,6 +179,16 @@ function NewPropertyPage() {
               <button type="button" key={a} onClick={() => toggleAmenity(a)} className={`rounded-full border px-3 py-1.5 text-xs ${amenities.includes(a) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{a}</button>
             ))}
           </div>
+        </Field>
+
+        <Field label="House rules">
+          <textarea rows={3} maxLength={2000} value={houseRules} onChange={(e) => setHouseRules(e.target.value)} className="input resize-none" placeholder="No smoking, quiet hours after 22:00, pets welcome..." />
+        </Field>
+        <Field label="Check-in instructions">
+          <textarea rows={3} maxLength={2000} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="input resize-none" placeholder="Lockbox code 1234 by the front door. Wifi password on the fridge." />
+        </Field>
+        <Field label="Check-out instructions">
+          <textarea rows={3} maxLength={2000} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="input resize-none" placeholder="Strip the bed, take trash out, leave keys on the table." />
         </Field>
 
         <Field label="Photos">
