@@ -273,6 +273,21 @@ function SearchPage() {
                 </DialogDescription>
               </DialogHeader>
 
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                {selected.verified_at && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                  </span>
+                )}
+                {selected.owner_rating != null && (selected.owner_review_count ?? 0) > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-medium">
+                    <Star className="h-3.5 w-3.5 fill-current text-amber-500" />
+                    {selected.owner_rating.toFixed(1)}
+                    <span className="text-muted-foreground">({selected.owner_review_count})</span>
+                  </span>
+                )}
+              </div>
+
               {selected.description && (
                 <p className="mt-3 text-sm text-foreground/80 line-clamp-3">{selected.description}</p>
               )}
@@ -335,6 +350,131 @@ function SearchPage() {
             </div>
           </DialogContent>
         )}
+      </Dialog>
+
+      <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <DialogContent className="max-w-md rounded-2xl border border-border bg-card">
+          <DialogHeader className="text-left">
+            <DialogTitle>Filters</DialogTitle>
+            <DialogDescription>Refine the homes you see on the map.</DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-5">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Bedrooms (min)</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[0, 1, 2, 3, 4].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setFilters((f) => ({ ...f, minBedrooms: n }))}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      filters.minBedrooms === n
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {n === 0 ? "Any" : `${n}+`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Max guests (min)</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[0, 1, 2, 4, 6, 8].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setFilters((f) => ({ ...f, minGuests: n }))}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      filters.minGuests === n
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {n === 0 ? "Any" : `${n}+`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Amenities</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {([
+                  ["wifi", "Wi-Fi"],
+                  ["pets", "Pets allowed"],
+                  ["smoking", "Smoking allowed"],
+                  ["workspace", "Workspace"],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setFilters((f) => ({ ...f, [key]: !f[key] }))}
+                    className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${
+                      filters[key]
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Min host rating</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[0, 3, 3.5, 4, 4.5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setFilters((f) => ({ ...f, minRating: n }))}
+                    className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      filters.minRating === n
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {n === 0 ? "Any" : (<><Star className="h-3 w-3 fill-current" /> {n}+</>)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <label className="flex cursor-pointer items-center justify-between rounded-xl border border-border bg-background px-3 py-2.5">
+              <span className="inline-flex items-center gap-2 text-sm font-medium">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" /> Verified listings only
+              </span>
+              <input
+                type="checkbox"
+                checked={filters.verifiedOnly}
+                onChange={(e) => setFilters((f) => ({ ...f, verifiedOnly: e.target.checked }))}
+                className="h-4 w-4 accent-primary"
+              />
+            </label>
+          </div>
+
+          <div className="mt-6 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setFilters(DEFAULT_FILTERS)}
+              className="flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+              className="flex-1 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+            >
+              Show {points.length} homes
+            </button>
+          </div>
+        </DialogContent>
       </Dialog>
     </PageShell>
   );
