@@ -499,3 +499,152 @@ export const deleteRecommendation = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+// ---- REVIEWS ----
+const reviewInput = z.object({
+  proposal_id: z.string().uuid(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().max(1000).optional().nullable(),
+  private_feedback: z.string().trim().max(1000).optional().nullable(),
+});
+
+export const getReviewableProposals = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: matches, error: mErr } = await supabase
+      .from("matches")
+      .select("id, user_a, user_b, property_a, property_b")
+      .or(`user_a.eq.${userId},user_b.eq.${userId}`);
+    if (mErr) throw mErr;
+    const matchIds = (matches ?? []).map((m: any) => m.id);
+    if (matchIds.length === 0) return [];
+    const { data: props, error: pErr } = await supabase
+      .from("swap_proposals")
+      .select("id, match_id, start_date, end_date, status")
+      .in("match_id", matchIds)
+      .in("status", ["accepted", "confirmed"])
+      .lt("end_date", today)
+      .order("end_date", { ascending: false });
+    if (pErr) throw pErr;
+    const propIds = (props ?? []).map((p: any) => p.id);
+    const { data: myReviews } = propIds.length
+      ? await supabase
+          .from("reviews")
+          .select("proposal_id")
+          .eq("reviewer_id", userId)
+          .in("proposal_id", propIds)
+      : { data: [] as any[] };
+    const reviewed = new Set((myReviews ?? []).map((r: any) => r.proposal_id));
+    const otherIds = Array.from(
+      new Set(
+        (matches ?? []).map((m: any) => (m.user_a === userId ? m.user_b : m.user_a)),
+      ),
+    );
+    const { data: profs } = otherIds.length
+      ? await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", otherIds)
+      : { data: [] as any[] };
+    const profById: Record<string, any> = {};
+    for (const p of profs ?? []) profById[(p as any).id] = p;
+    const matchById: Record<string, any> = {};
+    for (const m of matches ?? []) matchById[(m as any).id] = m;
+    return (props ?? []).map((p: any) => {
+      const m = matchById[p.match_id];
+      const otherId = m.user_a === userId ? m.user_b : m.user_a;
+      return {
+        ...p,
+        already_reviewed: reviewed.has(p.id),
+        other_user: profById[otherId] ?? { id: otherId },
+        reviewee_id: otherId,
+      };
+    });
+  });
+
+export const createReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => reviewInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    // Look up reviewee from match
+    const { data: prop, error: pErr } = await supabase
+      .from("swap_proposals")
+      .select("match_id, end_date, status, matches!inner(user_a, user_b)")
+      .eq("id", data.proposal_id)
+      .maybeSingle();
+    if (pErr) throw pErr;
+    if (!prop) throw new Error("Proposal not found");
+    const m: any = (prop as any).matches;
+    const reviewee_id = m.user_a === userId ? m.user_b : m.user_a;
+    const { data: row, error } = await supabase
+      .from("reviews")
+      .insert({
+        proposal_id: data.proposal_id,
+        reviewer_id: userId,
+        reviewee_id,
+        rating: data.rating,
+        comment: data.comment ?? null,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+    if (data.private_feedback && data.private_feedback.length > 0) {
+      const { error: fErr } = await supabase
+        .from("review_private_feedback")
+        .insert({ review_id: row.id, content: data.private_feedback });
+      if (fErr) throw fErr;
+    }
+    return { ok: true, id: row.id };
+  });
+
+export const getReviewsForUser = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ user_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: reviews, error } = await supabase
+      .from("reviews")
+      .select("id, rating, comment, created_at, reviewer_id")
+      .eq("reviewee_id", data.user_id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    const ids = Array.from(new Set((reviews ?? []).map((r: any) => r.reviewer_id)));
+    const { data: profs } = ids.length
+      ? await supabase.from("profiles").select("id, display_name, avatar_url").in("id", ids)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    const list = (reviews ?? []).map((r: any) => ({ ...r, reviewer: byId[r.reviewer_id] ?? null }));
+    const avg =
+      list.length === 0 ? 0 : list.reduce((s: number, r: any) => s + r.rating, 0) / list.length;
+    return { reviews: list, average: avg, count: list.length };
+  });
+
+export const getMyPrivateFeedback = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: reviews, error } = await supabase
+      .from("reviews")
+      .select("id, rating, comment, created_at, reviewer_id, review_private_feedback(content)")
+      .eq("reviewee_id", userId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    const ids = Array.from(new Set((reviews ?? []).map((r: any) => r.reviewer_id)));
+    const { data: profs } = ids.length
+      ? await supabase.from("profiles").select("id, display_name, avatar_url").in("id", ids)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    return (reviews ?? [])
+      .map((r: any) => ({
+        ...r,
+        private_feedback: r.review_private_feedback?.[0]?.content ?? r.review_private_feedback?.content ?? null,
+        reviewer: byId[r.reviewer_id] ?? null,
+      }))
+      .filter((r: any) => !!r.private_feedback);
+  });
