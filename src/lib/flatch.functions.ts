@@ -329,23 +329,67 @@ export const getMyMatches = createServerFn({ method: "GET" })
 
     const otherUserIds = data.map((m) => (m.user_a === userId ? m.user_b : m.user_a));
     const propIds = data.flatMap((m) => [m.property_a, m.property_b]);
+    const matchIds = data.map((m) => m.id);
 
-    const [{ data: profiles }, { data: props }] = await Promise.all([
+    const [{ data: profiles }, { data: props }, { data: msgs }, { data: reads }, { data: proposals }] = await Promise.all([
       supabase.from("profiles").select("id, display_name, avatar_url").in("id", otherUserIds),
       supabase.from("properties").select("id, title, city, country, property_images(url, position)").in("id", propIds),
+      supabase.from("messages").select("match_id, body, kind, sender_id, created_at").in("match_id", matchIds).order("created_at", { ascending: false }),
+      supabase.from("match_reads").select("match_id, last_read_at").eq("user_id", userId).in("match_id", matchIds),
+      supabase.from("swap_proposals").select("match_id, status, created_at").in("match_id", matchIds).order("created_at", { ascending: false }),
     ]);
+
+    const lastByMatch = new Map<string, any>();
+    const allByMatch = new Map<string, any[]>();
+    for (const m of msgs ?? []) {
+      if (!lastByMatch.has(m.match_id)) lastByMatch.set(m.match_id, m);
+      const arr = allByMatch.get(m.match_id) ?? [];
+      arr.push(m);
+      allByMatch.set(m.match_id, arr);
+    }
+    const readMap = new Map<string, string>();
+    for (const r of reads ?? []) readMap.set(r.match_id, r.last_read_at);
+    const latestProposalByMatch = new Map<string, any>();
+    for (const p of proposals ?? []) {
+      if (!latestProposalByMatch.has(p.match_id)) latestProposalByMatch.set(p.match_id, p);
+    }
 
     return data.map((m) => {
       const otherId = m.user_a === userId ? m.user_b : m.user_a;
       const myProp = m.user_a === userId ? m.property_a : m.property_b;
       const theirProp = m.user_a === userId ? m.property_b : m.property_a;
+      const lastRead = readMap.get(m.id);
+      const matchMsgs = allByMatch.get(m.id) ?? [];
+      const unread_count = matchMsgs.filter(
+        (x) => x.sender_id !== userId && (!lastRead || new Date(x.created_at) > new Date(lastRead)),
+      ).length;
+      const lp = latestProposalByMatch.get(m.id);
       return {
         ...m,
         other_user: profiles?.find((p) => p.id === otherId) ?? null,
         my_property: props?.find((p) => p.id === myProp) ?? null,
         their_property: props?.find((p) => p.id === theirProp) ?? null,
+        last_message: lastByMatch.get(m.id) ?? null,
+        unread_count,
+        ready_to_switch: !!lp && (lp.status === "accepted" || lp.status === "confirmed"),
+        proposal_status: lp?.status ?? null,
       };
     });
+  });
+
+export const markMatchRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ match_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("match_reads")
+      .upsert(
+        { match_id: data.match_id, user_id: userId, last_read_at: new Date().toISOString() },
+        { onConflict: "match_id,user_id" },
+      );
+    if (error) throw error;
+    return { ok: true };
   });
 
 // ---- MESSAGES ----
