@@ -156,7 +156,7 @@ export const getAllPropertyLocations = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data, error } = await supabase
       .from("properties")
-      .select("id, title, description, city, country, street, house_number, zip_code, latitude, longitude, property_type, bedrooms, beds, bathrooms, max_guests, amenities, owner_id, property_images(url, position)")
+      .select("id, title, description, city, country, street, house_number, zip_code, latitude, longitude, property_type, bedrooms, beds, bathrooms, max_guests, amenities, owner_id, verified_at, property_images(url, position)")
       .eq("is_active", true);
     if (error) throw error;
     const rows = data ?? [];
@@ -178,7 +178,27 @@ export const getAllPropertyLocations = createServerFn({ method: "GET" })
         }),
       );
     }
-    return rows;
+    // Compute owner average review rating across all rows' owners
+    const ownerIds = Array.from(new Set(rows.map((r: any) => r.owner_id).filter(Boolean)));
+    const ratings: Record<string, { avg: number; count: number }> = {};
+    if (ownerIds.length > 0) {
+      const { data: revs } = await supabase
+        .from("reviews")
+        .select("reviewee_id, rating")
+        .in("reviewee_id", ownerIds);
+      for (const r of revs ?? []) {
+        const k = (r as any).reviewee_id as string;
+        const cur = ratings[k] ?? { avg: 0, count: 0 };
+        const nextCount = cur.count + 1;
+        const nextAvg = (cur.avg * cur.count + (r as any).rating) / nextCount;
+        ratings[k] = { avg: nextAvg, count: nextCount };
+      }
+    }
+    return rows.map((r: any) => ({
+      ...r,
+      owner_rating: ratings[r.owner_id]?.avg ?? null,
+      owner_review_count: ratings[r.owner_id]?.count ?? 0,
+    }));
   });
 
 // ---- SEARCH / SWIPE FEED ----
