@@ -52,6 +52,32 @@ export type Database = {
           },
         ]
       }
+      match_reads: {
+        Row: {
+          last_read_at: string
+          match_id: string
+          user_id: string
+        }
+        Insert: {
+          last_read_at?: string
+          match_id: string
+          user_id: string
+        }
+        Update: {
+          last_read_at?: string
+          match_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_reads_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           created_at: string
@@ -99,22 +125,28 @@ export type Database = {
           body: string
           created_at: string
           id: string
+          kind: string
           match_id: string
-          sender_id: string
+          meta: Json | null
+          sender_id: string | null
         }
         Insert: {
           body: string
           created_at?: string
           id?: string
+          kind?: string
           match_id: string
-          sender_id: string
+          meta?: Json | null
+          sender_id?: string | null
         }
         Update: {
           body?: string
           created_at?: string
           id?: string
+          kind?: string
           match_id?: string
-          sender_id?: string
+          meta?: Json | null
+          sender_id?: string | null
         }
         Relationships: [
           {
@@ -585,6 +617,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      post_system_message: {
+        Args: { _body: string; _match_id: string; _meta?: Json }
+        Returns: undefined
       }
     }
     Enums: {
