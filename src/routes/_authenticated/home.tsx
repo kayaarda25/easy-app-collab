@@ -50,7 +50,7 @@ function HomePage() {
           <h2 className="mt-3 text-xl font-bold">Ready to swap?</h2>
           <p className="mt-1 text-sm opacity-90">Find your next home exchange in seconds.</p>
           <Link
-            to="/search"
+            to="/swipe"
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary"
           >
             <Compass className="h-4 w-4" />
