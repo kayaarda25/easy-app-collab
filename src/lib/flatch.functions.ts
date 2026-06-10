@@ -445,6 +445,7 @@ const recommendationInput = z.object({
   country: z.string().trim().max(80).optional().nullable(),
   image_url: z.string().url().max(500).optional().nullable(),
   link_url: z.string().url().max(500).optional().nullable(),
+  video_url: z.string().url().max(500).optional().nullable(),
 });
 
 export const listRecommendations = createServerFn({ method: "GET" })
