@@ -311,6 +311,32 @@ export const recordSwipe = createServerFn({ method: "POST" })
       .select()
       .single();
     if (matchErr) throw matchErr;
+
+    // Best-effort match notification emails (don't block on failure)
+    try {
+      const { sendEmail, getUserEmail, emails } = await import("./email.server");
+      const [{ data: meProfile }, { data: themProfile }] = await Promise.all([
+        supabase.from("profiles").select("display_name").eq("id", userId).single(),
+        supabase.from("profiles").select("display_name").eq("id", target.owner_id).single(),
+      ]);
+      const [myEmail, theirEmail] = await Promise.all([
+        getUserEmail(userId),
+        getUserEmail(target.owner_id),
+      ]);
+      const myName = meProfile?.display_name ?? "Someone";
+      const themName = themProfile?.display_name ?? "Someone";
+      if (theirEmail) {
+        const t = emails.match(myName);
+        await sendEmail({ to: theirEmail, subject: t.subject, html: t.html });
+      }
+      if (myEmail) {
+        const t = emails.match(themName);
+        await sendEmail({ to: myEmail, subject: t.subject, html: t.html });
+      }
+    } catch (e) {
+      console.warn("[email] match notification failed", e);
+    }
+
     return { matched: true as const, match: matchRow };
   });
 
@@ -448,6 +474,35 @@ export const createSwapProposal = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw error;
+
+    // Email the other party about the new proposal
+    try {
+      const { sendEmail, getUserEmail, emails } = await import("./email.server");
+      const { data: match } = await supabase
+        .from("matches")
+        .select("user_a, user_b")
+        .eq("id", row.match_id)
+        .single();
+      if (match) {
+        const recipientId = match.user_a === userId ? match.user_b : match.user_a;
+        const [recipientEmail, { data: prof }] = await Promise.all([
+          getUserEmail(recipientId),
+          supabase.from("profiles").select("display_name").eq("id", userId).single(),
+        ]);
+        if (recipientEmail) {
+          const t = emails.proposalNew(
+            prof?.display_name ?? "Someone",
+            row.start_date,
+            row.end_date,
+            row.match_id,
+          );
+          await sendEmail({ to: recipientEmail, subject: t.subject, html: t.html });
+        }
+      }
+    } catch (e) {
+      console.warn("[email] proposal email failed", e);
+    }
+
     return row;
   });
 
@@ -477,11 +532,41 @@ export const updateProposalStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => proposalStatusInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("swap_proposals")
       .update({ status: data.status })
-      .eq("id", data.proposal_id);
+      .eq("id", data.proposal_id)
+      .select("match_id, start_date, end_date")
+      .single();
     if (error) throw error;
+
+    // Email both participants about the status change
+    try {
+      const { sendEmail, getUserEmail, emails } = await import("./email.server");
+      const { data: match } = await supabase
+        .from("matches")
+        .select("user_a, user_b")
+        .eq("id", updated.match_id)
+        .single();
+      if (match) {
+        const ids = [match.user_a, match.user_b];
+        const recipientEmails = (await Promise.all(ids.map(getUserEmail))).filter(
+          (x): x is string => !!x,
+        );
+        if (recipientEmails.length) {
+          const t = emails.proposalStatus(
+            data.status,
+            updated.start_date,
+            updated.end_date,
+            updated.match_id,
+          );
+          await sendEmail({ to: recipientEmails, subject: t.subject, html: t.html });
+        }
+      }
+    } catch (e) {
+      console.warn("[email] proposal status email failed", e);
+    }
+
     return { ok: true };
   });
 
