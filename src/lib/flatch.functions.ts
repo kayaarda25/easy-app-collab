@@ -59,7 +59,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
   });
 
 const profileSchema = z.object({
-  display_name: z.string().trim().min(1).max(80),
+  display_name: z.string().trim().min(1).max(80).optional(),
   bio: z.string().trim().max(500).optional().nullable(),
   city: z.string().trim().max(80).optional().nullable(),
   country: z.string().trim().max(80).optional().nullable(),
