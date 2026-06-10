@@ -311,6 +311,32 @@ export const recordSwipe = createServerFn({ method: "POST" })
       .select()
       .single();
     if (matchErr) throw matchErr;
+
+    // Best-effort match notification emails (don't block on failure)
+    try {
+      const { sendEmail, getUserEmail, emails } = await import("./email.server");
+      const [{ data: meProfile }, { data: themProfile }] = await Promise.all([
+        supabase.from("profiles").select("display_name").eq("id", userId).single(),
+        supabase.from("profiles").select("display_name").eq("id", target.owner_id).single(),
+      ]);
+      const [myEmail, theirEmail] = await Promise.all([
+        getUserEmail(userId),
+        getUserEmail(target.owner_id),
+      ]);
+      const myName = meProfile?.display_name ?? "Someone";
+      const themName = themProfile?.display_name ?? "Someone";
+      if (theirEmail) {
+        const t = emails.match(myName);
+        await sendEmail({ to: theirEmail, subject: t.subject, html: t.html });
+      }
+      if (myEmail) {
+        const t = emails.match(themName);
+        await sendEmail({ to: myEmail, subject: t.subject, html: t.html });
+      }
+    } catch (e) {
+      console.warn("[email] match notification failed", e);
+    }
+
     return { matched: true as const, match: matchRow };
   });
 
