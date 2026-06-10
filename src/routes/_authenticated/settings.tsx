@@ -143,9 +143,9 @@ function SettingsPage() {
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <Row
               icon={Shield}
-              title="Property review"
-              subtitle="Approve, reject or flag listings"
-              onClick={() => navigate({ to: "/admin/properties" })}
+              title="Admin dashboard"
+              subtitle="Users, properties, matches, bookings & more"
+              onClick={() => navigate({ to: "/admin" })}
             />
           </div>
         </section>

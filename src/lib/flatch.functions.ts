@@ -944,3 +944,269 @@ export const deleteNotification = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+// ============================================================
+// ADMIN DASHBOARD
+// ============================================================
+
+const ADMIN_ROLES = ["admin", "super_admin", "support", "operations", "finance"] as const;
+type AdminRole = (typeof ADMIN_ROLES)[number];
+
+async function getAdminRoles(userId: string): Promise<AdminRole[]> {
+  const { data, error } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return ((data ?? []) as { role: string }[])
+    .map((r) => r.role as AdminRole)
+    .filter((r) => (ADMIN_ROLES as readonly string[]).includes(r));
+}
+
+async function requireAdmin(userId: string, allowed?: AdminRole[]): Promise<AdminRole[]> {
+  const roles = await getAdminRoles(userId);
+  if (roles.length === 0) throw new Error("Forbidden");
+  if (allowed && !roles.some((r) => allowed.includes(r) || r === "super_admin" || r === "admin")) {
+    throw new Error("Forbidden");
+  }
+  return roles;
+}
+
+export const getMyAdminRoles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const roles = await getAdminRoles(context.userId);
+    return { roles, isAdmin: roles.length > 0, isSuper: roles.includes("super_admin") };
+  });
+
+export const getAdminStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const [users, properties, propsPending, propsFlagged, matches, proposals, swapsConfirmed, subsActive, reviews, newUsers7d] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("properties").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("properties").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseAdmin.from("properties").select("id", { count: "exact", head: true }).eq("status", "flagged"),
+      supabaseAdmin.from("matches").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("swap_proposals").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("swap_proposals").select("id", { count: "exact", head: true }).in("status", ["accepted", "confirmed"]),
+      supabaseAdmin.from("subscriptions").select("id", { count: "exact", head: true }).neq("plan", "basic"),
+      supabaseAdmin.from("reviews").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", since),
+    ]);
+    return {
+      users: users.count ?? 0,
+      newUsers7d: newUsers7d.count ?? 0,
+      properties: properties.count ?? 0,
+      propertiesPending: propsPending.count ?? 0,
+      propertiesFlagged: propsFlagged.count ?? 0,
+      matches: matches.count ?? 0,
+      proposals: proposals.count ?? 0,
+      swapsConfirmed: swapsConfirmed.count ?? 0,
+      subsActive: subsActive.count ?? 0,
+      reviews: reviews.count ?? 0,
+    };
+  });
+
+export const adminListUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({ q: z.string().trim().max(120).optional(), limit: z.number().int().min(1).max(200).default(50) })
+      .parse(input ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId);
+    let q = supabaseAdmin
+      .from("profiles")
+      .select("id, display_name, city, country, avatar_url, trusted_host, email_verified_at, phone_verified_at, identity_verified_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.q) q = q.or(`display_name.ilike.%${data.q}%,city.ilike.%${data.q}%,country.ilike.%${data.q}%`);
+    const { data: profiles, error } = await q;
+    if (error) throw error;
+    const ids = (profiles ?? []).map((p) => p.id);
+    const [{ data: roles }, { data: subs }] = await Promise.all([
+      ids.length ? supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids) : { data: [] as any[] },
+      ids.length ? supabaseAdmin.from("subscriptions").select("user_id, plan, status").in("user_id", ids) : { data: [] as any[] },
+    ]);
+    const rolesById: Record<string, string[]> = {};
+    for (const r of roles ?? []) {
+      rolesById[(r as any).user_id] = [...(rolesById[(r as any).user_id] ?? []), (r as any).role];
+    }
+    const subById: Record<string, any> = {};
+    for (const s of subs ?? []) subById[(s as any).user_id] = s;
+    return (profiles ?? []).map((p: any) => ({
+      ...p,
+      roles: rolesById[p.id] ?? [],
+      subscription: subById[p.id] ?? null,
+    }));
+  });
+
+export const adminSetUserRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        user_id: z.string().uuid(),
+        role: z.enum(ADMIN_ROLES),
+        action: z.enum(["add", "remove"]),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const roles = await getAdminRoles(context.userId);
+    if (!roles.includes("super_admin")) throw new Error("Only super_admin can manage roles");
+    if (data.action === "add") {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: data.user_id, role: data.role });
+      if (error && !String(error.message).includes("duplicate")) throw error;
+    } else {
+      // Prevent removing the last super_admin
+      if (data.role === "super_admin") {
+        const { count } = await supabaseAdmin
+          .from("user_roles")
+          .select("id", { count: "exact", head: true })
+          .eq("role", "super_admin");
+        if ((count ?? 0) <= 1) throw new Error("Cannot remove the last super_admin");
+      }
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.user_id)
+        .eq("role", data.role);
+      if (error) throw error;
+    }
+    return { ok: true };
+  });
+
+export const adminSetTrustedHost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ user_id: z.string().uuid(), trusted: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["support", "operations"]);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ trusted_host: data.trusted })
+      .eq("id", data.user_id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const adminListMatches = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ limit: z.number().int().min(1).max(200).default(50) }).parse(input ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId);
+    const { data: matches, error } = await supabaseAdmin
+      .from("matches")
+      .select("id, user_a, user_b, property_a, property_b, created_at")
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw error;
+    const userIds = Array.from(new Set((matches ?? []).flatMap((m: any) => [m.user_a, m.user_b])));
+    const propIds = Array.from(new Set((matches ?? []).flatMap((m: any) => [m.property_a, m.property_b]).filter(Boolean)));
+    const [{ data: profs }, { data: props }] = await Promise.all([
+      userIds.length ? supabaseAdmin.from("profiles").select("id, display_name, avatar_url").in("id", userIds) : { data: [] as any[] },
+      propIds.length ? supabaseAdmin.from("properties").select("id, title, city, country").in("id", propIds) : { data: [] as any[] },
+    ]);
+    const profById: Record<string, any> = {};
+    for (const p of profs ?? []) profById[(p as any).id] = p;
+    const propById: Record<string, any> = {};
+    for (const p of props ?? []) propById[(p as any).id] = p;
+    return (matches ?? []).map((m: any) => ({
+      ...m,
+      user_a_profile: profById[m.user_a] ?? null,
+      user_b_profile: profById[m.user_b] ?? null,
+      property_a_info: propById[m.property_a] ?? null,
+      property_b_info: propById[m.property_b] ?? null,
+    }));
+  });
+
+export const adminListBookings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        status: z.enum(["pending", "accepted", "rejected", "cancelled", "confirmed", "all"]).default("all"),
+        limit: z.number().int().min(1).max(200).default(50),
+      })
+      .parse(input ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId);
+    let q = supabaseAdmin
+      .from("swap_proposals")
+      .select("id, match_id, proposer_id, start_date, end_date, guests, status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.status !== "all") q = q.eq("status", data.status);
+    const { data: rows, error } = await q;
+    if (error) throw error;
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.proposer_id)));
+    const { data: profs } = userIds.length
+      ? await supabaseAdmin.from("profiles").select("id, display_name, avatar_url").in("id", userIds)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    return (rows ?? []).map((r: any) => ({ ...r, proposer: byId[r.proposer_id] ?? null }));
+  });
+
+export const adminUpdateBookingStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        proposal_id: z.string().uuid(),
+        status: z.enum(["pending", "accepted", "rejected", "cancelled", "confirmed"]),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["operations", "support"]);
+    const { error } = await supabaseAdmin
+      .from("swap_proposals")
+      .update({ status: data.status })
+      .eq("id", data.proposal_id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const adminListVerifications = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id, display_name, avatar_url, city, country, email_verified_at, phone_verified_at, identity_verified_at, trusted_host, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    return data ?? [];
+  });
+
+export const adminListSubscriptions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId, ["finance"]);
+    const { data: subs, error } = await supabaseAdmin
+      .from("subscriptions")
+      .select("user_id, plan, status, store, entitlement, expires_at, will_renew, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    const ids = (subs ?? []).map((s: any) => s.user_id);
+    const { data: profs } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, display_name, avatar_url").in("id", ids)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    return (subs ?? []).map((s: any) => ({ ...s, profile: byId[s.user_id] ?? null }));
+  });

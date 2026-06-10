@@ -23,9 +23,15 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedMatchesRouteImport } from './routes/_authenticated/matches'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedChatMatchIdRouteImport } from './routes/_authenticated/chat.$matchId'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminTruviRouteImport } from './routes/_authenticated/admin.truvi'
+import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
+import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
+import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
 
@@ -99,6 +105,11 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertyNewRoute =
   AuthenticatedPropertyNewRouteImport.update({
     id: '/property/new',
@@ -111,10 +122,38 @@ const AuthenticatedChatMatchIdRoute =
     path: '/chat/$matchId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminTruviRoute = AuthenticatedAdminTruviRouteImport.update({
+  id: '/admin/truvi',
+  path: '/admin/truvi',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminSubscriptionsRoute =
+  AuthenticatedAdminSubscriptionsRouteImport.update({
+    id: '/admin/subscriptions',
+    path: '/admin/subscriptions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPropertiesRoute =
   AuthenticatedAdminPropertiesRouteImport.update({
     id: '/admin/properties',
     path: '/admin/properties',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminMatchesRoute =
+  AuthenticatedAdminMatchesRouteImport.update({
+    id: '/admin/matches',
+    path: '/admin/matches',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminBookingsRoute =
+  AuthenticatedAdminBookingsRouteImport.update({
+    id: '/admin/bookings',
+    path: '/admin/bookings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiPublicWebhooksRevenuecatRoute =
@@ -144,9 +183,15 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
+  '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/truvi': typeof AuthenticatedAdminTruviRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
@@ -164,9 +209,15 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
+  '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/truvi': typeof AuthenticatedAdminTruviRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
@@ -186,9 +237,15 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
+  '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/truvi': typeof AuthenticatedAdminTruviRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
@@ -208,9 +265,15 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/swipe'
+    | '/admin/bookings'
+    | '/admin/matches'
     | '/admin/properties'
+    | '/admin/subscriptions'
+    | '/admin/truvi'
+    | '/admin/users'
     | '/chat/$matchId'
     | '/property/new'
+    | '/admin/'
     | '/api/public/hooks/checkin-reminders'
     | '/api/public/webhooks/revenuecat'
   fileRoutesByTo: FileRoutesByTo
@@ -228,9 +291,15 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/swipe'
+    | '/admin/bookings'
+    | '/admin/matches'
     | '/admin/properties'
+    | '/admin/subscriptions'
+    | '/admin/truvi'
+    | '/admin/users'
     | '/chat/$matchId'
     | '/property/new'
+    | '/admin'
     | '/api/public/hooks/checkin-reminders'
     | '/api/public/webhooks/revenuecat'
   id:
@@ -249,9 +318,15 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/swipe'
+    | '/_authenticated/admin/bookings'
+    | '/_authenticated/admin/matches'
     | '/_authenticated/admin/properties'
+    | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/truvi'
+    | '/_authenticated/admin/users'
     | '/_authenticated/chat/$matchId'
     | '/_authenticated/property/new'
+    | '/_authenticated/admin/'
     | '/api/public/hooks/checkin-reminders'
     | '/api/public/webhooks/revenuecat'
   fileRoutesById: FileRoutesById
@@ -365,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/property/new': {
       id: '/_authenticated/property/new'
       path: '/property/new'
@@ -379,11 +461,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatMatchIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/truvi': {
+      id: '/_authenticated/admin/truvi'
+      path: '/admin/truvi'
+      fullPath: '/admin/truvi'
+      preLoaderRoute: typeof AuthenticatedAdminTruviRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/subscriptions': {
+      id: '/_authenticated/admin/subscriptions'
+      path: '/admin/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AuthenticatedAdminSubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/properties': {
       id: '/_authenticated/admin/properties'
       path: '/admin/properties'
       fullPath: '/admin/properties'
       preLoaderRoute: typeof AuthenticatedAdminPropertiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/matches': {
+      id: '/_authenticated/admin/matches'
+      path: '/admin/matches'
+      fullPath: '/admin/matches'
+      preLoaderRoute: typeof AuthenticatedAdminMatchesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/bookings': {
+      id: '/_authenticated/admin/bookings'
+      path: '/admin/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AuthenticatedAdminBookingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/webhooks/revenuecat': {
@@ -414,9 +531,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
+  AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
+  AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
+  AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminTruviRoute: typeof AuthenticatedAdminTruviRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedChatMatchIdRoute: typeof AuthenticatedChatMatchIdRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -430,9 +553,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
+  AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
+  AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
+  AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminTruviRoute: AuthenticatedAdminTruviRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedChatMatchIdRoute: AuthenticatedChatMatchIdRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

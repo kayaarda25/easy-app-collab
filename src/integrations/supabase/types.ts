@@ -668,13 +668,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_any_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       post_system_message: {
         Args: { _body: string; _match_id: string; _meta?: Json }
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "user" | "admin" | "super_admin"
+      app_role:
+        | "user"
+        | "admin"
+        | "super_admin"
+        | "support"
+        | "operations"
+        | "finance"
       availability_status:
         | "available"
         | "blocked"
@@ -838,7 +846,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["user", "admin", "super_admin"],
+      app_role: [
+        "user",
+        "admin",
+        "super_admin",
+        "support",
+        "operations",
+        "finance",
+      ],
       availability_status: [
         "available",
         "blocked",
