@@ -10,6 +10,7 @@ export type ResolvedPlace = {
   country: string;
   lat: number | null;
   lng: number | null;
+  photoName: string | null;
 };
 
 export function PlaceSearch({
@@ -63,6 +64,7 @@ export function PlaceSearch({
         country: d.country,
         lat: d.lat,
         lng: d.lng,
+        photoName: d.photoName ?? null,
       });
     } catch {
       // ignore
