@@ -5,6 +5,7 @@ import { createProperty } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES, LOCATIONS } from "@/lib/locations";
 import { PRE_MADE_HOUSE_RULES, HOUSE_RULE_CATEGORIES } from "@/lib/house-rules";
+import { AddressAutocomplete, type ResolvedAddress } from "@/components/AddressAutocomplete";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Upload, X, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
 
@@ -50,6 +51,14 @@ function NewPropertyPage() {
   const [loading, setLoading] = useState(false);
   const [ruleSearch, setRuleSearch] = useState("");
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
+
+  const applyAddress = (a: ResolvedAddress) => {
+    if (a.country) setCountry(a.country);
+    if (a.city) setCity(a.city);
+    if (a.zipCode) setZipCode(a.zipCode);
+    if (a.street) setStreet(a.street);
+    if (a.houseNumber) setHouseNumber(a.houseNumber);
+  };
 
   const toggleAmenity = (a: string) => {
     setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
