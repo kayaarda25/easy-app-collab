@@ -33,6 +33,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { PlaceSearch } from "@/components/PlaceSearch";
 
 type RecCategory = "destination" | "bar" | "restaurant" | "sightseeing" | "other";
 type FilterKey = "all" | "essen" | "kultur" | "natur" | "insider";
@@ -527,6 +528,22 @@ export function HomeFeed({ city }: { city?: string | null }) {
             }}
             className="space-y-3"
           >
+            <div>
+              <Label>Ort suchen (Google Maps)</Label>
+              <div className="mt-1">
+                <PlaceSearch
+                  onSelect={(p) => {
+                    setForm((f) => ({
+                      ...f,
+                      title: f.title || p.name,
+                      city: p.city || f.city,
+                      country: p.country || f.country,
+                    }));
+                  }}
+                />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Restaurant, Bar oder Ort eingeben — Titel & Ort werden automatisch ausgefüllt.</p>
+            </div>
             <div>
               <Label>Titel</Label>
               <Input

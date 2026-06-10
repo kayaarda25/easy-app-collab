@@ -30,15 +30,45 @@ export const autocompleteAddress = createServerFn({ method: "POST" })
       .map((p) => ({ placeId: p.placeId, description: p.text.text }));
   });
 
+export const autocompletePlace = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ input: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data }) => {
+    const res = await fetch(`${GATEWAY_URL}/places/v1/places:autocomplete`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ input: data.input }),
+    });
+    if (!res.ok) throw new Error(`Autocomplete failed: ${res.status}`);
+    const json = await res.json() as {
+      suggestions?: Array<{
+        placePrediction?: {
+          placeId: string;
+          text: { text: string };
+          structuredFormat?: { mainText?: { text: string }; secondaryText?: { text: string } };
+        };
+      }>;
+    };
+    return (json.suggestions ?? [])
+      .map((s) => s.placePrediction)
+      .filter((p): p is NonNullable<typeof p> => !!p)
+      .map((p) => ({
+        placeId: p.placeId,
+        description: p.text.text,
+        mainText: p.structuredFormat?.mainText?.text ?? p.text.text,
+        secondaryText: p.structuredFormat?.secondaryText?.text ?? "",
+      }));
+  });
+
 export const getPlaceDetails = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const res = await fetch(`${GATEWAY_URL}/places/v1/places/${encodeURIComponent(data.placeId)}`, {
       method: "GET",
-      headers: { ...headers(), "X-Goog-FieldMask": "id,formattedAddress,addressComponents,location" },
+      headers: { ...headers(), "X-Goog-FieldMask": "id,displayName,formattedAddress,addressComponents,location" },
     });
     if (!res.ok) throw new Error(`Place details failed: ${res.status}`);
     const json = await res.json() as {
+      displayName?: { text: string };
       formattedAddress?: string;
       addressComponents?: Array<{ longText: string; shortText: string; types: string[] }>;
       location?: { latitude: number; longitude: number };
@@ -46,6 +76,7 @@ export const getPlaceDetails = createServerFn({ method: "POST" })
     const comps = json.addressComponents ?? [];
     const find = (t: string) => comps.find((c) => c.types.includes(t));
     return {
+      name: json.displayName?.text ?? "",
       formattedAddress: json.formattedAddress ?? "",
       street: find("route")?.longText ?? "",
       houseNumber: find("street_number")?.longText ?? "",
