@@ -74,6 +74,20 @@ function AuthPage() {
     navigate({ to: "/home" });
   };
 
+  const handleApple = async () => {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: window.location.origin + "/home",
+    });
+    if (result.error) {
+      toast.error(result.error.message ?? "Apple sign-in failed");
+      setLoading(false);
+      return;
+    }
+    if (result.redirected) return;
+    navigate({ to: "/home" });
+  };
+
   const handleReset = async () => {
     if (!email) {
       toast.error("Enter your email first");
@@ -111,6 +125,15 @@ function AuthPage() {
           >
             <GoogleIcon />
             Continue with Google
+          </button>
+
+          <button
+            onClick={handleApple}
+            disabled={loading}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-foreground px-4 py-3 text-sm font-semibold text-background transition hover:opacity-90 disabled:opacity-50"
+          >
+            <AppleIcon />
+            Continue with Apple
           </button>
 
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
