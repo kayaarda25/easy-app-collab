@@ -27,6 +27,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedChatMatchIdRouteImport } from './routes/_authenticated/chat.$matchId'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminTruviRouteImport } from './routes/_authenticated/admin.truvi'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
@@ -125,6 +126,11 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminTruviRoute = AuthenticatedAdminTruviRouteImport.update({
+  id: '/admin/truvi',
+  path: '/admin/truvi',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminPropertiesRoute =
   AuthenticatedAdminPropertiesRouteImport.update({
     id: '/admin/properties',
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/admin/truvi': typeof AuthenticatedAdminTruviRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/admin/truvi': typeof AuthenticatedAdminTruviRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
+  '/_authenticated/admin/truvi': typeof AuthenticatedAdminTruviRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/admin/bookings'
     | '/admin/matches'
     | '/admin/properties'
+    | '/admin/truvi'
     | '/admin/users'
     | '/chat/$matchId'
     | '/property/new'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/admin/bookings'
     | '/admin/matches'
     | '/admin/properties'
+    | '/admin/truvi'
     | '/admin/users'
     | '/chat/$matchId'
     | '/property/new'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/matches'
     | '/_authenticated/admin/properties'
+    | '/_authenticated/admin/truvi'
     | '/_authenticated/admin/users'
     | '/_authenticated/chat/$matchId'
     | '/_authenticated/property/new'
@@ -443,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/truvi': {
+      id: '/_authenticated/admin/truvi'
+      path: '/admin/truvi'
+      fullPath: '/admin/truvi'
+      preLoaderRoute: typeof AuthenticatedAdminTruviRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/properties': {
       id: '/_authenticated/admin/properties'
       path: '/admin/properties'
@@ -495,6 +514,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
   AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
+  AuthenticatedAdminTruviRoute: typeof AuthenticatedAdminTruviRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedChatMatchIdRoute: typeof AuthenticatedChatMatchIdRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
@@ -515,6 +535,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
   AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
+  AuthenticatedAdminTruviRoute: AuthenticatedAdminTruviRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedChatMatchIdRoute: AuthenticatedChatMatchIdRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
