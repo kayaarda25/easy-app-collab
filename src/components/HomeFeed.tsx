@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { PlaceSearch } from "@/components/PlaceSearch";
+import { getPlacePhotoUrl } from "@/lib/places.functions";
 
 type RecCategory = "destination" | "bar" | "restaurant" | "sightseeing" | "other";
 type FilterKey = "all" | "essen" | "kultur" | "natur" | "insider";
@@ -127,6 +128,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
     image_url: "",
   });
   const [uploading, setUploading] = useState(false);
+  const fetchPhotoUrl = useServerFn(getPlacePhotoUrl);
 
   const openCreate = (c: RecCategory) => {
     setDraftCat(c);
@@ -532,13 +534,26 @@ export function HomeFeed({ city }: { city?: string | null }) {
               <Label>Ort suchen (Google Maps)</Label>
               <div className="mt-1">
                 <PlaceSearch
-                  onSelect={(p) => {
+                  onSelect={async (p) => {
                     setForm((f) => ({
                       ...f,
                       title: f.title || p.name,
                       city: p.city || f.city,
                       country: p.country || f.country,
+                      description: f.description
+                        ? f.description
+                        : (p.formattedAddress ? `📍 ${p.formattedAddress}` : f.description),
                     }));
+                    if (p.photoName) {
+                      try {
+                        const r = await fetchPhotoUrl({ data: { photoName: p.photoName, maxWidthPx: 1600 } });
+                        if (r.photoUri) {
+                          setForm((f) => ({ ...f, image_url: f.image_url || r.photoUri! }));
+                        }
+                      } catch {
+                        // ignore photo errors
+                      }
+                    }
                   }}
                 />
               </div>
