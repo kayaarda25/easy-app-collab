@@ -5,6 +5,7 @@ import { getMyProfile, getMyProperties, getMyMatches } from "@/lib/flatch.functi
 import { PageShell } from "@/components/BottomNav";
 import { Compass, Heart, Plus, Sparkles } from "lucide-react";
 import { Recommendations } from "@/components/Recommendations";
+import { NotificationsBell } from "@/components/NotificationsBell";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -32,10 +33,15 @@ function HomePage() {
   return (
     <PageShell>
       <header className="px-6 pt-8 pb-4">
-        <p className="text-sm text-muted-foreground">Welcome back</p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight">
-          {profile.data?.display_name ?? "Traveler"}
-        </h1>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">Welcome back</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight">
+              {profile.data?.display_name ?? "Traveler"}
+            </h1>
+          </div>
+          <NotificationsBell />
+        </div>
       </header>
 
       <section className="px-6">
