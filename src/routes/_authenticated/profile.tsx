@@ -12,8 +12,22 @@ import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationBadges, VerificationChecklist } from "@/components/VerificationBadges";
 import { ReviewsSection } from "@/components/Reviews";
-import { useServerFn } from "@tanstack/react-start";
 import { isAdmin } from "@/lib/flatch.functions";
+
+function PropertyStatusPill({ status }: { status?: string }) {
+  if (!status || status === "approved") return null;
+  const color: Record<string, string> = {
+    pending: "bg-amber-500/15 text-amber-700",
+    rejected: "bg-destructive/15 text-destructive",
+    flagged: "bg-rose-500/15 text-rose-700",
+    draft: "bg-muted text-muted-foreground",
+  };
+  return (
+    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold capitalize ${color[status] ?? "bg-muted"}`}>
+      {status}
+    </span>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — flatch." }] }),
