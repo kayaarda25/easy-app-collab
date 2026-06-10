@@ -23,6 +23,7 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedMatchesRouteImport } from './routes/_authenticated/matches'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedChatMatchIdRouteImport } from './routes/_authenticated/chat.$matchId'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
@@ -99,6 +100,11 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertyNewRoute =
   AuthenticatedPropertyNewRouteImport.update({
     id: '/property/new',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/_authenticated/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/admin/properties'
     | '/chat/$matchId'
     | '/property/new'
+    | '/admin/'
     | '/api/public/hooks/checkin-reminders'
     | '/api/public/webhooks/revenuecat'
   fileRoutesByTo: FileRoutesByTo
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/properties'
     | '/chat/$matchId'
     | '/property/new'
+    | '/admin'
     | '/api/public/hooks/checkin-reminders'
     | '/api/public/webhooks/revenuecat'
   id:
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/properties'
     | '/_authenticated/chat/$matchId'
     | '/_authenticated/property/new'
+    | '/_authenticated/admin/'
     | '/api/public/hooks/checkin-reminders'
     | '/api/public/webhooks/revenuecat'
   fileRoutesById: FileRoutesById
@@ -365,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/property/new': {
       id: '/_authenticated/property/new'
       path: '/property/new'
@@ -417,6 +436,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
   AuthenticatedChatMatchIdRoute: typeof AuthenticatedChatMatchIdRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -433,6 +453,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
   AuthenticatedChatMatchIdRoute: AuthenticatedChatMatchIdRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -449,3 +470,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
