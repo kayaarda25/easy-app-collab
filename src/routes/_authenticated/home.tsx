@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getMyProfile, getMyProperties, getMyMatches } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
 import { Compass, Heart, Plus, Sparkles } from "lucide-react";
+import { Recommendations } from "@/components/Recommendations";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -89,6 +90,8 @@ function HomePage() {
           </div>
         )}
       </section>
+
+      <Recommendations currentUserId={profile.data?.id} />
 
       <section className="mt-8 px-6">
         <h3 className="text-lg font-semibold">Recent matches</h3>
