@@ -430,10 +430,182 @@ const availabilityInput = z.object({
 
 export const addAvailability = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => availabilityInput.parse(input))
+  .inputValidator((input: unknown) =>
+    availabilityInput
+      .extend({
+        status: z
+          .enum(["available", "blocked", "reserved", "pending_swap", "confirmed_swap"])
+          .optional(),
+        note: z.string().trim().max(500).optional().nullable(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("availabilities").insert(data);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const updateAvailabilityStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["available", "blocked", "reserved", "pending_swap", "confirmed_swap"]),
+        note: z.string().trim().max(500).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase
+      .from("availabilities")
+      .update({ status: data.status, note: data.note ?? null })
+      .eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const deleteAvailability = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("availabilities").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const listAvailabilities = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ property_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: rows, error } = await supabase
+      .from("availabilities")
+      .select("*")
+      .eq("property_id", data.property_id)
+      .order("start_date", { ascending: true });
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+// ---- PROPERTY UPDATE (owner) ----
+export const updateProperty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        patch: z
+          .object({
+            title: z.string().trim().min(3).max(100).optional(),
+            description: z.string().trim().max(2000).optional().nullable(),
+            house_rules: z.string().trim().max(2000).optional().nullable(),
+            check_in_instructions: z.string().trim().max(2000).optional().nullable(),
+            check_out_instructions: z.string().trim().max(2000).optional().nullable(),
+            is_active: z.boolean().optional(),
+            // Owners may move between draft <-> pending
+            status: z.enum(["draft", "pending"]).optional(),
+          })
+          .strict(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("properties")
+      .update(data.patch)
+      .eq("id", data.id)
+      .eq("owner_id", userId);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+// ---- ADMIN PROPERTY REVIEW ----
+export const isAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .in("role", ["admin", "super_admin"]);
+    if (error) throw error;
+    return (data ?? []).length > 0;
+  });
+
+export const listPropertiesForReview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        status: z
+          .enum(["pending", "approved", "rejected", "flagged", "draft", "all"])
+          .default("pending"),
+      })
+      .parse(input ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .in("role", ["admin", "super_admin"]);
+    if (!roles || roles.length === 0) throw new Error("Forbidden");
+    let q = supabase
+      .from("properties")
+      .select("*, property_images(url, position)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (data.status !== "all") q = q.eq("status", data.status);
+    const { data: rows, error } = await q;
+    if (error) throw error;
+    const ownerIds = Array.from(new Set((rows ?? []).map((r: any) => r.owner_id)));
+    const { data: profs } = ownerIds.length
+      ? await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", ownerIds)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    return (rows ?? []).map((r: any) => ({ ...r, owner: byId[r.owner_id] ?? null }));
+  });
+
+export const reviewProperty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        property_id: z.string().uuid(),
+        decision: z.enum(["approved", "rejected", "flagged", "pending"]),
+        notes: z.string().trim().max(1000).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .in("role", ["admin", "super_admin"]);
+    if (!roles || roles.length === 0) throw new Error("Forbidden");
+    const { error } = await supabase
+      .from("properties")
+      .update({
+        status: data.decision,
+        review_notes: data.notes ?? null,
+        reviewed_by: userId,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", data.property_id);
     if (error) throw error;
     return { ok: true };
   });
