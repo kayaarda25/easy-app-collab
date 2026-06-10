@@ -6,6 +6,7 @@ import {
   createRecommendation,
   listRecommendations,
   getMyMatches,
+  getAllPropertyLocations,
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -106,10 +107,12 @@ export function HomeFeed({ city }: { city?: string | null }) {
   const listFn = useServerFn(listRecommendations);
   const matchesFn = useServerFn(getMyMatches);
   const createFn = useServerFn(createRecommendation);
+  const propsFn = useServerFn(getAllPropertyLocations);
   const qc = useQueryClient();
 
   const recs = useQuery({ queryKey: ["recommendations"], queryFn: () => listFn() });
   const matches = useQuery({ queryKey: ["matches"], queryFn: () => matchesFn() });
+  const properties = useQuery({ queryKey: ["all-properties"], queryFn: () => propsFn() });
 
   const [filter, setFilter] = useState<FilterKey>("all");
   const [search, setSearch] = useState(city ?? "");
@@ -193,7 +196,31 @@ export function HomeFeed({ city }: { city?: string | null }) {
     });
   }, [list, filter, search]);
 
-  const destinations = list.filter((r: any) => r.category === "destination" && r.image_url).slice(0, 8);
+  const recDestinations = list
+    .filter((r: any) => r.category === "destination" && r.image_url)
+    .map((r: any) => ({
+      id: `rec-${r.id}`,
+      image_url: r.image_url,
+      title: r.title,
+      city: r.city,
+      country: r.country,
+    }));
+  const propDestinations = (properties.data ?? [])
+    .map((p: any) => {
+      const img = [...(p.property_images ?? [])].sort(
+        (a: any, b: any) => (a.position ?? 0) - (b.position ?? 0),
+      )[0]?.url;
+      if (!img) return null;
+      return {
+        id: `prop-${p.id}`,
+        image_url: img,
+        title: p.title,
+        city: p.city,
+        country: p.country,
+      };
+    })
+    .filter(Boolean) as any[];
+  const destinations = [...recDestinations, ...propDestinations].slice(0, 12);
   const headerCity = city ?? "your city";
 
   return (
@@ -455,12 +482,16 @@ export function HomeFeed({ city }: { city?: string | null }) {
       </section>
 
       {/* Recommended destinations */}
-      {destinations.length > 0 && (
-        <section className="px-6">
+      <section className="px-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold">Empfohlene Ziele</h3>
             <button className="text-sm font-semibold text-primary">Alle ›</button>
           </div>
+        {destinations.length === 0 ? (
+          <p className="mt-3 rounded-2xl border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
+            Noch keine Ziele verfügbar.
+          </p>
+        ) : (
           <div className="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
             {destinations.map((d: any) => (
               <div
@@ -476,8 +507,8 @@ export function HomeFeed({ city }: { city?: string | null }) {
               </div>
             ))}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* Add Tip Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
