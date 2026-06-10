@@ -12,8 +12,9 @@ import {
   markMatchRead,
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Send, Calendar, Check, X, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic } from "lucide-react";
 import { toast } from "sonner";
+import { ChatComposer } from "@/components/ChatComposer";
 
 export const Route = createFileRoute("/_authenticated/chat/$matchId")({
   head: () => ({ meta: [{ title: "Chat — flatch." }] }),
@@ -47,11 +48,19 @@ function ChatPage() {
   });
 
   const send = useMutation({
-    mutationFn: (body: string) => sendFn({ data: { match_id: matchId, body } }),
+    mutationFn: (vars: { body: string; attachment?: { url: string; kind: "image" | "video" | "audio"; mime: string } }) =>
+      sendFn({
+        data: {
+          match_id: matchId,
+          body: vars.body,
+          attachment_url: vars.attachment?.url,
+          attachment_kind: vars.attachment?.kind,
+          attachment_mime: vars.attachment?.mime,
+        },
+      }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["messages", matchId] }),
   });
 
-  const [text, setText] = useState("");
   const [showProposal, setShowProposal] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -80,33 +89,32 @@ function ChatPage() {
       .catch(() => {});
   }, [matchId, messages.data?.length, markReadFn, qc]);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!text.trim()) return;
-    send.mutate(text.trim());
-    setText("");
-  };
-
   return (
     <div className="flex h-screen flex-col bg-background">
       <header className="flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
         <button onClick={() => navigate({ to: "/matches" })} className="rounded-full p-1.5 hover:bg-secondary">
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <div className="h-10 w-10 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent">
-          {match?.other_user?.avatar_url && <img src={match.other_user.avatar_url} alt="" className="h-full w-full object-cover" />}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-semibold">{match?.other_user?.display_name ?? "User"}</p>
+        <Link
+          to="/u/$userId"
+          params={{ userId: match?.other_user?.id ?? "" }}
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-full px-1 py-1 -mx-1 hover:bg-secondary"
+        >
+          <div className="h-10 w-10 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent">
+            {match?.other_user?.avatar_url && <img src={match.other_user.avatar_url} alt="" className="h-full w-full object-cover" />}
+          </div>
+          <div className="min-w-0 flex-1 text-left">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-semibold">{match?.other_user?.display_name ?? "User"}</p>
             {(match as any)?.ready_to_switch && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 className="h-3 w-3" /> Ready to switch
               </span>
             )}
+            </div>
+            <p className="truncate text-xs text-muted-foreground">{match?.their_property?.title}</p>
           </div>
-          <p className="truncate text-xs text-muted-foreground">{match?.their_property?.title}</p>
-        </div>
+        </Link>
         <button onClick={() => setShowProposal(true)} className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
           Propose swap
         </button>
@@ -138,10 +146,23 @@ function ChatPage() {
               );
             }
             const isMine = m.sender_id !== match?.other_user?.id;
+            const att = (m as any).meta?.attachment as { url: string; kind: string; mime: string } | undefined;
             return (
               <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${isMine ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
-                  {m.body}
+                <div className={`max-w-[75%] overflow-hidden rounded-2xl text-sm ${isMine ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
+                  {att?.kind === "image" && (
+                    <a href={att.url} target="_blank" rel="noreferrer"><img src={att.url} alt="" className="block max-h-80 w-full object-cover" /></a>
+                  )}
+                  {att?.kind === "video" && (
+                    <video src={att.url} controls className="block max-h-80 w-full" />
+                  )}
+                  {att?.kind === "audio" && (
+                    <div className="flex items-center gap-2 px-3 py-2">
+                      <Mic className="h-4 w-4 opacity-70" />
+                      <audio src={att.url} controls className="h-8" />
+                    </div>
+                  )}
+                  {m.body && <div className="px-4 py-2">{m.body}</div>}
                 </div>
               </div>
             );
@@ -150,18 +171,12 @@ function ChatPage() {
         </div>
       </div>
 
-      <form onSubmit={submit} className="flex items-center gap-2 border-t border-border bg-background px-4 py-3 pb-[env(safe-area-inset-bottom)]">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Message..."
-          maxLength={2000}
-          className="flex-1 rounded-full border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
-        />
-        <button type="submit" disabled={!text.trim()} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40">
-          <Send className="h-4 w-4" />
-        </button>
-      </form>
+      <ChatComposer
+        disabled={send.isPending}
+        onSend={async ({ body, attachment }) => {
+          await send.mutateAsync({ body, attachment });
+        }}
+      />
 
       {showProposal && (
         <ProposalModal
