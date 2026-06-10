@@ -9,6 +9,7 @@ import { PageShell } from "@/components/BottomNav";
 import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — flatch." }] }),
@@ -132,6 +133,9 @@ function ProfilePage() {
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
+          <div className="border-b border-border">
+            <TwoFactorSetup />
+          </div>
           <div className="flex items-center gap-3 p-4 text-sm text-muted-foreground">
             <Settings className="h-4 w-4" /> Notifications, language, payments — coming soon
           </div>
