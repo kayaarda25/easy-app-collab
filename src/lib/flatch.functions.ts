@@ -434,3 +434,67 @@ export const addAvailability = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+// ---- RECOMMENDATIONS ----
+const recommendationCategories = ["destination", "bar", "restaurant", "sightseeing", "other"] as const;
+const recommendationInput = z.object({
+  category: z.enum(recommendationCategories),
+  title: z.string().trim().min(1).max(120),
+  description: z.string().trim().max(1000).optional().nullable(),
+  city: z.string().trim().max(80).optional().nullable(),
+  country: z.string().trim().max(80).optional().nullable(),
+  image_url: z.string().url().max(500).optional().nullable(),
+  link_url: z.string().url().max(500).optional().nullable(),
+});
+
+export const listRecommendations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const { data: recs, error } = await supabase
+      .from("recommendations")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    const list = recs ?? [];
+    const userIds = Array.from(new Set(list.map((r: any) => r.user_id)));
+    let profilesById: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", userIds);
+      for (const p of profs ?? []) {
+        profilesById[(p as any).id] = {
+          display_name: (p as any).display_name,
+          avatar_url: (p as any).avatar_url,
+        };
+      }
+    }
+    return list.map((r: any) => ({ ...r, author: profilesById[r.user_id] ?? null }));
+  });
+
+export const createRecommendation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => recommendationInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error } = await supabase
+      .from("recommendations")
+      .insert({ ...data, user_id: userId })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return row;
+  });
+
+export const deleteRecommendation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("recommendations").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
