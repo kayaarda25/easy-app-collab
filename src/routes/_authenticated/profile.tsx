@@ -11,6 +11,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationBadges, VerificationChecklist } from "@/components/VerificationBadges";
+import { ReviewsSection } from "@/components/Reviews";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — flatch." }] }),
@@ -151,6 +152,8 @@ function ProfilePage() {
 
         <VerificationBadges source={verificationSource} className="mt-4" />
       </section>
+
+      {profile.data?.id && <ReviewsSection userId={profile.data.id} />}
 
       <section className="mt-8 px-6">
         <h2 className="text-lg font-semibold">Trust & verification</h2>
