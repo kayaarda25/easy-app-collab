@@ -120,6 +120,16 @@ export const createProperty = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw error;
+    // Geocode address (best-effort, non-blocking failure)
+    const coords = await geocodeAddress(data);
+    if (coords && row?.id) {
+      await supabase
+        .from("properties")
+        .update({ latitude: coords.lat, longitude: coords.lng })
+        .eq("id", row.id);
+      (row as any).latitude = coords.lat;
+      (row as any).longitude = coords.lng;
+    }
     return row;
   });
 
