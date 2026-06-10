@@ -156,7 +156,26 @@ export const getAllPropertyLocations = createServerFn({ method: "GET" })
       .select("id, title, city, country, street, house_number, zip_code, latitude, longitude, property_type, property_images(url, position)")
       .eq("is_active", true);
     if (error) throw error;
-    return data ?? [];
+    const rows = data ?? [];
+    // Backfill missing coordinates via Google geocoding (best-effort)
+    const missing = rows.filter(
+      (r: any) => r.latitude == null || r.longitude == null,
+    );
+    if (missing.length > 0) {
+      await Promise.all(
+        missing.map(async (r: any) => {
+          const coords = await geocodeAddress(r);
+          if (!coords) return;
+          r.latitude = coords.lat;
+          r.longitude = coords.lng;
+          await supabaseAdmin
+            .from("properties")
+            .update({ latitude: coords.lat, longitude: coords.lng })
+            .eq("id", r.id);
+        }),
+      );
+    }
+    return rows;
   });
 
 // ---- SEARCH / SWIPE FEED ----
