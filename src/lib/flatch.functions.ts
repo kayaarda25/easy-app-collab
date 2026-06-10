@@ -95,6 +95,19 @@ export const getMyProperties = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+// Public-ish: all active properties for map display (auth required).
+export const getAllPropertyLocations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const { data, error } = await supabase
+      .from("properties")
+      .select("id, title, city, country, street, house_number, zip_code, latitude, longitude, property_type, property_images(url, position)")
+      .eq("is_active", true);
+    if (error) throw error;
+    return data ?? [];
+  });
+
 // ---- SEARCH / SWIPE FEED ----
 const searchSchema = z.object({
   city: z.string().trim().max(80).optional(),
