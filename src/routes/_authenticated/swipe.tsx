@@ -1,11 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { getSwipeFeed, recordSwipe } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
-import { Search, Heart, X, Sparkles, Users, BedDouble, Bath } from "lucide-react";
+import { Search, Heart, X, Sparkles, Users, BedDouble, Bath, SlidersHorizontal } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 const search = z.object({
@@ -19,6 +26,32 @@ export const Route = createFileRoute("/_authenticated/swipe")({
   component: SwipePage,
 });
 
+type SwipeFilters = {
+  minBedrooms: number;
+  minGuests: number;
+  wifi: boolean;
+  pets: boolean;
+  workspace: boolean;
+  propertyType: string;
+};
+
+const DEFAULT_SWIPE_FILTERS: SwipeFilters = {
+  minBedrooms: 0,
+  minGuests: 0,
+  wifi: false,
+  pets: false,
+  workspace: false,
+  propertyType: "",
+};
+
+const AMENITY_RE = {
+  wifi: /wi[\s-]?fi|internet|wlan/i,
+  pets: /pet/i,
+  workspace: /workspace|work\s?space|desk|office/i,
+};
+const matchesAmenity = (a: string[] | null | undefined, re: RegExp) =>
+  (a ?? []).some((x) => re.test(x));
+
 function SwipePage() {
   const { city, country } = Route.useSearch();
   const navigate = useNavigate();
@@ -26,6 +59,8 @@ function SwipePage() {
   const feedFn = useServerFn(getSwipeFeed);
   const swipeFn = useServerFn(recordSwipe);
   const [index, setIndex] = useState(0);
+  const [filters, setFilters] = useState<SwipeFilters>(DEFAULT_SWIPE_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const feed = useQuery({
     queryKey: ["feed", city ?? "", country ?? ""],
@@ -44,23 +79,60 @@ function SwipePage() {
     },
   });
 
-  const current = feed.data?.[index];
+  const filtered = useMemo(() => {
+    const list = (feed.data ?? []) as any[];
+    return list.filter((p) => {
+      if (filters.minBedrooms && (p.bedrooms ?? 0) < filters.minBedrooms) return false;
+      if (filters.minGuests && (p.max_guests ?? 0) < filters.minGuests) return false;
+      if (filters.wifi && !matchesAmenity(p.amenities, AMENITY_RE.wifi)) return false;
+      if (filters.pets && !matchesAmenity(p.amenities, AMENITY_RE.pets)) return false;
+      if (filters.workspace && !matchesAmenity(p.amenities, AMENITY_RE.workspace)) return false;
+      if (filters.propertyType && p.property_type !== filters.propertyType) return false;
+      return true;
+    });
+  }, [feed.data, filters]);
+
+  const activeCount =
+    (filters.minBedrooms ? 1 : 0) +
+    (filters.minGuests ? 1 : 0) +
+    (filters.wifi ? 1 : 0) +
+    (filters.pets ? 1 : 0) +
+    (filters.workspace ? 1 : 0) +
+    (filters.propertyType ? 1 : 0);
+
+  const current = filtered[index];
 
   return (
     <PageShell>
       <header className="flex items-center justify-between px-6 pt-6">
         <h1 className="text-xl font-bold tracking-tight">Discover</h1>
-        <Link
-          to="/search"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition hover:bg-secondary/80"
-        >
-          <Search className="h-5 w-5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen(true)}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition hover:bg-secondary/80"
+            aria-label="Filters"
+          >
+            <SlidersHorizontal className="h-5 w-5" />
+            {activeCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                {activeCount}
+              </span>
+            )}
+          </button>
+          <Link
+            to="/search"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition hover:bg-secondary/80"
+          >
+            <Search className="h-5 w-5" />
+          </Link>
+        </div>
       </header>
 
       <div className="px-6 pt-2">
         <p className="text-sm text-muted-foreground">
           {city ? `Showing homes in ${city}` : "All homes worldwide"}
+          {activeCount > 0 ? ` · ${activeCount} filter${activeCount === 1 ? "" : "s"}` : ""}
         </p>
       </div>
 
@@ -78,6 +150,118 @@ function SwipePage() {
           />
         )}
       </div>
+
+      <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <DialogContent className="max-w-md rounded-2xl border border-border bg-card">
+          <DialogHeader className="text-left">
+            <DialogTitle>Filters</DialogTitle>
+            <DialogDescription>Refine the homes in your swipe feed.</DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-5">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Bedrooms (min)</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[0, 1, 2, 3, 4].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => { setFilters((f) => ({ ...f, minBedrooms: n })); setIndex(0); }}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      filters.minBedrooms === n
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {n === 0 ? "Any" : `${n}+`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Max guests (min)</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[0, 1, 2, 4, 6, 8].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => { setFilters((f) => ({ ...f, minGuests: n })); setIndex(0); }}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      filters.minGuests === n
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {n === 0 ? "Any" : `${n}+`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Property type</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {["", "apartment", "house", "loft", "studio", "villa"].map((t) => (
+                  <button
+                    key={t || "any"}
+                    type="button"
+                    onClick={() => { setFilters((f) => ({ ...f, propertyType: t })); setIndex(0); }}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition ${
+                      filters.propertyType === t
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {t || "Any"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Amenities</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {([
+                  ["wifi", "Wi-Fi"],
+                  ["pets", "Pets allowed"],
+                  ["workspace", "Workspace"],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => { setFilters((f) => ({ ...f, [key]: !f[key] })); setIndex(0); }}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      filters[key]
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => { setFilters(DEFAULT_SWIPE_FILTERS); setIndex(0); }}
+                className="text-xs font-medium text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(false)}
+                className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                Show {filtered.length} home{filtered.length === 1 ? "" : "s"}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
