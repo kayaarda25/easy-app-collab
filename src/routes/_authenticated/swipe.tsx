@@ -1,11 +1,11 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
 import { getSwipeFeed, recordSwipe } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
-import { ArrowLeft, Heart, X, Sparkles, Users, BedDouble, Bath } from "lucide-react";
+import { Search, Heart, X, Sparkles, Users, BedDouble, Bath } from "lucide-react";
 import { toast } from "sonner";
 
 const search = z.object({
