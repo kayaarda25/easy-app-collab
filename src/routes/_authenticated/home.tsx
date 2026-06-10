@@ -6,6 +6,7 @@ import { PageShell } from "@/components/BottomNav";
 import { Compass, Sparkles } from "lucide-react";
 import { HomeFeed } from "@/components/HomeFeed";
 import { NotificationsBell } from "@/components/NotificationsBell";
+import { Logo } from "@/components/Logo";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/home")({
@@ -30,6 +31,7 @@ function HomePage() {
   return (
     <PageShell>
       <header className="px-6 pt-8 pb-4">
+        <Logo size={28} className="mb-3" />
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm text-muted-foreground">Welcome back</p>

@@ -57,9 +57,14 @@ function layout(title: string, body: string, cta?: { label: string; url: string 
   const btn = cta
     ? `<p style="margin:24px 0"><a href="${cta.url}" style="background:#111;color:#fff;text-decoration:none;padding:12px 20px;border-radius:999px;font-weight:600;display:inline-block">${cta.label}</a></p>`
     : "";
+  const logoUrl = (process.env.APP_URL || "https://easy-app-collab.lovable.app") +
+    "/__l5e/assets-v1/21da9ee0-b21e-4061-b535-b2a4f6ca3f92/flatch-logo.png";
   return `<!doctype html><html><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#fafafa;margin:0;padding:24px">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;padding:28px;border:1px solid #eee">
-    <h1 style="font-size:22px;margin:0 0 12px">flatch.</h1>
+    <div style="display:flex;align-items:center;gap:8px;margin:0 0 16px">
+      <img src="${logoUrl}" alt="flatch." width="32" height="32" style="display:block"/>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-0.02em">flatch.</span>
+    </div>
     <h2 style="font-size:18px;margin:0 0 12px;color:#111">${title}</h2>
     <div style="font-size:14px;color:#444;line-height:1.5">${body}</div>
     ${btn}

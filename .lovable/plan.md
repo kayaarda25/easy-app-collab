@@ -1,105 +1,44 @@
+## Ziel
+Das hochgeladene Logo (`flatch_icon_beige.pdf`) wird zum offiziellen Logo der App und ersetzt alle bisherigen „flatch."-Textmarken sowie die generischen Icon-Platzhalter.
 
-# flatch. – Phase 1 MVP Plan
+## Was ich tun werde
 
-Mobile-first Web-App + PWA mit Airbnb-ähnlichem Premium-Design. Phase 1 deckt den kompletten Kern-Loop ab: Registrieren → Profil → Property → Suchen/Swipen → Match → Chat → Tauschvorschlag. Payments, Truvi, Reviews und Admin folgen in späteren Phasen.
+### 1. Logo aus PDF in PNGs konvertieren
+- PDF rendern via ImageMagick in mehreren Auflösungen
+- Hochgeladene PNGs zu Lovable CDN-Assets hochladen (`lovable-assets create`)
+- Versionen: `512×512` (App Icon), `192×192` (PWA), `180×180` (Apple Touch), `32×32` (Favicon), plus eine transparente Variante für inline Wordmark-Ersatz
 
-## Was wir bauen
+### 2. Favicon / PWA Icons ersetzen
+- `public/icon-192.png` und `public/icon-512.png` durch neues Logo ersetzen
+- `public/manifest.webmanifest` Icons-Pfade aktualisieren (bleiben gleich, nur Inhalt neu)
+- Favicon-Link in `src/routes/__root.tsx` hinzufügen (aktuell nur `apple-touch-icon` + manifest)
 
-**Authentifizierung & Profile**
-- E-Mail/Passwort + Google Sign-In via Lovable Cloud
-- Onboarding-Flow: Registrieren → Email bestätigen → Profil anlegen (Name, Foto, Bio, Sprachen, Geburtsdatum)
-- Passwort-Reset Flow mit `/reset-password` Seite
+### 3. Wiederverwendbare `<Logo />` Komponente
+- Neue Datei `src/components/Logo.tsx` mit Props `size` und `variant` (icon-only oder icon+wordmark)
+- Nutzt das neue Asset
 
-**Property Management**
-- Property erstellen: Titel, Beschreibung, Typ (Haus/Wohnung), Räume, Schlafplätze, Annehmlichkeiten
-- Adresse mit Stadt/Land (genaue Adresse erst nach Match-Bestätigung sichtbar)
-- Bildupload (mehrere Fotos) in Lovable Cloud Storage
-- Verfügbarkeitskalender: Zeiträume markieren wann Tausch möglich
+### 4. Überall einsetzen
+Ersetze die aktuell als reiner Text gerenderten „flatch."-Wortmarken durch `<Logo />` in:
+- `src/routes/index.tsx` (Onboarding Topbar)
+- `src/routes/auth.tsx` (Login/Signup Header)
+- `src/routes/_authenticated/home.tsx`, `swipe.tsx`, `matches.tsx`, `inbox.tsx`, `profile.tsx`, `settings.tsx`, `notifications.tsx`, `paywall.tsx`, `onboarding.tsx`, `property.new.tsx`, `search.tsx`, `u.$userId.tsx`, `chat.$matchId.tsx`
+- `src/routes/_authenticated/admin.*.tsx` (alle Admin-Seiten)
+- `src/routes/reset-password.tsx`
+- Komponenten: `NotificationsBell.tsx`, `HomeFeed.tsx`, `Reviews.tsx`, `Recommendations.tsx`
 
-**Discovery & Matching**
-- Such-Screen mit Destination, Datums-Range, Personenanzahl
-- Swipe-Interface (links = pass, rechts = like) im Tinder-Stil mit Property-Karten
-- Match wird erstellt wenn beide Seiten liken
-- Matches-Übersicht
+Wo „flatch." nur als Erwähnung im Fließtext steht (z.B. „Willkommen bei flatch."), bleibt es als Text — Logo ersetzt nur Header/Branding-Stellen.
 
-**Chat & Swap Proposal**
-- Realtime 1-zu-1 Chat zwischen Matches (Lovable Cloud Realtime)
-- "Tauschvorschlag erstellen"-Button im Chat: Zeitraum, Property-Auswahl
-- Status-Tracking: pending → accepted → confirmed
+### 5. Email-Logo
+- `src/lib/email.server.ts`: Logo-URL (CDN) in Email-Templates einsetzen
 
-**Design**
-- Airbnb-ähnlich: viel Weißraum, große Bilder, runde Buttons, warmes Rot (#FF385C-ähnlich) als Akzent
-- Mobile-first, Bottom-Tab-Navigation (Home, Search, Matches, Chat, Profile)
-- Smooth Animations, hochwertige Typography (Inter/SF Pro Stil)
-- Responsive – läuft auch auf Desktop sauber
+### 6. Verifikation
+- Build laufen lassen
+- Preview-Screenshot der Startseite zur Kontrolle
 
-**PWA**
-- Manifest + Icons → installierbar auf iOS/Android Home-Screen
-- Theme color, App-Name "flatch."
-- Bereit für späteren Capacitor-Wrap
+## Was ich NICHT tue
+- Keine Farbänderungen am Theme (Logo ist beige — falls Background/Theme angepasst werden soll, frag ich danach separat)
+- Keine neuen Brand-Guidelines / Typografie-Änderungen
+- Keine Splash-Screens für iOS (separate Größen — kann ich nachschieben falls gewünscht)
 
-## Architektur
-
-```text
-src/routes/
-  index.tsx                    → Landing/Welcome
-  auth.tsx                     → Login/Signup
-  reset-password.tsx           → Passwort-Reset
-  _authenticated/
-    route.tsx                  → Auth-Gate (integration-managed)
-    home.tsx                   → Dashboard
-    search.tsx                 → Such-Screen
-    swipe.tsx                  → Swipe-Interface
-    matches.tsx                → Match-Liste
-    chat.$matchId.tsx          → Chat-Detail
-    property.new.tsx           → Property erstellen
-    property.$id.tsx           → Property bearbeiten
-    profile.tsx                → Eigenes Profil
-    onboarding.tsx             → Erstes Setup
-```
-
-Backend: Lovable Cloud (PostgreSQL + Auth + Storage + Realtime).
-
-## Technische Details
-
-**Datenbank-Tabellen (Phase 1):**
-- `profiles` – verknüpft mit `auth.users`, Bio, Avatar, Sprachen
-- `properties` – Owner, Titel, Beschreibung, Stadt, Land, exakte Adresse (privat), Räume, Schlafplätze
-- `property_images` – Foto-URLs, Reihenfolge
-- `availabilities` – Property, Start/End-Datum, Status
-- `swipes` – User, Property, Direction (like/pass)
-- `matches` – beide User-IDs, beide Property-IDs, erstellt-at
-- `messages` – Match, Sender, Text, Erstellungs-Zeit (Realtime)
-- `swap_proposals` – Match, vorgeschlagene Daten, Status
-
-**Sicherheit:** RLS auf allen Tabellen. User-Rollen in separater `user_roles` Tabelle. Adresse-Felder erst sichtbar wenn Swap bestätigt.
-
-**Routing:** TanStack Start mit File-based Routes, `_authenticated`-Layout für geschützte Bereiche.
-
-**State:** TanStack Query für Server-State, lokaler State mit React useState/useReducer.
-
-## Was NICHT in Phase 1 ist
-
-- Stripe/Apple/Google Payments + Subscriptions (Basic/Standard/Premium)
-- Truvi Screening & Protection
-- Booking-Confirmation Flow mit Bezahlung
-- Reviews & Ratings
-- Claims Management
-- Admin Dashboard
-- Email-Versand via Resend (außer Auth-Mails von Lovable Cloud)
-- SMS-Verifikation via Twilio
-- Push Notifications via FCM
-- Google Places API für Adresssuche (erstmal manuelles Eingabefeld)
-- iOS/Android Capacitor-Build und App-Store-Einreichung
-
-Diese Punkte machen wir in **Phase 2+** sobald Phase 1 stabil läuft und du echte Test-User hast.
-
-## Was du als Nächstes brauchst (außerhalb Lovable)
-
-Für den späteren App-Store-Release:
-- Apple Developer Account ($99/Jahr)
-- Google Play Developer Account ($25 einmalig)
-- Mac mit Xcode (für iOS-Build)
-- Capacitor-Setup (machen wir wenn Phase 1 fertig ist)
-
-Sobald du den Plan bestätigst, aktiviere ich Lovable Cloud und baue Phase 1.
+## Frage vor Start
+Soll ich beim PWA Icon das Logo **mit Hintergrundfarbe** (z.B. dunkler Hintergrund passend zum Beige) oder **transparent** verwenden? iOS rundet transparente Icons mit weißem Hintergrund — sieht oft schlechter aus als ein gefüllter Hintergrund.
