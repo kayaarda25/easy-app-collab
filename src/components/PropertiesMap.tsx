@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 type PropertyPoint = {
   id: string;
   title: string;
+  description?: string | null;
   city: string;
   country: string;
   street?: string | null;
@@ -11,6 +12,12 @@ type PropertyPoint = {
   zip_code?: string | null;
   latitude: number | string | null;
   longitude: number | string | null;
+  property_type?: string | null;
+  bedrooms?: number | null;
+  beds?: number | null;
+  bathrooms?: number | null;
+  max_guests?: number | null;
+  amenities?: string[] | null;
   property_images?: { url: string; position: number }[];
 };
 
@@ -43,9 +50,11 @@ function loadGoogleMaps(): Promise<void> {
 export function PropertiesMap({
   points,
   style,
+  onSelect,
 }: {
   points: PropertyPoint[];
   style?: CSSProperties;
+  onSelect?: (p: PropertyPoint) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -105,9 +114,13 @@ export function PropertiesMap({
         .filter(Boolean)
         .join(", ");
       const info = new google.maps.InfoWindow({
-        content: `<div style="font-family:inherit"><strong>${escapeHtml(p.title)}</strong><br/><span style="font-size:12px;color:#666">${escapeHtml(addr || `${p.city}, ${p.country}`)}</span></div>`,
+        content: `<div style="font-family:inherit;cursor:pointer" id="info-${escapeHtml(p.id)}"><strong>${escapeHtml(p.title)}</strong><br/><span style="font-size:12px;color:#666">${escapeHtml(addr || `${p.city}, ${p.country}`)}</span></div>`,
       });
-      marker.addListener("click", () => info.open({ anchor: marker, map: mapRef.current }));
+      marker.addListener("click", () => {
+        info.open({ anchor: marker, map: mapRef.current });
+        // Also trigger onSelect after a brief delay so the info window shows first
+        if (onSelect) setTimeout(() => onSelect(p), 50);
+      });
       markersRef.current.push(marker);
       bounds.extend(pos);
     });
@@ -118,7 +131,7 @@ export function PropertiesMap({
       mapRef.current.setCenter({ lat: valid[0].lat, lng: valid[0].lng });
       mapRef.current.setZoom(13);
     }
-  }, [ready, valid]);
+  }, [ready, valid, onSelect]);
 
   if (error) {
     return (
