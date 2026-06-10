@@ -10,6 +10,7 @@ import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight } from "lucide-reac
 import { useState } from "react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
+import { VerificationBadges, VerificationChecklist } from "@/components/VerificationBadges";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — flatch." }] }),
@@ -27,6 +28,15 @@ function ProfilePage() {
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const props = useQuery({ queryKey: ["my-properties"], queryFn: () => fetchProps() });
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
+
+  const verificationSource = {
+    email_verified_at: profile.data?.email_verified_at,
+    phone_verified_at: profile.data?.phone_verified_at,
+    identity_verified_at: profile.data?.identity_verified_at,
+    trusted_host: profile.data?.trusted_host,
+    plan: ent.data?.effectivePlan,
+    hasVerifiedProperty: (props.data ?? []).some((p) => p.verified_at),
+  };
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -87,6 +97,15 @@ function ProfilePage() {
         ) : (
           profile.data?.bio && <p className="mt-4 text-sm text-muted-foreground">{profile.data.bio}</p>
         )}
+
+        <VerificationBadges source={verificationSource} className="mt-4" />
+      </section>
+
+      <section className="mt-8 px-6">
+        <h2 className="text-lg font-semibold">Trust & verification</h2>
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
+          <VerificationChecklist source={verificationSource} />
+        </div>
       </section>
 
       <section className="mt-8 px-6">
