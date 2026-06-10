@@ -6,8 +6,8 @@ import { getMyEntitlement } from "@/lib/subscription.functions";
 import { PLAN_INFO } from "@/lib/subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/BottomNav";
-import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { LogOut, Plus, Settings, Pencil, Crown, ChevronRight, Camera, Loader2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationBadges, VerificationChecklist } from "@/components/VerificationBadges";
@@ -41,11 +41,42 @@ function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const startEdit = () => {
     setName(profile.data?.display_name ?? "");
     setBio(profile.data?.bio ?? "");
     setEditing(true);
+  };
+
+  const handleAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5 MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Not signed in");
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${u.user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: false });
+      if (upErr) throw upErr;
+      const { data: signed, error: sErr } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (sErr || !signed) throw sErr ?? new Error("Failed to sign URL");
+      await updateFn({ data: { avatar_url: signed.signedUrl } });
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Profile photo updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const save = async () => {
@@ -73,9 +104,29 @@ function ProfilePage() {
 
       <section className="px-6 pt-6">
         <div className="flex items-center gap-4">
-          <div className="h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent">
-            {profile.data?.avatar_url && <img src={profile.data.avatar_url} alt="" className="h-full w-full object-cover" />}
-          </div>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent"
+          >
+            {profile.data?.avatar_url ? (
+              <img src={profile.data.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <Camera className="m-auto h-7 w-7 text-muted-foreground" />
+            )}
+            {uploadingAvatar && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            )}
+            {!uploadingAvatar && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+            )}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatar} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xl font-bold">{profile.data?.display_name ?? "—"}</p>
             <p className="text-sm text-muted-foreground">{profile.data?.city}{profile.data?.city && profile.data?.country && ", "}{profile.data?.country}</p>
