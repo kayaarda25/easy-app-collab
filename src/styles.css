@@ -168,3 +168,12 @@
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ring) 25%, transparent);
   }
 }
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
