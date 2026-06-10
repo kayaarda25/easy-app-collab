@@ -1,7 +1,13 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/BottomNav";
-import { Search as SearchIcon, MapPin } from "lucide-react";
+import { Search as SearchIcon, MapPin, Lock, Crown } from "lucide-react";
+import { readEntitlement as _ignored } from "@/lib/subscription";
+import { getEntitlement } from "@/lib/subscription.functions";
+import { getAllPropertyLocations } from "@/lib/flatch.functions";
+import { PropertiesMap } from "@/components/PropertiesMap";
 
 export const Route = createFileRoute("/_authenticated/search")({
   head: () => ({ meta: [{ title: "Search — flatch." }] }),
@@ -13,6 +19,14 @@ const SUGGESTIONS = ["Paris", "Lisbon", "Tokyo", "New York", "Barcelona", "Bali"
 function SearchPage() {
   const navigate = useNavigate();
   const [city, setCity] = useState("");
+  const fetchEnt = useServerFn(getEntitlement);
+  const fetchLocations = useServerFn(getAllPropertyLocations);
+  const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
+  const locations = useQuery({
+    queryKey: ["property-locations"],
+    queryFn: () => fetchLocations(),
+  });
+  const isPremium = ent.data?.effectivePlan === "premium";
 
   const go = (c?: string) => {
     navigate({ to: "/swipe", search: { city: c ?? city } });
@@ -26,15 +40,28 @@ function SearchPage() {
       </header>
 
       <div className="px-6 mt-4">
-        <form onSubmit={(e) => { e.preventDefault(); go(); }} className="relative">
-          <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Search a city or country"
-            className="w-full rounded-full border border-border bg-card py-3.5 pl-12 pr-4 text-sm shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-ring/30"
-          />
-        </form>
+        {isPremium ? (
+          <form onSubmit={(e) => { e.preventDefault(); go(); }} className="relative">
+            <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Search a city or country"
+              className="w-full rounded-full border border-border bg-card py-3.5 pl-12 pr-4 text-sm shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-ring/30"
+            />
+          </form>
+        ) : (
+          <Link
+            to="/paywall"
+            className="relative flex w-full items-center gap-3 rounded-full border border-border bg-card py-3.5 pl-12 pr-4 text-sm shadow-[var(--shadow-card)]"
+          >
+            <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <span className="text-muted-foreground">Search is a Premium feature</span>
+            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-xs font-semibold text-primary-foreground">
+              <Crown className="h-3 w-3" /> Premium
+            </span>
+          </Link>
+        )}
       </div>
 
       <section className="mt-8 px-6">
@@ -53,7 +80,42 @@ function SearchPage() {
         </div>
       </section>
 
-      <div className="mt-8 px-6">
+      <section className="mt-10 px-6">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-sm font-semibold text-muted-foreground">All homes on flatch.</h2>
+          <span className="text-xs text-muted-foreground">
+            {locations.data?.length ?? 0} listed
+          </span>
+        </div>
+        <div className="mt-3">
+          <PropertiesMap
+            points={(locations.data ?? []) as any}
+            style={{ height: 320 }}
+          />
+          {(locations.data ?? []).length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {(locations.data ?? []).slice(0, 8).map((p: any) => {
+                const addr = [
+                  [p.street, p.house_number].filter(Boolean).join(" "),
+                  [p.zip_code, p.city].filter(Boolean).join(" "),
+                  p.country,
+                ].filter(Boolean).join(", ");
+                return (
+                  <li key={p.id} className="flex items-start gap-2 rounded-xl border border-border bg-card p-3 text-sm">
+                    <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{p.title}</p>
+                      <p className="truncate text-xs text-muted-foreground">{addr || `${p.city}, ${p.country}`}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      <div className="mt-8 px-6 pb-8">
         <button
           onClick={() => go("")}
           className="w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground"
