@@ -1335,7 +1335,7 @@ export const getPublicProfile = createServerFn({ method: "POST" })
     const [{ data: profile }, { data: properties }, { data: reviews }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, bio, city, country, languages, occupation, email_verified_at, phone_verified_at, created_at")
+        .select("id, display_name, avatar_url, bio, city, country, languages, email_verified_at, phone_verified_at, identity_verified_at, trusted_host, created_at")
         .eq("id", data.user_id)
         .single(),
       supabase
