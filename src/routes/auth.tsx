@@ -28,12 +28,42 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mfaChallenge, setMfaChallenge] = useState<{ factorId: string; challengeId: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/home" });
     });
   }, [navigate]);
+
+  const checkMfaAfterLogin = async () => {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.currentLevel === "aal1" && aal?.nextLevel === "aal2") {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const factor = factors?.totp?.find((f) => f.status === "verified");
+      if (factor) {
+        const { data: ch, error } = await supabase.auth.mfa.challenge({ factorId: factor.id });
+        if (error || !ch) {
+          toast.error(error?.message ?? "MFA challenge failed");
+          return false;
+        }
+        setMfaChallenge({ factorId: factor.id, challengeId: ch.id });
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const submitMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaChallenge) return;
+    setLoading(true);
+    const { error } = await supabase.auth.mfa.verify({ ...mfaChallenge, code: mfaCode });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    navigate({ to: "/home" });
+  };
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,11 +76,12 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin + "/home" },
         });
         if (error) throw error;
-        toast.success("Welcome! Check your email to verify your account.");
-        navigate({ to: "/home" });
+        toast.success("Check your email to verify your account before signing in.");
+        setIsSignup(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (await checkMfaAfterLogin()) return;
         navigate({ to: "/home" });
       }
     } catch (err) {
@@ -110,6 +141,18 @@ function AuthPage() {
           <span className="text-xl font-bold tracking-tight">flatch.</span>
         </Link>
 
+        {mfaChallenge ? (
+          <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+            <h1 className="text-2xl font-bold tracking-tight">Two-factor code</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app.</p>
+            <form onSubmit={submitMfa} className="mt-6 space-y-3">
+              <input value={mfaCode} onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoFocus placeholder="123456" className="w-full rounded-xl border border-input bg-background px-4 py-3 text-center text-lg tracking-widest focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30" />
+              <button type="submit" disabled={loading || mfaCode.length !== 6} className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60">
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />} Verify
+              </button>
+            </form>
+          </div>
+        ) : (
         <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
           <h1 className="text-2xl font-bold tracking-tight">
             {isSignup ? "Create your account" : "Welcome back"}
@@ -189,6 +232,7 @@ function AuthPage() {
             </button>
           </p>
         </div>
+        )}
       </div>
     </div>
   );
