@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRecommendation, deleteRecommendation, listRecommendations } from "@/lib/flatch.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Beer, Camera, MapPin, Plus, Star, Trash2, Utensils } from "lucide-react";
+import { Beer, Camera, ImagePlus, MapPin, Plus, Star, Trash2, Utensils, Video, X } from "lucide-react";
 import { toast } from "sonner";
 
 type Category = "destination" | "bar" | "restaurant" | "sightseeing" | "other";
@@ -44,7 +45,53 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
     country: "",
     image_url: "",
     link_url: "",
+    video_url: "",
   });
+  const [uploading, setUploading] = useState<"image" | "video" | null>(null);
+
+  const resetForm = () =>
+    setForm({
+      category: "destination",
+      title: "",
+      description: "",
+      city: "",
+      country: "",
+      image_url: "",
+      link_url: "",
+      video_url: "",
+    });
+
+  const uploadMedia = async (
+    file: File,
+    kind: "image" | "video",
+  ): Promise<string | null> => {
+    const limits = { image: 10, video: 50 };
+    if (file.size > limits[kind] * 1024 * 1024) {
+      toast.error(`${kind === "image" ? "Image" : "Video"} must be under ${limits[kind]} MB`);
+      return null;
+    }
+    setUploading(kind);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Not signed in");
+      const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "image" ? "jpg" : "mp4");
+      const path = `${u.user.id}/${kind}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("recommendation-media")
+        .upload(path, file, { upsert: false, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed, error: sErr } = await supabase.storage
+        .from("recommendation-media")
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (sErr || !signed) throw sErr ?? new Error("Failed to sign URL");
+      return signed.signedUrl;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+      return null;
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const create = useMutation({
     mutationFn: (input: typeof form) =>
@@ -57,21 +104,14 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
           country: input.country || null,
           image_url: input.image_url || null,
           link_url: input.link_url || null,
+          video_url: input.video_url || null,
         },
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["recommendations"] });
       toast.success("Recommendation shared");
       setOpen(false);
-      setForm({
-        category: "destination",
-        title: "",
-        description: "",
-        city: "",
-        country: "",
-        image_url: "",
-        link_url: "",
-      });
+      resetForm();
     },
     onError: (e: any) => toast.error(e?.message ?? "Could not create"),
   });
@@ -163,13 +203,72 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 </div>
               </div>
               <div>
-                <Label>Image URL (optional)</Label>
-                <Input
-                  type="url"
-                  value={form.image_url}
-                  onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-                  placeholder="https://..."
-                />
+                <Label>Photo (optional)</Label>
+                {form.image_url ? (
+                  <div className="relative mt-1 overflow-hidden rounded-xl border border-border">
+                    <img src={form.image_url} alt="" className="h-40 w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, image_url: "" }))}
+                      className="absolute right-2 top-2 rounded-full bg-background/90 p-1 shadow"
+                      aria-label="Remove photo"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="mt-1 flex h-24 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:bg-muted/50">
+                    <ImagePlus className="h-5 w-5" />
+                    {uploading === "image" ? "Uploading..." : "Choose from gallery"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading !== null}
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        e.target.value = "";
+                        if (!f) return;
+                        const url = await uploadMedia(f, "image");
+                        if (url) setForm((s) => ({ ...s, image_url: url }));
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+              <div>
+                <Label>Video (optional)</Label>
+                {form.video_url ? (
+                  <div className="relative mt-1 overflow-hidden rounded-xl border border-border">
+                    <video src={form.video_url} controls className="h-40 w-full bg-black object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, video_url: "" }))}
+                      className="absolute right-2 top-2 rounded-full bg-background/90 p-1 shadow"
+                      aria-label="Remove video"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="mt-1 flex h-24 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:bg-muted/50">
+                    <Video className="h-5 w-5" />
+                    {uploading === "video" ? "Uploading..." : "Choose video from gallery"}
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      disabled={uploading !== null}
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        e.target.value = "";
+                        if (!f) return;
+                        const url = await uploadMedia(f, "video");
+                        if (url) setForm((s) => ({ ...s, video_url: url }));
+                      }}
+                    />
+                  </label>
+                )}
               </div>
               <div>
                 <Label>Link (optional)</Label>
@@ -180,8 +279,8 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                   placeholder="https://..."
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={create.isPending}>
-                {create.isPending ? "Sharing..." : "Share"}
+              <Button type="submit" className="w-full" disabled={create.isPending || uploading !== null}>
+                {create.isPending ? "Sharing..." : uploading ? "Uploading media..." : "Share"}
               </Button>
             </form>
           </DialogContent>
