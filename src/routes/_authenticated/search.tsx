@@ -18,7 +18,7 @@ import {
 export const Route = createFileRoute("/_authenticated/search")({
   head: () => ({ meta: [{ title: "Search — flatch." }] }),
   beforeLoad: async () => {
-    const { redirect } = await import("@tanstack/react-router");
+    const { redirect, isRedirect } = await import("@tanstack/react-router");
     const { getMyEntitlement } = await import("@/lib/subscription.functions");
     try {
       const ent = await getMyEntitlement();
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/search")({
         throw redirect({ to: "/paywall" });
       }
     } catch (e: any) {
-      if (e?.isRedirect) throw e;
+      if (isRedirect(e)) throw e;
       throw redirect({ to: "/paywall" });
     }
   },
