@@ -81,12 +81,7 @@ function Welcome() {
       <div className="relative z-10 flex h-full flex-col">
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-md text-white font-bold text-sm">
-              f
-            </div>
-            <span className="text-base font-bold tracking-tight text-white">flatch.</span>
-          </div>
+          <Logo size={32} withWordmark wordmarkClassName="text-base text-white" />
           {!isLast && (
             <button
               onClick={() => navigate({ to: "/auth", search: { mode: "signup" } })}
