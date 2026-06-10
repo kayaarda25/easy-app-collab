@@ -153,7 +153,7 @@ export const getAllPropertyLocations = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data, error } = await supabase
       .from("properties")
-      .select("id, title, city, country, street, house_number, zip_code, latitude, longitude, property_type, property_images(url, position)")
+      .select("id, title, description, city, country, street, house_number, zip_code, latitude, longitude, property_type, bedrooms, beds, bathrooms, max_guests, amenities, owner_id, property_images(url, position)")
       .eq("is_active", true);
     if (error) throw error;
     const rows = data ?? [];
