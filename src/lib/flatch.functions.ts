@@ -1343,7 +1343,7 @@ export const getPublicProfile = createServerFn({ method: "POST" })
         .select("id, title, city, country, property_type, bedrooms, beds, bathrooms, max_guests, property_images(url, position)")
         .eq("owner_id", data.user_id)
         .eq("is_active", true)
-        .in("status", ["published", "active", "approved"]),
+        .in("status", ["approved"]),
       supabase
         .from("reviews")
         .select("rating, body, created_at")
