@@ -52,6 +52,94 @@ export type Database = {
           },
         ]
       }
+      flatch_points_ledger: {
+        Row: {
+          created_at: string
+          delta: number
+          expired_at: string | null
+          expires_at: string | null
+          id: string
+          meta: Json | null
+          notified_30: boolean
+          notified_7: boolean
+          notified_90: boolean
+          proposal_id: string | null
+          reason: Database["public"]["Enums"]["flatch_points_reason"]
+          related_id: string | null
+          status: Database["public"]["Enums"]["flatch_points_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          expired_at?: string | null
+          expires_at?: string | null
+          id?: string
+          meta?: Json | null
+          notified_30?: boolean
+          notified_7?: boolean
+          notified_90?: boolean
+          proposal_id?: string | null
+          reason: Database["public"]["Enums"]["flatch_points_reason"]
+          related_id?: string | null
+          status?: Database["public"]["Enums"]["flatch_points_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          expired_at?: string | null
+          expires_at?: string | null
+          id?: string
+          meta?: Json | null
+          notified_30?: boolean
+          notified_7?: boolean
+          notified_90?: boolean
+          proposal_id?: string | null
+          reason?: Database["public"]["Enums"]["flatch_points_reason"]
+          related_id?: string | null
+          status?: Database["public"]["Enums"]["flatch_points_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flatch_points_ledger_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "swap_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flatch_premium_bonus_claims: {
+        Row: {
+          claimed_at: string
+          nights_at_claim: number
+          proposal_id: string | null
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          nights_at_claim: number
+          proposal_id?: string | null
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          nights_at_claim?: number
+          proposal_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flatch_premium_bonus_claims_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "swap_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_reads: {
         Row: {
           last_read_at: string
@@ -550,9 +638,15 @@ export type Database = {
           created_at: string
           end_date: string
           guests: number
+          host_user_id: string | null
           id: string
+          kind: Database["public"]["Enums"]["proposal_kind"]
           match_id: string
           message: string | null
+          points_amount: number | null
+          points_awarded_at: string | null
+          points_hold_id: string | null
+          property_id: string | null
           proposer_id: string
           start_date: string
           status: Database["public"]["Enums"]["proposal_status"]
@@ -562,9 +656,15 @@ export type Database = {
           created_at?: string
           end_date: string
           guests?: number
+          host_user_id?: string | null
           id?: string
+          kind?: Database["public"]["Enums"]["proposal_kind"]
           match_id: string
           message?: string | null
+          points_amount?: number | null
+          points_awarded_at?: string | null
+          points_hold_id?: string | null
+          property_id?: string | null
           proposer_id: string
           start_date: string
           status?: Database["public"]["Enums"]["proposal_status"]
@@ -574,9 +674,15 @@ export type Database = {
           created_at?: string
           end_date?: string
           guests?: number
+          host_user_id?: string | null
           id?: string
+          kind?: Database["public"]["Enums"]["proposal_kind"]
           match_id?: string
           message?: string | null
+          points_amount?: number | null
+          points_awarded_at?: string | null
+          points_hold_id?: string | null
+          property_id?: string | null
           proposer_id?: string
           start_date?: string
           status?: Database["public"]["Enums"]["proposal_status"]
@@ -588,6 +694,13 @@ export type Database = {
             columns: ["match_id"]
             isOneToOne: false
             referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "swap_proposals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -661,6 +774,33 @@ export type Database = {
         }
         Returns: string
       }
+      flatch_effective_plan: { Args: { _user_id: string }; Returns: string }
+      flatch_points_available: { Args: { _user_id: string }; Returns: number }
+      flatch_points_award_stay: {
+        Args: { _proposal_id: string }
+        Returns: undefined
+      }
+      flatch_points_credit: {
+        Args: {
+          _amount: number
+          _meta?: Json
+          _proposal_id: string
+          _reason: Database["public"]["Enums"]["flatch_points_reason"]
+          _user_id: string
+        }
+        Returns: string
+      }
+      flatch_points_expire_due: { Args: never; Returns: number }
+      flatch_points_hold: {
+        Args: { _amount: number; _proposal_id: string; _user_id: string }
+        Returns: string
+      }
+      flatch_points_notify_expiring: { Args: never; Returns: undefined }
+      flatch_points_process_completed_stays: { Args: never; Returns: number }
+      flatch_points_release_hold: {
+        Args: { _proposal_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -689,6 +829,16 @@ export type Database = {
         | "reserved"
         | "pending_swap"
         | "confirmed_swap"
+      flatch_points_reason:
+        | "earned_stay"
+        | "premium_bonus"
+        | "redeemed_stay"
+        | "hold"
+        | "hold_release"
+        | "refund"
+        | "expired"
+        | "admin_adjust"
+      flatch_points_status: "active" | "released" | "expired"
       property_status: "draft" | "pending" | "approved" | "rejected" | "flagged"
       property_type:
         | "house"
@@ -697,6 +847,7 @@ export type Database = {
         | "cabin"
         | "loft"
         | "other"
+      proposal_kind: "direct" | "async"
       proposal_status:
         | "pending"
         | "accepted"
@@ -861,8 +1012,20 @@ export const Constants = {
         "pending_swap",
         "confirmed_swap",
       ],
+      flatch_points_reason: [
+        "earned_stay",
+        "premium_bonus",
+        "redeemed_stay",
+        "hold",
+        "hold_release",
+        "refund",
+        "expired",
+        "admin_adjust",
+      ],
+      flatch_points_status: ["active", "released", "expired"],
       property_status: ["draft", "pending", "approved", "rejected", "flagged"],
       property_type: ["house", "apartment", "villa", "cabin", "loft", "other"],
+      proposal_kind: ["direct", "async"],
       proposal_status: [
         "pending",
         "accepted",
