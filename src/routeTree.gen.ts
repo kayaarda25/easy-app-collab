@@ -17,6 +17,7 @@ import { Route as AuthenticatedSwipeRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPointsRouteImport } from './routes/_authenticated/points'
 import { Route as AuthenticatedPaywallRouteImport } from './routes/_authenticated/paywall'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
@@ -34,6 +35,7 @@ import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
+import { Route as ApiPublicHooksFlatchPointsDailyRouteImport } from './routes/api/public/hooks/flatch-points-daily'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -73,6 +75,11 @@ const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPointsRoute = AuthenticatedPointsRouteImport.update({
+  id: '/points',
+  path: '/points',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPaywallRoute = AuthenticatedPaywallRouteImport.update({
@@ -168,6 +175,12 @@ const ApiPublicWebhooksRevenuecatRoute =
     path: '/api/public/webhooks/revenuecat',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksFlatchPointsDailyRoute =
+  ApiPublicHooksFlatchPointsDailyRouteImport.update({
+    id: '/api/public/hooks/flatch-points-daily',
+    path: '/api/public/hooks/flatch-points-daily',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksCheckinRemindersRoute =
   ApiPublicHooksCheckinRemindersRouteImport.update({
     id: '/api/public/hooks/checkin-reminders',
@@ -185,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/paywall': typeof AuthenticatedPaywallRoute
+  '/points': typeof AuthenticatedPointsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -200,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
+  '/api/public/hooks/flatch-points-daily': typeof ApiPublicHooksFlatchPointsDailyRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRoutesByTo {
@@ -212,6 +227,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/paywall': typeof AuthenticatedPaywallRoute
+  '/points': typeof AuthenticatedPointsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -227,6 +243,7 @@ export interface FileRoutesByTo {
   '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
+  '/api/public/hooks/flatch-points-daily': typeof ApiPublicHooksFlatchPointsDailyRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRoutesById {
@@ -241,6 +258,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/paywall': typeof AuthenticatedPaywallRoute
+  '/_authenticated/points': typeof AuthenticatedPointsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -256,6 +274,7 @@ export interface FileRoutesById {
   '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
+  '/api/public/hooks/flatch-points-daily': typeof ApiPublicHooksFlatchPointsDailyRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRouteTypes {
@@ -270,6 +289,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/paywall'
+    | '/points'
     | '/profile'
     | '/search'
     | '/settings'
@@ -285,6 +305,7 @@ export interface FileRouteTypes {
     | '/u/$userId'
     | '/admin/'
     | '/api/public/hooks/checkin-reminders'
+    | '/api/public/hooks/flatch-points-daily'
     | '/api/public/webhooks/revenuecat'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -297,6 +318,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/paywall'
+    | '/points'
     | '/profile'
     | '/search'
     | '/settings'
@@ -312,6 +334,7 @@ export interface FileRouteTypes {
     | '/u/$userId'
     | '/admin'
     | '/api/public/hooks/checkin-reminders'
+    | '/api/public/hooks/flatch-points-daily'
     | '/api/public/webhooks/revenuecat'
   id:
     | '__root__'
@@ -325,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/onboarding'
     | '/_authenticated/paywall'
+    | '/_authenticated/points'
     | '/_authenticated/profile'
     | '/_authenticated/search'
     | '/_authenticated/settings'
@@ -340,6 +364,7 @@ export interface FileRouteTypes {
     | '/_authenticated/u/$userId'
     | '/_authenticated/admin/'
     | '/api/public/hooks/checkin-reminders'
+    | '/api/public/hooks/flatch-points-daily'
     | '/api/public/webhooks/revenuecat'
   fileRoutesById: FileRoutesById
 }
@@ -349,6 +374,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicHooksCheckinRemindersRoute: typeof ApiPublicHooksCheckinRemindersRoute
+  ApiPublicHooksFlatchPointsDailyRoute: typeof ApiPublicHooksFlatchPointsDailyRoute
   ApiPublicWebhooksRevenuecatRoute: typeof ApiPublicWebhooksRevenuecatRoute
 }
 
@@ -408,6 +434,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/points': {
+      id: '/_authenticated/points'
+      path: '/points'
+      fullPath: '/points'
+      preLoaderRoute: typeof AuthenticatedPointsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/paywall': {
@@ -529,6 +562,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksRevenuecatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/flatch-points-daily': {
+      id: '/api/public/hooks/flatch-points-daily'
+      path: '/api/public/hooks/flatch-points-daily'
+      fullPath: '/api/public/hooks/flatch-points-daily'
+      preLoaderRoute: typeof ApiPublicHooksFlatchPointsDailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/checkin-reminders': {
       id: '/api/public/hooks/checkin-reminders'
       path: '/api/public/hooks/checkin-reminders'
@@ -546,6 +586,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPaywallRoute: typeof AuthenticatedPaywallRoute
+  AuthenticatedPointsRoute: typeof AuthenticatedPointsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -569,6 +610,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPaywallRoute: AuthenticatedPaywallRoute,
+  AuthenticatedPointsRoute: AuthenticatedPointsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
@@ -594,18 +636,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicHooksCheckinRemindersRoute: ApiPublicHooksCheckinRemindersRoute,
+  ApiPublicHooksFlatchPointsDailyRoute: ApiPublicHooksFlatchPointsDailyRoute,
   ApiPublicWebhooksRevenuecatRoute: ApiPublicWebhooksRevenuecatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
