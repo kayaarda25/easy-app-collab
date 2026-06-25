@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
+import { Route as ApiPublicHooksFlatchPointsDailyRouteImport } from './routes/api/public/hooks/flatch-points-daily'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -168,6 +169,12 @@ const ApiPublicWebhooksRevenuecatRoute =
     path: '/api/public/webhooks/revenuecat',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksFlatchPointsDailyRoute =
+  ApiPublicHooksFlatchPointsDailyRouteImport.update({
+    id: '/api/public/hooks/flatch-points-daily',
+    path: '/api/public/hooks/flatch-points-daily',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksCheckinRemindersRoute =
   ApiPublicHooksCheckinRemindersRouteImport.update({
     id: '/api/public/hooks/checkin-reminders',
@@ -200,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
+  '/api/public/hooks/flatch-points-daily': typeof ApiPublicHooksFlatchPointsDailyRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRoutesByTo {
@@ -227,6 +235,7 @@ export interface FileRoutesByTo {
   '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
+  '/api/public/hooks/flatch-points-daily': typeof ApiPublicHooksFlatchPointsDailyRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRoutesById {
@@ -256,6 +265,7 @@ export interface FileRoutesById {
   '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/checkin-reminders': typeof ApiPublicHooksCheckinRemindersRoute
+  '/api/public/hooks/flatch-points-daily': typeof ApiPublicHooksFlatchPointsDailyRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRouteTypes {
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/u/$userId'
     | '/admin/'
     | '/api/public/hooks/checkin-reminders'
+    | '/api/public/hooks/flatch-points-daily'
     | '/api/public/webhooks/revenuecat'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/u/$userId'
     | '/admin'
     | '/api/public/hooks/checkin-reminders'
+    | '/api/public/hooks/flatch-points-daily'
     | '/api/public/webhooks/revenuecat'
   id:
     | '__root__'
@@ -340,6 +352,7 @@ export interface FileRouteTypes {
     | '/_authenticated/u/$userId'
     | '/_authenticated/admin/'
     | '/api/public/hooks/checkin-reminders'
+    | '/api/public/hooks/flatch-points-daily'
     | '/api/public/webhooks/revenuecat'
   fileRoutesById: FileRoutesById
 }
@@ -349,6 +362,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicHooksCheckinRemindersRoute: typeof ApiPublicHooksCheckinRemindersRoute
+  ApiPublicHooksFlatchPointsDailyRoute: typeof ApiPublicHooksFlatchPointsDailyRoute
   ApiPublicWebhooksRevenuecatRoute: typeof ApiPublicWebhooksRevenuecatRoute
 }
 
@@ -529,6 +543,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksRevenuecatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/flatch-points-daily': {
+      id: '/api/public/hooks/flatch-points-daily'
+      path: '/api/public/hooks/flatch-points-daily'
+      fullPath: '/api/public/hooks/flatch-points-daily'
+      preLoaderRoute: typeof ApiPublicHooksFlatchPointsDailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/checkin-reminders': {
       id: '/api/public/hooks/checkin-reminders'
       path: '/api/public/hooks/checkin-reminders'
@@ -594,6 +615,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicHooksCheckinRemindersRoute: ApiPublicHooksCheckinRemindersRoute,
+  ApiPublicHooksFlatchPointsDailyRoute: ApiPublicHooksFlatchPointsDailyRoute,
   ApiPublicWebhooksRevenuecatRoute: ApiPublicWebhooksRevenuecatRoute,
 }
 export const routeTree = rootRouteImport
