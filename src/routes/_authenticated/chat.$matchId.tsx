@@ -11,8 +11,9 @@ import {
   updateProposalStatus,
   markMatchRead,
 } from "@/lib/flatch.functions";
+import { createAsyncProposal, getMatchHomes } from "@/lib/points.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic } from "lucide-react";
+import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { ChatComposer } from "@/components/ChatComposer";
 
@@ -31,6 +32,8 @@ function ChatPage() {
   const matchesFn = useServerFn(getMyMatches);
   const proposalsFn = useServerFn(getProposals);
   const createProposalFn = useServerFn(createSwapProposal);
+  const createAsyncFn = useServerFn(createAsyncProposal);
+  const matchHomesFn = useServerFn(getMatchHomes);
   const updateProposalFn = useServerFn(updateProposalStatus);
   const markReadFn = useServerFn(markMatchRead);
 
@@ -181,11 +184,26 @@ function ChatPage() {
       {showProposal && (
         <ProposalModal
           onClose={() => setShowProposal(false)}
+          matchId={matchId}
+          loadHomes={() => matchHomesFn({ data: { match_id: matchId } })}
           onSubmit={async (vars) => {
-            await createProposalFn({ data: { match_id: matchId, ...vars } });
-            qc.invalidateQueries({ queryKey: ["proposals", matchId] });
-            toast.success("Proposal sent");
-            setShowProposal(false);
+            try {
+              if (vars.mode === "direct") {
+                await createProposalFn({ data: { match_id: matchId, start_date: vars.start_date, end_date: vars.end_date, guests: vars.guests, message: vars.message } });
+              } else {
+                await createAsyncFn({ data: { match_id: matchId, property_id: vars.property_id!, start_date: vars.start_date, end_date: vars.end_date, guests: vars.guests, message: vars.message } });
+                qc.invalidateQueries({ queryKey: ["points-balance"] });
+                qc.invalidateQueries({ queryKey: ["points-history"] });
+              }
+              qc.invalidateQueries({ queryKey: ["proposals", matchId] });
+              toast.success("Proposal sent");
+              setShowProposal(false);
+            } catch (e: any) {
+              const msg = String(e?.message ?? e);
+              if (msg.includes("INSUFFICIENT_POINTS:")) toast.error(msg.split("INSUFFICIENT_POINTS:")[1]);
+              else if (msg.includes("PLAN_LIMIT:")) toast.error(msg.split("PLAN_LIMIT:")[1]);
+              else toast.error(msg);
+            }
           }}
         />
       )}
@@ -194,10 +212,12 @@ function ChatPage() {
 }
 
 function ProposalCard({ proposal, onUpdate }: { proposal: any; onUpdate: (s: "accepted" | "rejected" | "cancelled" | "confirmed") => void }) {
+  const isAsync = proposal.kind === "async";
   return (
     <div className="mb-3 rounded-2xl border border-primary/20 bg-accent/50 p-4">
       <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-        <Calendar className="h-4 w-4" /> Swap proposal
+        {isAsync ? <Coins className="h-4 w-4" /> : <Calendar className="h-4 w-4" />}
+        {isAsync ? `flatch.points booking · ${proposal.points_amount ?? 0} pts` : "Swap proposal"}
       </div>
       <p className="mt-2 text-sm">
         <span className="font-medium">{proposal.start_date}</span> → <span className="font-medium">{proposal.end_date}</span>
@@ -219,32 +239,94 @@ function ProposalCard({ proposal, onUpdate }: { proposal: any; onUpdate: (s: "ac
   );
 }
 
-function ProposalModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (v: { start_date: string; end_date: string; guests: number; message?: string }) => Promise<void> }) {
+type ProposalSubmit = {
+  mode: "direct" | "async";
+  start_date: string;
+  end_date: string;
+  guests: number;
+  message?: string;
+  property_id?: string;
+};
+
+function ProposalModal({
+  onClose,
+  onSubmit,
+  loadHomes,
+}: {
+  onClose: () => void;
+  matchId: string;
+  loadHomes: () => Promise<any[]>;
+  onSubmit: (v: ProposalSubmit) => Promise<void>;
+}) {
+  const [mode, setMode] = useState<"direct" | "async">("direct");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [guests, setGuests] = useState(2);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [homes, setHomes] = useState<any[] | null>(null);
+  const [propertyId, setPropertyId] = useState<string>("");
+
+  useEffect(() => {
+    if (mode === "async" && !homes) {
+      loadHomes().then((h) => {
+        setHomes(h);
+        if (h[0]?.id) setPropertyId(h[0].id);
+      }).catch(() => setHomes([]));
+    }
+  }, [mode, homes, loadHomes]);
+
+  const nights = start && end ? Math.max(1, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000)) : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-t-3xl bg-card p-6 sm:rounded-3xl">
         <h2 className="text-xl font-bold">Propose a swap</h2>
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-full bg-secondary p-1 text-xs font-semibold">
+          <button type="button" onClick={() => setMode("direct")} className={`rounded-full py-2 transition ${mode === "direct" ? "bg-background shadow" : "text-muted-foreground"}`}>
+            Direct swap
+          </button>
+          <button type="button" onClick={() => setMode("async")} className={`inline-flex items-center justify-center gap-1.5 rounded-full py-2 transition ${mode === "async" ? "bg-background shadow" : "text-muted-foreground"}`}>
+            <Coins className="h-3.5 w-3.5" /> Use flatch.points
+          </button>
+        </div>
         <div className="mt-4 space-y-3">
+          {mode === "async" && (
+            <label className="block">
+              <span className="text-xs text-muted-foreground">Their home</span>
+              {homes === null ? (
+                <p className="mt-1 text-xs text-muted-foreground">Loading…</p>
+              ) : homes.length === 0 ? (
+                <p className="mt-1 text-xs text-destructive">They don't have an active listing.</p>
+              ) : (
+                <select value={propertyId} onChange={(e) => setPropertyId(e.target.value)} className="input mt-1">
+                  {homes.map((h) => (
+                    <option key={h.id} value={h.id}>{h.title} — {h.city}</option>
+                  ))}
+                </select>
+              )}
+            </label>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <label className="block"><span className="text-xs text-muted-foreground">Start</span><input type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="input mt-1" /></label>
             <label className="block"><span className="text-xs text-muted-foreground">End</span><input type="date" required value={end} onChange={(e) => setEnd(e.target.value)} className="input mt-1" /></label>
           </div>
           <label className="block"><span className="text-xs text-muted-foreground">Guests</span><input type="number" min={1} max={40} value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="input mt-1" /></label>
           <label className="block"><span className="text-xs text-muted-foreground">Message (optional)</span><textarea rows={3} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} className="input mt-1 resize-none" /></label>
+          {mode === "async" && nights > 0 && (
+            <div className="rounded-xl bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+              <Coins className="mr-1 inline h-3.5 w-3.5" />
+              This will reserve <span className="font-bold">{nights}</span> flatch.point{nights === 1 ? "" : "s"} from your balance.
+            </div>
+          )}
         </div>
         <div className="mt-5 flex gap-2">
           <button onClick={onClose} className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold">Cancel</button>
           <button
-            disabled={busy || !start || !end}
+            disabled={busy || !start || !end || (mode === "async" && !propertyId)}
             onClick={async () => {
               setBusy(true);
-              try { await onSubmit({ start_date: start, end_date: end, guests, message: message || undefined }); }
+              try { await onSubmit({ mode, start_date: start, end_date: end, guests, message: message || undefined, property_id: propertyId || undefined }); }
               finally { setBusy(false); }
             }}
             className="flex-1 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"

@@ -17,6 +17,7 @@ import { Route as AuthenticatedSwipeRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPointsRouteImport } from './routes/_authenticated/points'
 import { Route as AuthenticatedPaywallRouteImport } from './routes/_authenticated/paywall'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
@@ -74,6 +75,11 @@ const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPointsRoute = AuthenticatedPointsRouteImport.update({
+  id: '/points',
+  path: '/points',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPaywallRoute = AuthenticatedPaywallRouteImport.update({
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/paywall': typeof AuthenticatedPaywallRoute
+  '/points': typeof AuthenticatedPointsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/paywall': typeof AuthenticatedPaywallRoute
+  '/points': typeof AuthenticatedPointsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/paywall': typeof AuthenticatedPaywallRoute
+  '/_authenticated/points': typeof AuthenticatedPointsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/paywall'
+    | '/points'
     | '/profile'
     | '/search'
     | '/settings'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/paywall'
+    | '/points'
     | '/profile'
     | '/search'
     | '/settings'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/onboarding'
     | '/_authenticated/paywall'
+    | '/_authenticated/points'
     | '/_authenticated/profile'
     | '/_authenticated/search'
     | '/_authenticated/settings'
@@ -422,6 +434,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/points': {
+      id: '/_authenticated/points'
+      path: '/points'
+      fullPath: '/points'
+      preLoaderRoute: typeof AuthenticatedPointsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/paywall': {
@@ -567,6 +586,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPaywallRoute: typeof AuthenticatedPaywallRoute
+  AuthenticatedPointsRoute: typeof AuthenticatedPointsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -590,6 +610,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPaywallRoute: AuthenticatedPaywallRoute,
+  AuthenticatedPointsRoute: AuthenticatedPointsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
