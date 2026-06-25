@@ -23,6 +23,7 @@ import {
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { VerificationBadges } from "@/components/VerificationBadges";
+import { PointsBadge } from "@/components/PointsBadge";
 
 function PropertyStatusPill({ status }: { status?: string }) {
   if (!status || status === "approved") return null;
@@ -131,13 +132,16 @@ function ProfilePage() {
         <h1 className="truncate text-xl font-bold">
           {profile.data?.display_name ?? "Profile"}
         </h1>
-        <button
+        <div className="flex items-center gap-2">
+          <PointsBadge compact />
+          <button
           onClick={() => navigate({ to: "/settings" })}
           className="rounded-full p-2 hover:bg-secondary"
           aria-label="Settings"
         >
           <SettingsIcon className="h-5 w-5 text-muted-foreground" />
-        </button>
+          </button>
+        </div>
       </header>
 
       {/* Insta-style profile head: avatar + counters */}
