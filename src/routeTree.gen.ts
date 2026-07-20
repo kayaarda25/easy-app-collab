@@ -35,6 +35,7 @@ import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
+import { Route as AuthenticatedAdminBroadcastRouteImport } from './routes/_authenticated/admin.broadcast'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
@@ -177,6 +178,12 @@ const AuthenticatedAdminMatchesRoute =
     path: '/admin/matches',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminBroadcastRoute =
+  AuthenticatedAdminBroadcastRouteImport.update({
+    id: '/admin/broadcast',
+    path: '/admin/broadcast',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminBookingsRoute =
   AuthenticatedAdminBookingsRouteImport.update({
     id: '/admin/bookings',
@@ -225,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/swipe': typeof AuthenticatedSwipeRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -257,6 +265,7 @@ export interface FileRoutesByTo {
   '/swipe': typeof AuthenticatedSwipeRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -291,6 +300,7 @@ export interface FileRoutesById {
   '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/_authenticated/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/swipe'
     | '/admin/audit'
     | '/admin/bookings'
+    | '/admin/broadcast'
     | '/admin/matches'
     | '/admin/properties'
     | '/admin/subscriptions'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/swipe'
     | '/admin/audit'
     | '/admin/bookings'
+    | '/admin/broadcast'
     | '/admin/matches'
     | '/admin/properties'
     | '/admin/subscriptions'
@@ -390,6 +402,7 @@ export interface FileRouteTypes {
     | '/_authenticated/swipe'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/bookings'
+    | '/_authenticated/admin/broadcast'
     | '/_authenticated/admin/matches'
     | '/_authenticated/admin/properties'
     | '/_authenticated/admin/subscriptions'
@@ -599,6 +612,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMatchesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/broadcast': {
+      id: '/_authenticated/admin/broadcast'
+      path: '/admin/broadcast'
+      fullPath: '/admin/broadcast'
+      preLoaderRoute: typeof AuthenticatedAdminBroadcastRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/bookings': {
       id: '/_authenticated/admin/bookings'
       path: '/admin/bookings'
@@ -652,6 +672,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
+  AuthenticatedAdminBroadcastRoute: typeof AuthenticatedAdminBroadcastRoute
   AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -679,6 +700,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
+  AuthenticatedAdminBroadcastRoute: AuthenticatedAdminBroadcastRoute,
   AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
