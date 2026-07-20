@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationChecklist } from "@/components/VerificationBadges";
+import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/language";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — flatch." }] }),
@@ -58,6 +59,7 @@ function SettingsPage() {
   const fetchProfile = useServerFn(getMyProfile);
   const fetchEnt = useServerFn(getMyEntitlement);
   const checkAdmin = useServerFn(isAdmin);
+  const [lang, setLang] = useLanguage();
 
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
@@ -156,8 +158,23 @@ function SettingsPage() {
           Preferences
         </h2>
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="flex items-center gap-3 p-4 text-sm text-muted-foreground">
-            <Globe className="h-4 w-4" /> Language & region — coming soon
+          <div className="flex items-center gap-3 p-4">
+            <Globe className="h-4 w-4 text-primary" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">App language</p>
+              <p className="text-xs text-muted-foreground">Used across the app and chat translation</p>
+            </div>
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as typeof lang)}
+              className="rounded-lg border border-input bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
+            >
+              {SUPPORTED_LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.flag} {l.label}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex items-center gap-3 border-t border-border p-4 text-sm text-muted-foreground">
             <ShieldCheck className="h-4 w-4" /> Privacy & data — coming soon
