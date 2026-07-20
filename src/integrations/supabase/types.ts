@@ -52,6 +52,56 @@ export type Database = {
           },
         ]
       }
+      booking_guests: {
+        Row: {
+          added_by: string
+          birthdate: string
+          created_at: string
+          first_name: string
+          id: string
+          id_number: string
+          id_type: string
+          last_name: string
+          note: string | null
+          proposal_id: string
+          updated_at: string
+        }
+        Insert: {
+          added_by: string
+          birthdate: string
+          created_at?: string
+          first_name: string
+          id?: string
+          id_number: string
+          id_type?: string
+          last_name: string
+          note?: string | null
+          proposal_id: string
+          updated_at?: string
+        }
+        Update: {
+          added_by?: string
+          birthdate?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          id_number?: string
+          id_type?: string
+          last_name?: string
+          note?: string | null
+          proposal_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_guests_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "swap_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flatch_points_ledger: {
         Row: {
           created_at: string
