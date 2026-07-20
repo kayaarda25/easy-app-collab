@@ -1660,12 +1660,12 @@ export const adminRefundBooking = createServerFn({ method: "POST" })
       .from("swap_proposals")
       .update({ status: "cancelled" })
       .eq("id", data.proposal_id)
-      .select("id, match_id, proposer_id, host_user_id, guest_user_id, kind, points_awarded_at")
+      .select("id, match_id, proposer_id, host_user_id, kind, points_awarded_at")
       .single();
     if (perr) throw perr;
 
     // Notify participants
-    const participants = [prop.proposer_id, prop.host_user_id, prop.guest_user_id].filter(Boolean) as string[];
+    const participants = [prop.proposer_id, prop.host_user_id].filter(Boolean) as string[];
     if (participants.length) {
       await supabaseAdmin.from("notifications").insert(
         participants.map((uid) => ({
