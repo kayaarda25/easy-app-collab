@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminTruviRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
+import { Route as AuthenticatedAdminPointsRouteImport } from './routes/_authenticated/admin.points'
 import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated/admin.moderation'
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
 import { Route as AuthenticatedAdminBroadcastRouteImport } from './routes/_authenticated/admin.broadcast'
@@ -173,6 +174,12 @@ const AuthenticatedAdminPropertiesRoute =
     path: '/admin/properties',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminPointsRoute =
+  AuthenticatedAdminPointsRouteImport.update({
+    id: '/admin/points',
+    path: '/admin/points',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminModerationRoute =
   AuthenticatedAdminModerationRouteImport.update({
     id: '/admin/moderation',
@@ -242,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
+  '/admin/points': typeof AuthenticatedAdminPointsRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -276,6 +284,7 @@ export interface FileRoutesByTo {
   '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
+  '/admin/points': typeof AuthenticatedAdminPointsRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -312,6 +321,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
+  '/_authenticated/admin/points': typeof AuthenticatedAdminPointsRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/broadcast'
     | '/admin/matches'
     | '/admin/moderation'
+    | '/admin/points'
     | '/admin/properties'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/admin/broadcast'
     | '/admin/matches'
     | '/admin/moderation'
+    | '/admin/points'
     | '/admin/properties'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -417,6 +429,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/broadcast'
     | '/_authenticated/admin/matches'
     | '/_authenticated/admin/moderation'
+    | '/_authenticated/admin/points'
     | '/_authenticated/admin/properties'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/support'
@@ -618,6 +631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPropertiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/points': {
+      id: '/_authenticated/admin/points'
+      path: '/admin/points'
+      fullPath: '/admin/points'
+      preLoaderRoute: typeof AuthenticatedAdminPointsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/moderation': {
       id: '/_authenticated/admin/moderation'
       path: '/admin/moderation'
@@ -695,6 +715,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminBroadcastRoute: typeof AuthenticatedAdminBroadcastRoute
   AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
   AuthenticatedAdminModerationRoute: typeof AuthenticatedAdminModerationRoute
+  AuthenticatedAdminPointsRoute: typeof AuthenticatedAdminPointsRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
@@ -724,6 +745,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminBroadcastRoute: AuthenticatedAdminBroadcastRoute,
   AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
   AuthenticatedAdminModerationRoute: AuthenticatedAdminModerationRoute,
+  AuthenticatedAdminPointsRoute: AuthenticatedAdminPointsRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
   AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
