@@ -14,9 +14,10 @@ import {
 import { createAsyncProposal, getMatchHomes } from "@/lib/points.functions";
 import { translateText } from "@/lib/translate.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic, Coins, Languages, Loader2 } from "lucide-react";
+import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic, Coins, Languages, Loader2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { ChatComposer } from "@/components/ChatComposer";
+import { BookingGuestsDialog } from "@/components/BookingGuestsDialog";
 import { useLanguage } from "@/lib/language";
 
 export const Route = createFileRoute("/_authenticated/chat/$matchId")({
@@ -283,6 +284,8 @@ function ChatPage() {
 
 function ProposalCard({ proposal, onUpdate }: { proposal: any; onUpdate: (s: "accepted" | "rejected" | "cancelled" | "confirmed") => void }) {
   const isAsync = proposal.kind === "async";
+  const [showGuests, setShowGuests] = useState(false);
+  const canManageGuests = proposal.status === "accepted" || proposal.status === "confirmed";
   return (
     <div className="mb-3 rounded-2xl border border-primary/20 bg-accent/50 p-4">
       <div className="flex items-center gap-2 text-xs font-semibold text-primary">
@@ -304,6 +307,21 @@ function ProposalCard({ proposal, onUpdate }: { proposal: any; onUpdate: (s: "ac
             <X className="h-3.5 w-3.5" /> Decline
           </button>
         </div>
+      )}
+      {canManageGuests && (
+        <button
+          onClick={() => setShowGuests(true)}
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5"
+        >
+          <Users className="h-3.5 w-3.5" /> Gäste erfassen
+        </button>
+      )}
+      {showGuests && (
+        <BookingGuestsDialog
+          proposalId={proposal.id}
+          maxGuests={proposal.guests}
+          onClose={() => setShowGuests(false)}
+        />
       )}
     </div>
   );
