@@ -36,6 +36,7 @@ import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
+import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
 import { Route as ApiPublicHooksFlatchPointsDailyRouteImport } from './routes/api/public/hooks/flatch-points-daily'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
@@ -182,6 +183,11 @@ const AuthenticatedAdminBookingsRoute =
     path: '/admin/bookings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicWebhooksRevenuecatRoute =
   ApiPublicWebhooksRevenuecatRouteImport.update({
     id: '/api/public/webhooks/revenuecat',
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
@@ -248,6 +255,7 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
@@ -281,6 +289,7 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
+  '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
@@ -314,6 +323,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/swipe'
+    | '/admin/audit'
     | '/admin/bookings'
     | '/admin/matches'
     | '/admin/properties'
@@ -345,6 +355,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/swipe'
+    | '/admin/audit'
     | '/admin/bookings'
     | '/admin/matches'
     | '/admin/properties'
@@ -377,6 +388,7 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/swipe'
+    | '/_authenticated/admin/audit'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/matches'
     | '/_authenticated/admin/properties'
@@ -594,6 +606,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBookingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/audit': {
+      id: '/_authenticated/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/revenuecat': {
       id: '/api/public/webhooks/revenuecat'
       path: '/api/public/webhooks/revenuecat'
@@ -631,6 +650,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
+  AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
   AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
@@ -657,6 +677,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
+  AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
   AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
