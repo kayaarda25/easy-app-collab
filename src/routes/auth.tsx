@@ -112,7 +112,7 @@ function AuthPage() {
   const handleGoogle = async () => {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/home",
+      redirect_uri: window.location.origin + "/auth",
     });
     if (result.error) {
       toast.error(result.error.message ?? "Google sign-in failed");
@@ -126,7 +126,7 @@ function AuthPage() {
   const handleApple = async () => {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin + "/home",
+      redirect_uri: window.location.origin + "/auth",
     });
     if (result.error) {
       toast.error(result.error.message ?? "Apple sign-in failed");
