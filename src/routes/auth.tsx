@@ -6,6 +6,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/language";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).default("signup"),
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
+  const [lang, setLang] = useLanguage();
   const [isSignup, setIsSignup] = useState(mode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -135,6 +137,21 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-accent/40 via-background to-background px-6 py-12">
       <div className="w-full max-w-sm">
+        <div className="mb-4 flex justify-end">
+          <label className="sr-only" htmlFor="app-lang">App language</label>
+          <select
+            id="app-lang"
+            value={lang}
+            onChange={(e) => setLang(e.target.value as typeof lang)}
+            className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring/30"
+          >
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.flag} {l.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <Link to="/" className="flex items-center justify-center gap-2">
           <Logo size={40} withWordmark wordmarkClassName="text-xl" />
         </Link>
