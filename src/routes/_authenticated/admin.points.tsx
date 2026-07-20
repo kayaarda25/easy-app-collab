@@ -28,7 +28,7 @@ function AdminPoints() {
 
   const users = useQuery({
     queryKey: ["admin-users-points", q],
-    queryFn: () => fetchUsers({ data: { search: q } as any }),
+    queryFn: () => fetchUsers({ data: { q } }),
     enabled: me.data?.isAdmin === true,
   });
   const summary = useQuery({
@@ -73,7 +73,7 @@ function AdminPoints() {
               <div className="h-9 w-9 rounded-full bg-secondary" />
               <div className="flex-1 text-left">
                 <p className="text-sm font-semibold">{u.display_name ?? "—"}</p>
-                <p className="text-[11px] text-muted-foreground">{u.email ?? u.id.slice(0, 8)}</p>
+                <p className="text-[11px] text-muted-foreground">{u.city ?? u.id.slice(0, 8)}</p>
               </div>
             </button>
           ))}
