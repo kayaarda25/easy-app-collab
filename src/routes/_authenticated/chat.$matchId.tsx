@@ -40,15 +40,23 @@ function ChatPage() {
   const updateProposalFn = useServerFn(updateProposalStatus);
   const markReadFn = useServerFn(markMatchRead);
   const translateFn = useServerFn(translateText);
-  const [targetLang] = useLanguage();
+  const [appLang] = useLanguage();
   const autoKey = `chat-auto-translate:${matchId}`;
+  const langKey = `chat-translate-lang:${matchId}`;
   const [autoTranslate, setAutoTranslate] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem(autoKey) === "1";
   });
+  const [targetLang, setTargetLang] = useState<string>(() => {
+    if (typeof window === "undefined") return appLang;
+    return window.localStorage.getItem(langKey) || appLang;
+  });
   useEffect(() => {
     if (typeof window !== "undefined") window.localStorage.setItem(autoKey, autoTranslate ? "1" : "0");
   }, [autoTranslate, autoKey]);
+  useEffect(() => {
+    if (typeof window !== "undefined") window.localStorage.setItem(langKey, targetLang);
+  }, [targetLang, langKey]);
 
   const [translations, setTranslations] = useState<Record<string, { text?: string; loading?: boolean; error?: boolean }>>({});
   const translateOne = async (id: string, body: string) => {
@@ -60,6 +68,12 @@ function ChatPage() {
       setTranslations((t) => ({ ...t, [id]: { error: true } }));
     }
   };
+
+  // Re-translate when language changes
+  useEffect(() => {
+    setTranslations({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetLang]);
 
   const matches = useQuery({ queryKey: ["matches"], queryFn: () => matchesFn() });
   const match = matches.data?.find((m) => m.id === matchId);
@@ -161,15 +175,39 @@ function ChatPage() {
       </header>
       <div className="flex items-center justify-between border-b border-border bg-background/60 px-4 py-1.5 text-xs">
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-          <Languages className="h-3.5 w-3.5" /> Auto-Übersetzung ({targetLang})
+          <Languages className="h-3.5 w-3.5" /> Auto-Übersetzung
         </span>
-        <button
-          onClick={() => setAutoTranslate((v) => !v)}
-          className={`relative h-5 w-9 rounded-full transition ${autoTranslate ? "bg-primary" : "bg-muted"}`}
-          aria-pressed={autoTranslate}
-        >
-          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-background shadow transition ${autoTranslate ? "left-4" : "left-0.5"}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={targetLang}
+            onChange={(e) => setTargetLang(e.target.value)}
+            className="rounded-md border border-border bg-background px-1.5 py-0.5 text-xs"
+            aria-label="Zielsprache"
+          >
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+            <option value="es">Español</option>
+            <option value="pt">Português</option>
+            <option value="nl">Nederlands</option>
+            <option value="tr">Türkçe</option>
+            <option value="pl">Polski</option>
+            <option value="ru">Русский</option>
+            <option value="uk">Українська</option>
+            <option value="ar">العربية</option>
+            <option value="zh">中文</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select>
+          <button
+            onClick={() => setAutoTranslate((v) => !v)}
+            className={`relative h-5 w-9 rounded-full transition ${autoTranslate ? "bg-primary" : "bg-muted"}`}
+            aria-pressed={autoTranslate}
+          >
+            <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-background shadow transition ${autoTranslate ? "left-4" : "left-0.5"}`} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
