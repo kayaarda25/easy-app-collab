@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          meta: Json | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
+      admin_broadcasts: {
+        Row: {
+          actor_id: string
+          audience: string
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          recipients_count: number
+          title: string
+        }
+        Insert: {
+          actor_id: string
+          audience?: string
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          recipients_count?: number
+          title: string
+        }
+        Update: {
+          actor_id?: string
+          audience?: string
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          recipients_count?: number
+          title?: string
+        }
+        Relationships: []
+      }
       availabilities: {
         Row: {
           created_at: string
@@ -101,6 +164,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      content_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolution_note: string | null
+          resolved_by: string | null
+          status: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          resolution_note?: string | null
+          resolved_by?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          resolution_note?: string | null
+          resolved_by?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       flatch_points_ledger: {
         Row: {
@@ -903,6 +1008,15 @@ export type Database = {
         Returns: string
       }
       flatch_effective_plan: { Args: { _user_id: string }; Returns: string }
+      flatch_points_admin_adjust: {
+        Args: {
+          _actor: string
+          _delta: number
+          _note: string
+          _user_id: string
+        }
+        Returns: string
+      }
       flatch_points_available: { Args: { _user_id: string }; Returns: number }
       flatch_points_award_stay: {
         Args: { _proposal_id: string }
