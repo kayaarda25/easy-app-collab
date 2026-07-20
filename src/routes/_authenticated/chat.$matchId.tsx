@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic, Coins, Languages, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ChatComposer } from "@/components/ChatComposer";
+import { useLanguage } from "@/lib/language";
 
 export const Route = createFileRoute("/_authenticated/chat/$matchId")({
   head: () => ({ meta: [{ title: "Chat — flatch." }] }),
@@ -38,8 +39,7 @@ function ChatPage() {
   const updateProposalFn = useServerFn(updateProposalStatus);
   const markReadFn = useServerFn(markMatchRead);
   const translateFn = useServerFn(translateText);
-
-  const targetLang = (typeof navigator !== "undefined" ? navigator.language : "en").split("-")[0] || "en";
+  const [targetLang] = useLanguage();
   const autoKey = `chat-auto-translate:${matchId}`;
   const [autoTranslate, setAutoTranslate] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
