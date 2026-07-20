@@ -133,7 +133,8 @@ export const sendUserMessage = createServerFn({ method: "POST" })
     }
 
     if (aiReply) {
-      await context.supabase.from("support_messages").insert({
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("support_messages").insert({
         ticket_id: ticketId, sender_role: "ai", body: aiReply,
       });
     }
@@ -155,7 +156,8 @@ export const escalateToHuman = createServerFn({ method: "POST" })
       .eq("id", data.ticket_id);
     if (error) throw new Error(error.message);
 
-    await context.supabase.from("support_messages").insert({
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("support_messages").insert({
       ticket_id: data.ticket_id, sender_role: "system",
       body: "Anfrage an einen Mitarbeiter weitergeleitet. Wir melden uns so schnell wie möglich.",
     });
