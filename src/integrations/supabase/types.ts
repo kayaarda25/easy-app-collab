@@ -593,6 +593,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          property_id: string | null
           proposal_id: string
           rating: number
           reviewee_id: string
@@ -603,6 +604,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          property_id?: string | null
           proposal_id: string
           rating: number
           reviewee_id: string
@@ -613,6 +615,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          property_id?: string | null
           proposal_id?: string
           rating?: number
           reviewee_id?: string
@@ -620,6 +623,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reviews_proposal_id_fkey"
             columns: ["proposal_id"]
