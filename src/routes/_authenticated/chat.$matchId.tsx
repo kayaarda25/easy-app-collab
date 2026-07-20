@@ -12,8 +12,9 @@ import {
   markMatchRead,
 } from "@/lib/flatch.functions";
 import { createAsyncProposal, getMatchHomes } from "@/lib/points.functions";
+import { translateText } from "@/lib/translate.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic, Coins } from "lucide-react";
+import { ArrowLeft, Calendar, Check, X, CheckCircle2, Info, Mic, Coins, Languages, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ChatComposer } from "@/components/ChatComposer";
 
@@ -36,6 +37,28 @@ function ChatPage() {
   const matchHomesFn = useServerFn(getMatchHomes);
   const updateProposalFn = useServerFn(updateProposalStatus);
   const markReadFn = useServerFn(markMatchRead);
+  const translateFn = useServerFn(translateText);
+
+  const targetLang = (typeof navigator !== "undefined" ? navigator.language : "en").split("-")[0] || "en";
+  const autoKey = `chat-auto-translate:${matchId}`;
+  const [autoTranslate, setAutoTranslate] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(autoKey) === "1";
+  });
+  useEffect(() => {
+    if (typeof window !== "undefined") window.localStorage.setItem(autoKey, autoTranslate ? "1" : "0");
+  }, [autoTranslate, autoKey]);
+
+  const [translations, setTranslations] = useState<Record<string, { text?: string; loading?: boolean; error?: boolean }>>({});
+  const translateOne = async (id: string, body: string) => {
+    setTranslations((t) => ({ ...t, [id]: { loading: true } }));
+    try {
+      const r = await translateFn({ data: { text: body, target_lang: targetLang } });
+      setTranslations((t) => ({ ...t, [id]: { text: r.translated } }));
+    } catch {
+      setTranslations((t) => ({ ...t, [id]: { error: true } }));
+    }
+  };
 
   const matches = useQuery({ queryKey: ["matches"], queryFn: () => matchesFn() });
   const match = matches.data?.find((m) => m.id === matchId);
@@ -84,6 +107,19 @@ function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.data?.length]);
 
+  // Auto-translate incoming messages when enabled
+  useEffect(() => {
+    if (!autoTranslate || !messages.data || !match?.other_user?.id) return;
+    for (const m of messages.data as any[]) {
+      if (m.kind === "system") continue;
+      if (m.sender_id !== match.other_user.id) continue;
+      if (!m.body) continue;
+      if (translations[m.id]) continue;
+      translateOne(m.id, m.body);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoTranslate, messages.data, match?.other_user?.id]);
+
   // Mark as read when messages arrive / viewed
   useEffect(() => {
     if (!messages.data) return;
@@ -122,6 +158,18 @@ function ChatPage() {
           Propose swap
         </button>
       </header>
+      <div className="flex items-center justify-between border-b border-border bg-background/60 px-4 py-1.5 text-xs">
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <Languages className="h-3.5 w-3.5" /> Auto-Übersetzung ({targetLang})
+        </span>
+        <button
+          onClick={() => setAutoTranslate((v) => !v)}
+          className={`relative h-5 w-9 rounded-full transition ${autoTranslate ? "bg-primary" : "bg-muted"}`}
+          aria-pressed={autoTranslate}
+        >
+          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-background shadow transition ${autoTranslate ? "left-4" : "left-0.5"}`} />
+        </button>
+      </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {(proposals.data ?? []).map((p) => (
@@ -150,6 +198,7 @@ function ChatPage() {
             }
             const isMine = m.sender_id !== match?.other_user?.id;
             const att = (m as any).meta?.attachment as { url: string; kind: string; mime: string } | undefined;
+            const tr = translations[m.id];
             return (
               <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[75%] overflow-hidden rounded-2xl text-sm ${isMine ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
@@ -166,6 +215,27 @@ function ChatPage() {
                     </div>
                   )}
                   {m.body && <div className="px-4 py-2">{m.body}</div>}
+                  {!isMine && m.body && (
+                    <div className="px-4 pb-2">
+                      {tr?.text ? (
+                        <div className="mt-1 border-t border-border/40 pt-1.5 text-[13px] opacity-90">
+                          <div className="mb-0.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide opacity-70">
+                            <Languages className="h-3 w-3" /> {targetLang}
+                          </div>
+                          <div>{tr.text}</div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => translateOne(m.id, m.body)}
+                          disabled={tr?.loading}
+                          className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium opacity-70 hover:opacity-100"
+                        >
+                          {tr?.loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Languages className="h-3 w-3" />}
+                          {tr?.error ? "Erneut versuchen" : tr?.loading ? "Übersetze…" : "Übersetzen"}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );
