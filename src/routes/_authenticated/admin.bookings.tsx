@@ -2,9 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { adminListBookings, adminUpdateBookingStatus, getMyAdminRoles } from "@/lib/flatch.functions";
+import { adminListBookings, adminRefundBooking, adminUpdateBookingStatus, getMyAdminRoles } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -22,6 +22,7 @@ function AdminBookings() {
   const fetchRoles = useServerFn(getMyAdminRoles);
   const fetchList = useServerFn(adminListBookings);
   const updateFn = useServerFn(adminUpdateBookingStatus);
+  const refundFn = useServerFn(adminRefundBooking);
 
   const me = useQuery({ queryKey: ["my-admin-roles"], queryFn: () => fetchRoles() });
   const [tab, setTab] = useState<Tab>("all");
@@ -34,6 +35,11 @@ function AdminBookings() {
   const update = useMutation({
     mutationFn: (v: { proposal_id: string; status: "pending" | "accepted" | "confirmed" | "rejected" | "cancelled" }) => updateFn({ data: v }),
     onSuccess: () => { toast.success("Updated"); qc.invalidateQueries({ queryKey: ["admin-bookings"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+  const refund = useMutation({
+    mutationFn: (v: { proposal_id: string; note: string }) => refundFn({ data: v }),
+    onSuccess: () => { toast.success("Storniert & Punkte freigegeben"); qc.invalidateQueries({ queryKey: ["admin-bookings"] }); },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 
@@ -86,6 +92,15 @@ function AdminBookings() {
                     → {s}
                   </button>
                 ))}
+                <button
+                  onClick={() => {
+                    const note = window.prompt("Grund für Storno / Refund?");
+                    if (note && note.length > 1) refund.mutate({ proposal_id: p.id, note });
+                  }}
+                  className="flex items-center gap-1 rounded-full bg-red-600/20 px-2 py-0.5 text-[10px] font-semibold text-red-500"
+                >
+                  <RotateCcw className="h-3 w-3" /> Refund
+                </button>
               </div>
             </article>
           ))
