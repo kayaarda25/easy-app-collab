@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/moderation")({
   head: () => ({ meta: [{ title: "Admin · Moderation — flatch." }] }),
-  component: AdminModeration;
+  component: AdminModeration,
 });
 
 function AdminModeration() {
