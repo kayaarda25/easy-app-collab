@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminStats, getMyAdminRoles } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
-import { ArrowLeft, Building2, Users, Heart, Calendar, ShieldCheck, CreditCard, BarChart3, Shield, Star, Headset } from "lucide-react";
+import { ArrowLeft, Building2, Users, Heart, Calendar, ShieldCheck, CreditCard, BarChart3, Shield, Star, Headset, ScrollText, Megaphone, ShieldAlert, Coins } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin — flatch." }] }),
@@ -53,6 +53,10 @@ function AdminHub() {
     { label: "Truvi", value: "—", sub: "Verification & trust", icon: ShieldCheck, to: "/admin/truvi" as const },
     { label: "Subscriptions", value: s?.subsActive, sub: "Active paid plans", icon: CreditCard, to: "/admin/subscriptions" as const },
     { label: "Support", value: "—", sub: "Live chat tickets", icon: Headset, to: "/admin/support" as const },
+    { label: "Moderation", value: "—", sub: "Meldungen prüfen", icon: ShieldAlert, to: "/admin/moderation" as const },
+    { label: "Broadcast", value: "—", sub: "Push an Nutzer", icon: Megaphone, to: "/admin/broadcast" as const },
+    { label: "flatch.points", value: "—", sub: "Gutschrift / Abzug", icon: Coins, to: "/admin/points" as const },
+    { label: "Audit Log", value: "—", sub: "Admin-Aktionen", icon: ScrollText, to: "/admin/audit" as const },
   ];
 
   return (

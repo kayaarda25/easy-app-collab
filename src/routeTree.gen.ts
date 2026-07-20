@@ -34,8 +34,12 @@ import { Route as AuthenticatedAdminTruviRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
+import { Route as AuthenticatedAdminPointsRouteImport } from './routes/_authenticated/admin.points'
+import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated/admin.moderation'
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
+import { Route as AuthenticatedAdminBroadcastRouteImport } from './routes/_authenticated/admin.broadcast'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
+import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks/revenuecat'
 import { Route as ApiPublicHooksFlatchPointsDailyRouteImport } from './routes/api/public/hooks/flatch-points-daily'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
@@ -170,10 +174,28 @@ const AuthenticatedAdminPropertiesRoute =
     path: '/admin/properties',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminPointsRoute =
+  AuthenticatedAdminPointsRouteImport.update({
+    id: '/admin/points',
+    path: '/admin/points',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminModerationRoute =
+  AuthenticatedAdminModerationRouteImport.update({
+    id: '/admin/moderation',
+    path: '/admin/moderation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminMatchesRoute =
   AuthenticatedAdminMatchesRouteImport.update({
     id: '/admin/matches',
     path: '/admin/matches',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminBroadcastRoute =
+  AuthenticatedAdminBroadcastRouteImport.update({
+    id: '/admin/broadcast',
+    path: '/admin/broadcast',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminBookingsRoute =
@@ -182,6 +204,11 @@ const AuthenticatedAdminBookingsRoute =
     path: '/admin/bookings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicWebhooksRevenuecatRoute =
   ApiPublicWebhooksRevenuecatRouteImport.update({
     id: '/api/public/webhooks/revenuecat',
@@ -217,8 +244,12 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
+  '/admin/moderation': typeof AuthenticatedAdminModerationRoute
+  '/admin/points': typeof AuthenticatedAdminPointsRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -248,8 +279,12 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/swipe': typeof AuthenticatedSwipeRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
+  '/admin/moderation': typeof AuthenticatedAdminModerationRoute
+  '/admin/points': typeof AuthenticatedAdminPointsRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -281,8 +316,12 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
+  '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
+  '/_authenticated/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
+  '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
+  '/_authenticated/admin/points': typeof AuthenticatedAdminPointsRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -314,8 +353,12 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/swipe'
+    | '/admin/audit'
     | '/admin/bookings'
+    | '/admin/broadcast'
     | '/admin/matches'
+    | '/admin/moderation'
+    | '/admin/points'
     | '/admin/properties'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -345,8 +388,12 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/swipe'
+    | '/admin/audit'
     | '/admin/bookings'
+    | '/admin/broadcast'
     | '/admin/matches'
+    | '/admin/moderation'
+    | '/admin/points'
     | '/admin/properties'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -377,8 +424,12 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/swipe'
+    | '/_authenticated/admin/audit'
     | '/_authenticated/admin/bookings'
+    | '/_authenticated/admin/broadcast'
     | '/_authenticated/admin/matches'
+    | '/_authenticated/admin/moderation'
+    | '/_authenticated/admin/points'
     | '/_authenticated/admin/properties'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/support'
@@ -580,6 +631,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPropertiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/points': {
+      id: '/_authenticated/admin/points'
+      path: '/admin/points'
+      fullPath: '/admin/points'
+      preLoaderRoute: typeof AuthenticatedAdminPointsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/moderation': {
+      id: '/_authenticated/admin/moderation'
+      path: '/admin/moderation'
+      fullPath: '/admin/moderation'
+      preLoaderRoute: typeof AuthenticatedAdminModerationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/matches': {
       id: '/_authenticated/admin/matches'
       path: '/admin/matches'
@@ -587,11 +652,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMatchesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/broadcast': {
+      id: '/_authenticated/admin/broadcast'
+      path: '/admin/broadcast'
+      fullPath: '/admin/broadcast'
+      preLoaderRoute: typeof AuthenticatedAdminBroadcastRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/bookings': {
       id: '/_authenticated/admin/bookings'
       path: '/admin/bookings'
       fullPath: '/admin/bookings'
       preLoaderRoute: typeof AuthenticatedAdminBookingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/audit': {
+      id: '/_authenticated/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/webhooks/revenuecat': {
@@ -631,8 +710,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
+  AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
+  AuthenticatedAdminBroadcastRoute: typeof AuthenticatedAdminBroadcastRoute
   AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
+  AuthenticatedAdminModerationRoute: typeof AuthenticatedAdminModerationRoute
+  AuthenticatedAdminPointsRoute: typeof AuthenticatedAdminPointsRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
@@ -657,8 +740,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
+  AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
+  AuthenticatedAdminBroadcastRoute: AuthenticatedAdminBroadcastRoute,
   AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
+  AuthenticatedAdminModerationRoute: AuthenticatedAdminModerationRoute,
+  AuthenticatedAdminPointsRoute: AuthenticatedAdminPointsRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
   AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
