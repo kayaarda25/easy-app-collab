@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminStats, getMyAdminRoles } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
-import { ArrowLeft, Building2, Users, Heart, Calendar, ShieldCheck, CreditCard, BarChart3, Shield, Star } from "lucide-react";
+import { ArrowLeft, Building2, Users, Heart, Calendar, ShieldCheck, CreditCard, BarChart3, Shield, Star, Headset } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin — flatch." }] }),
@@ -52,6 +52,7 @@ function AdminHub() {
     { label: "Bookings", value: s?.proposals, sub: s ? `${s.swapsConfirmed} confirmed` : "", icon: Calendar, to: "/admin/bookings" as const },
     { label: "Truvi", value: "—", sub: "Verification & trust", icon: ShieldCheck, to: "/admin/truvi" as const },
     { label: "Subscriptions", value: s?.subsActive, sub: "Active paid plans", icon: CreditCard, to: "/admin/subscriptions" as const },
+    { label: "Support", value: "—", sub: "Live chat tickets", icon: Headset, to: "/admin/support" as const },
   ];
 
   return (
