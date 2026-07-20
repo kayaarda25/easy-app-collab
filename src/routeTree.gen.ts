@@ -31,6 +31,7 @@ import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenti
 import { Route as AuthenticatedChatMatchIdRouteImport } from './routes/_authenticated/chat.$matchId'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTruviRouteImport } from './routes/_authenticated/admin.truvi'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminPropertiesRouteImport } from './routes/_authenticated/admin.properties'
 import { Route as AuthenticatedAdminMatchesRouteImport } from './routes/_authenticated/admin.matches'
@@ -151,6 +152,12 @@ const AuthenticatedAdminTruviRoute = AuthenticatedAdminTruviRouteImport.update({
   path: '/admin/truvi',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/admin/support',
+    path: '/admin/support',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSubscriptionsRoute =
   AuthenticatedAdminSubscriptionsRouteImport.update({
     id: '/admin/subscriptions',
@@ -214,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/truvi': typeof AuthenticatedAdminTruviRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
@@ -244,6 +252,7 @@ export interface FileRoutesByTo {
   '/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/truvi': typeof AuthenticatedAdminTruviRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
@@ -276,6 +285,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/matches': typeof AuthenticatedAdminMatchesRoute
   '/_authenticated/admin/properties': typeof AuthenticatedAdminPropertiesRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/admin/truvi': typeof AuthenticatedAdminTruviRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/chat/$matchId': typeof AuthenticatedChatMatchIdRoute
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/admin/matches'
     | '/admin/properties'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/truvi'
     | '/admin/users'
     | '/chat/$matchId'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin/matches'
     | '/admin/properties'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/truvi'
     | '/admin/users'
     | '/chat/$matchId'
@@ -369,6 +381,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/matches'
     | '/_authenticated/admin/properties'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/support'
     | '/_authenticated/admin/truvi'
     | '/_authenticated/admin/users'
     | '/_authenticated/chat/$matchId'
@@ -546,6 +559,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTruviRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/admin/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/subscriptions': {
       id: '/_authenticated/admin/subscriptions'
       path: '/admin/subscriptions'
@@ -615,6 +635,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminMatchesRoute: typeof AuthenticatedAdminMatchesRoute
   AuthenticatedAdminPropertiesRoute: typeof AuthenticatedAdminPropertiesRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminTruviRoute: typeof AuthenticatedAdminTruviRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedChatMatchIdRoute: typeof AuthenticatedChatMatchIdRoute
@@ -640,6 +661,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminMatchesRoute: AuthenticatedAdminMatchesRoute,
   AuthenticatedAdminPropertiesRoute: AuthenticatedAdminPropertiesRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
   AuthenticatedAdminTruviRoute: AuthenticatedAdminTruviRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedChatMatchIdRoute: AuthenticatedChatMatchIdRoute,
