@@ -848,6 +848,7 @@ const reviewInput = z.object({
   rating: z.number().int().min(1).max(5),
   comment: z.string().trim().max(1000).optional().nullable(),
   private_feedback: z.string().trim().max(1000).optional().nullable(),
+  property_id: z.string().uuid().optional().nullable(),
 });
 
 export const getReviewableProposals = createServerFn({ method: "GET" })
@@ -874,11 +875,16 @@ export const getReviewableProposals = createServerFn({ method: "GET" })
     const { data: myReviews } = propIds.length
       ? await supabase
           .from("reviews")
-          .select("proposal_id")
+          .select("proposal_id, property_id")
           .eq("reviewer_id", userId)
           .in("proposal_id", propIds)
       : { data: [] as any[] };
-    const reviewed = new Set((myReviews ?? []).map((r: any) => r.proposal_id));
+    const reviewedPerson = new Set(
+      (myReviews ?? []).filter((r: any) => !r.property_id).map((r: any) => r.proposal_id),
+    );
+    const reviewedProperty = new Set(
+      (myReviews ?? []).filter((r: any) => r.property_id).map((r: any) => `${r.proposal_id}:${r.property_id}`),
+    );
     const otherIds = Array.from(
       new Set(
         (matches ?? []).map((m: any) => (m.user_a === userId ? m.user_b : m.user_a)),
@@ -894,14 +900,37 @@ export const getReviewableProposals = createServerFn({ method: "GET" })
     for (const p of profs ?? []) profById[(p as any).id] = p;
     const matchById: Record<string, any> = {};
     for (const m of matches ?? []) matchById[(m as any).id] = m;
+    // Load properties I stayed at (the other user's property in the match)
+    const stayedPropIds = Array.from(
+      new Set(
+        (matches ?? []).map((m: any) =>
+          m.user_a === userId ? m.property_b : m.property_a,
+        ).filter(Boolean),
+      ),
+    );
+    const { data: stayedProps } = stayedPropIds.length
+      ? await supabase
+          .from("properties")
+          .select("id, title, city, country, property_images(url, position)")
+          .in("id", stayedPropIds)
+      : { data: [] as any[] };
+    const propById: Record<string, any> = {};
+    for (const p of stayedProps ?? []) {
+      const imgs = ((p as any).property_images ?? []).sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
+      propById[(p as any).id] = { id: p.id, title: (p as any).title, city: (p as any).city, country: (p as any).country, image_url: imgs[0]?.url ?? null };
+    }
     return (props ?? []).map((p: any) => {
       const m = matchById[p.match_id];
       const otherId = m.user_a === userId ? m.user_b : m.user_a;
+      const stayedAtId = m.user_a === userId ? m.property_b : m.property_a;
+      const stayedAt = stayedAtId ? propById[stayedAtId] ?? { id: stayedAtId } : null;
       return {
         ...p,
-        already_reviewed: reviewed.has(p.id),
+        already_reviewed: reviewedPerson.has(p.id),
+        property_reviewed: stayedAt ? reviewedProperty.has(`${p.id}:${stayedAt.id}`) : true,
         other_user: profById[otherId] ?? { id: otherId },
         reviewee_id: otherId,
+        stayed_at: stayedAt,
       };
     });
   });
@@ -914,19 +943,30 @@ export const createReview = createServerFn({ method: "POST" })
     // Look up reviewee from match
     const { data: prop, error: pErr } = await supabase
       .from("swap_proposals")
-      .select("match_id, end_date, status, matches!inner(user_a, user_b)")
+      .select("match_id, end_date, status, matches!inner(user_a, user_b, property_a, property_b)")
       .eq("id", data.proposal_id)
       .maybeSingle();
     if (pErr) throw pErr;
     if (!prop) throw new Error("Proposal not found");
     const m: any = (prop as any).matches;
-    const reviewee_id = m.user_a === userId ? m.user_b : m.user_a;
+    // If reviewing a property, reviewee = its owner; otherwise = other user
+    let reviewee_id = m.user_a === userId ? m.user_b : m.user_a;
+    if (data.property_id) {
+      // Owner of the property
+      const { data: prop2 } = await supabase
+        .from("properties")
+        .select("owner_id")
+        .eq("id", data.property_id)
+        .maybeSingle();
+      if (prop2?.owner_id) reviewee_id = prop2.owner_id;
+    }
     const { data: row, error } = await supabase
       .from("reviews")
       .insert({
         proposal_id: data.proposal_id,
         reviewer_id: userId,
         reviewee_id,
+        property_id: data.property_id ?? null,
         rating: data.rating,
         comment: data.comment ?? null,
       })
@@ -940,6 +980,29 @@ export const createReview = createServerFn({ method: "POST" })
       if (fErr) throw fErr;
     }
     return { ok: true, id: row.id };
+  });
+
+export const getReviewsForProperty = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ property_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: reviews, error } = await supabase
+      .from("reviews")
+      .select("id, rating, comment, created_at, reviewer_id")
+      .eq("property_id", data.property_id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    const ids = Array.from(new Set((reviews ?? []).map((r: any) => r.reviewer_id)));
+    const { data: profs } = ids.length
+      ? await supabase.from("profiles").select("id, display_name, avatar_url").in("id", ids)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    const list = (reviews ?? []).map((r: any) => ({ ...r, reviewer: byId[r.reviewer_id] ?? null }));
+    const avg = list.length === 0 ? 0 : list.reduce((s: number, r: any) => s + r.rating, 0) / list.length;
+    return { reviews: list, average: avg, count: list.length };
   });
 
 export const getReviewsForUser = createServerFn({ method: "GET" })
