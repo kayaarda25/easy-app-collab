@@ -8,6 +8,21 @@ import { Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/language";
 
+async function goAfterLogin(navigate: ReturnType<typeof useNavigate>) {
+  try {
+    const { data: u } = await supabase.auth.getUser();
+    const uid = u.user?.id;
+    if (uid) {
+      const { data: isAdmin } = await supabase.rpc("is_any_admin", { _user_id: uid });
+      if (isAdmin) {
+        navigate({ to: "/admin" });
+        return;
+      }
+    }
+  } catch {}
+  navigate({ to: "/home" });
+}
+
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).default("signup"),
 });
@@ -36,7 +51,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/home" });
+      if (data.session) goAfterLogin(navigate);
     });
   }, [navigate]);
 
@@ -65,7 +80,7 @@ function AuthPage() {
     const { error } = await supabase.auth.mfa.verify({ ...mfaChallenge, code: mfaCode });
     setLoading(false);
     if (error) return toast.error(error.message);
-    navigate({ to: "/home" });
+    goAfterLogin(navigate);
   };
 
   const handleEmail = async (e: React.FormEvent) => {
@@ -85,7 +100,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         if (await checkMfaAfterLogin()) return;
-        navigate({ to: "/home" });
+        goAfterLogin(navigate);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
@@ -105,7 +120,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/home" });
+    goAfterLogin(navigate);
   };
 
   const handleApple = async () => {
@@ -119,7 +134,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/home" });
+    goAfterLogin(navigate);
   };
 
   const handleReset = async () => {
