@@ -1428,3 +1428,256 @@ export const getPublicProfile = createServerFn({ method: "POST" })
       rating_count: reviews?.length ?? 0,
     };
   });
+
+// ---- AUDIT LOG ----
+async function logAudit(actor: string, action: string, targetType?: string, targetId?: string, meta?: any) {
+  await supabaseAdmin.from("admin_audit_log").insert({ actor_id: actor, action, target_type: targetType ?? null, target_id: targetId ?? null, meta: meta ?? null });
+}
+
+export const adminListAuditLog = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("admin_audit_log")
+      .select("id, actor_id, action, target_type, target_id, meta, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    const ids = Array.from(new Set((data ?? []).map((r: any) => r.actor_id)));
+    const { data: profs } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, display_name, avatar_url").in("id", ids)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    return (data ?? []).map((r: any) => ({ ...r, actor: byId[r.actor_id] ?? null }));
+  });
+
+// ---- CONTENT REPORTS ----
+export const reportContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      target_type: z.enum(["message", "review", "recommendation", "property", "profile"]),
+      target_id: z.string().min(1),
+      reason: z.string().min(2).max(80),
+      details: z.string().max(500).optional(),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await supabaseAdmin.from("content_reports").insert({
+      reporter_id: context.userId,
+      target_type: data.target_type,
+      target_id: data.target_id,
+      reason: data.reason,
+      details: data.details ?? null,
+    });
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const adminListReports = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ status: z.enum(["open", "resolved", "dismissed", "all"]).default("open") }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["support", "operations"]);
+    let q = supabaseAdmin.from("content_reports").select("*").order("created_at", { ascending: false }).limit(200);
+    if (data.status !== "all") q = q.eq("status", data.status);
+    const { data: rows, error } = await q;
+    if (error) throw error;
+    const ids = Array.from(new Set((rows ?? []).map((r: any) => r.reporter_id)));
+    const { data: profs } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, display_name, avatar_url").in("id", ids)
+      : { data: [] as any[] };
+    const byId: Record<string, any> = {};
+    for (const p of profs ?? []) byId[(p as any).id] = p;
+    return (rows ?? []).map((r: any) => ({ ...r, reporter: byId[r.reporter_id] ?? null }));
+  });
+
+export const adminResolveReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      report_id: z.string().uuid(),
+      action: z.enum(["resolve", "dismiss", "delete_content"]),
+      note: z.string().max(500).optional(),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["support", "operations"]);
+    const { data: rep, error: rerr } = await supabaseAdmin.from("content_reports").select("*").eq("id", data.report_id).single();
+    if (rerr || !rep) throw new Error("Report not found");
+
+    if (data.action === "delete_content") {
+      const tt = rep.target_type as string;
+      const tid = rep.target_id as string;
+      if (tt === "review") await supabaseAdmin.from("reviews").delete().eq("id", tid);
+      else if (tt === "recommendation") await supabaseAdmin.from("recommendations").delete().eq("id", tid);
+      else if (tt === "message") await supabaseAdmin.from("messages").delete().eq("id", tid);
+      else if (tt === "property") await supabaseAdmin.from("properties").update({ status: "flagged", is_active: false }).eq("id", tid);
+    }
+
+    const newStatus = data.action === "dismiss" ? "dismissed" : "resolved";
+    const { error } = await supabaseAdmin.from("content_reports").update({
+      status: newStatus,
+      resolved_by: context.userId,
+      resolution_note: data.note ?? null,
+    }).eq("id", data.report_id);
+    if (error) throw error;
+    await logAudit(context.userId, "report_" + data.action, rep.target_type, rep.target_id, { report_id: data.report_id, note: data.note });
+    return { ok: true };
+  });
+
+// ---- BROADCAST ----
+export const adminBroadcast = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      audience: z.enum(["all", "premium", "basic", "standard"]),
+      title: z.string().min(2).max(120),
+      body: z.string().max(500).optional(),
+      link: z.string().max(200).optional(),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["operations", "support"]);
+
+    // Resolve recipients
+    let userIds: string[] = [];
+    if (data.audience === "all") {
+      const { data: rows } = await supabaseAdmin.from("profiles").select("id");
+      userIds = (rows ?? []).map((r: any) => r.id);
+    } else {
+      const { data: rows } = await supabaseAdmin
+        .from("subscriptions")
+        .select("user_id, plan, status")
+        .eq("plan", data.audience);
+      userIds = (rows ?? []).map((r: any) => r.user_id);
+    }
+
+    if (userIds.length === 0) return { ok: true, recipients: 0 };
+
+    const notifs = userIds.map((uid) => ({
+      user_id: uid,
+      type: "broadcast",
+      title: data.title,
+      body: data.body ?? null,
+      link: data.link ?? null,
+      meta: { broadcast: true, audience: data.audience },
+    }));
+    // Insert in chunks of 500
+    for (let i = 0; i < notifs.length; i += 500) {
+      await supabaseAdmin.from("notifications").insert(notifs.slice(i, i + 500));
+    }
+
+    await supabaseAdmin.from("admin_broadcasts").insert({
+      actor_id: context.userId,
+      audience: data.audience,
+      title: data.title,
+      body: data.body ?? null,
+      link: data.link ?? null,
+      recipients_count: userIds.length,
+    });
+    await logAudit(context.userId, "broadcast_sent", "audience", data.audience, { recipients: userIds.length, title: data.title });
+    return { ok: true, recipients: userIds.length };
+  });
+
+export const adminListBroadcasts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId, ["operations", "support"]);
+    const { data, error } = await supabaseAdmin
+      .from("admin_broadcasts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    return data ?? [];
+  });
+
+// ---- FLATCH POINTS ADMIN ----
+export const adminAdjustPoints = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      user_id: z.string().uuid(),
+      delta: z.number().int().refine((n) => n !== 0, "delta must be non-zero"),
+      note: z.string().min(2).max(200),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["finance", "operations"]);
+    const { error } = await supabaseAdmin.rpc("flatch_points_admin_adjust", {
+      _user_id: data.user_id,
+      _delta: data.delta,
+      _note: data.note,
+      _actor: context.userId,
+    });
+    if (error) throw error;
+    await supabaseAdmin.from("notifications").insert({
+      user_id: data.user_id,
+      type: "flatch_points",
+      title: data.delta > 0 ? `Du hast ${data.delta} flatch.points erhalten` : `${Math.abs(data.delta)} flatch.points wurden abgezogen`,
+      body: data.note,
+      link: "/points",
+      meta: { admin_adjust: true },
+    });
+    await logAudit(context.userId, "points_adjust", "user", data.user_id, { delta: data.delta, note: data.note });
+    return { ok: true };
+  });
+
+export const adminUserPointsSummary = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ user_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["finance", "operations"]);
+    const { data: available } = await supabaseAdmin.rpc("flatch_points_available", { _user_id: data.user_id });
+    const { data: ledger } = await supabaseAdmin
+      .from("flatch_points_ledger")
+      .select("id, delta, reason, status, created_at, expires_at, meta")
+      .eq("user_id", data.user_id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    return { available: available ?? 0, ledger: ledger ?? [] };
+  });
+
+// ---- REFUND / CANCEL BOOKING ----
+export const adminRefundBooking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      proposal_id: z.string().uuid(),
+      note: z.string().min(2).max(300),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId, ["finance", "operations", "support"]);
+    // Release any active points holds tied to this proposal
+    const { error: rerr } = await supabaseAdmin.rpc("flatch_points_release_hold", { _proposal_id: data.proposal_id });
+    if (rerr) throw rerr;
+    // Cancel proposal
+    const { data: prop, error: perr } = await supabaseAdmin
+      .from("swap_proposals")
+      .update({ status: "cancelled" })
+      .eq("id", data.proposal_id)
+      .select("id, match_id, proposer_id, host_user_id, guest_user_id, kind, points_awarded_at")
+      .single();
+    if (perr) throw perr;
+
+    // Notify participants
+    const participants = [prop.proposer_id, prop.host_user_id, prop.guest_user_id].filter(Boolean) as string[];
+    if (participants.length) {
+      await supabaseAdmin.from("notifications").insert(
+        participants.map((uid) => ({
+          user_id: uid,
+          type: "proposal_status",
+          title: "Buchung storniert (Admin)",
+          body: data.note,
+          link: prop.match_id ? `/chat/${prop.match_id}` : "/matches",
+          meta: { proposal_id: prop.id, admin_refund: true },
+        })),
+      );
+    }
+    await logAudit(context.userId, "booking_refund", "proposal", data.proposal_id, { note: data.note });
+    return { ok: true };
+  });
