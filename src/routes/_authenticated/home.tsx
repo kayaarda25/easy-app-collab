@@ -8,6 +8,7 @@ import { HomeFeed } from "@/components/HomeFeed";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { Logo } from "@/components/Logo";
 import { useEffect } from "react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — flatch." }] }),
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
   const navigate = useNavigate();
+  const { t } = useT();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchProps = useServerFn(getMyProperties);
 
@@ -39,9 +41,9 @@ function HomePage() {
         <Logo size={28} className="mb-3" />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm text-muted-foreground">Welcome back</p>
+            <p className="text-sm text-muted-foreground">{t("home.welcome")}</p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight">
-              {profile.data?.display_name ?? "Traveler"}
+              {profile.data?.display_name ?? t("home.traveler")}
             </h1>
           </div>
           <NotificationsBell />
@@ -51,14 +53,14 @@ function HomePage() {
       <section className="px-6">
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-glow p-6 text-primary-foreground shadow-[var(--shadow-elegant)]">
           <Sparkles className="h-6 w-6 opacity-90" />
-          <h2 className="mt-3 text-xl font-bold">Ready to swap?</h2>
-          <p className="mt-1 text-sm opacity-90">Find your next home exchange in seconds.</p>
+          <h2 className="mt-3 text-xl font-bold">{t("home.readyTitle")}</h2>
+          <p className="mt-1 text-sm opacity-90">{t("home.readyBody")}</p>
           <Link
             to="/swipe"
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary"
           >
             <Compass className="h-4 w-4" />
-            Start discovering
+            {t("home.start")}
           </Link>
         </div>
       </section>
