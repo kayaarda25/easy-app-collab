@@ -31,7 +31,7 @@ function MatchesPage() {
             <Heart className="h-10 w-10 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">{t("matches.empty")}</p>
             <Link to="/search" className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
-              Start swiping
+              {t("Start swiping")}
             </Link>
           </div>
         ) : (
@@ -45,15 +45,15 @@ function MatchesPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold">{m.their_property?.title ?? "Their home"}</p>
+                    <p className="truncate text-sm font-semibold">{m.their_property?.title ?? t("Their home")}</p>
                     {m.ready_to_switch && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="h-3 w-3" /> Ready to switch
+                        <CheckCircle2 className="h-3 w-3" /> {t("Ready to switch")}
                       </span>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{m.their_property?.city}, {m.their_property?.country}</p>
-                  <p className="mt-1 text-xs text-primary">with {m.other_user?.display_name ?? "User"}</p>
+                  <p className="mt-1 text-xs text-primary">{t("with")} {m.other_user?.display_name ?? t("User")}</p>
                   {m.last_message && (
                     <p className={`mt-1 truncate text-xs ${m.last_message.kind === "system" ? "italic text-muted-foreground" : "text-muted-foreground"}`}>
                       {m.last_message.body}
