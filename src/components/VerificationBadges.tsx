@@ -1,5 +1,6 @@
 import { BadgeCheck, Mail, Phone, IdCard, Home, ShieldCheck, Crown, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export type BadgeKey = "email" | "phone" | "identity" | "property" | "trusted_host" | "premium";
 
@@ -66,6 +67,7 @@ export function VerificationBadges({
 }
 
 export function VerificationChecklist({ source }: { source: VerificationSource }) {
+  const { t } = useT();
   const items: { key: BadgeKey; done: boolean; hint: string }[] = [
     { key: "email",        done: !!source.email_verified_at,    hint: "Confirm your email address" },
     { key: "phone",        done: !!source.phone_verified_at,    hint: "Add and verify your phone number" },
@@ -85,13 +87,13 @@ export function VerificationChecklist({ source }: { source: VerificationSource }
               <Icon className="h-4 w-4" />
             </span>
             <div className="flex-1">
-              <p className="text-sm font-semibold">{m.label}</p>
-              <p className="text-xs text-muted-foreground">{hint}</p>
+              <p className="text-sm font-semibold">{t(m.label)}</p>
+              <p className="text-xs text-muted-foreground">{t(hint)}</p>
             </div>
             {done ? (
               <BadgeCheck className="h-5 w-5 text-primary" />
             ) : (
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Pending</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t("Pending")}</span>
             )}
           </li>
         );
