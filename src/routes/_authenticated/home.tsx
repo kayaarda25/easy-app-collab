@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getMyProfile, getMyProperties, getReviewableProposals } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
-import { Compass, Sparkles, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { HomeFeed } from "@/components/HomeFeed";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { Logo } from "@/components/Logo";
