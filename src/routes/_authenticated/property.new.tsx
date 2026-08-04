@@ -157,8 +157,8 @@ function NewPropertyPage() {
 
         <Field label={t("Property type")}>
           <div className="flex flex-wrap gap-2">
-            {PROPERTY_TYPES.map((t) => (
-              <button type="button" key={t.value} onClick={() => setType(t.value)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${type === t.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t(t.label)}</button>
+            {PROPERTY_TYPES.map((propertyType) => (
+              <button type="button" key={propertyType.value} onClick={() => setType(propertyType.value)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${type === propertyType.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t(propertyType.label)}</button>
             ))}
           </div>
         </Field>
