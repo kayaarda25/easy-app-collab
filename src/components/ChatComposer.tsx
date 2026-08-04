@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImagePlus, Mic, Paperclip, Send, Square, X, Video } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 export type ChatAttachment = {
   url: string;
@@ -18,6 +19,7 @@ export function ChatComposer({
   onSend: (args: { body: string; attachment?: ChatAttachment }) => Promise<void> | void;
   disabled?: boolean;
 }) {
+  const { t } = useT();
   const [text, setText] = useState("");
   const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -38,7 +40,7 @@ export function ChatComposer({
 
   const uploadBlob = async (blob: Blob, ext: string, mime: string, kind: ChatAttachment["kind"]) => {
     if (blob.size > MAX_SIZE) {
-      toast.error("File too large (max 25 MB)");
+      toast.error(t("File too large (max 25 MB)"));
       return;
     }
     setUploading(true);
@@ -111,7 +113,7 @@ export function ChatComposer({
           {attachment.kind === "image" && <img src={attachment.url} alt="" className="h-12 w-12 rounded object-cover" />}
           {attachment.kind === "video" && <video src={attachment.url} className="h-12 w-12 rounded object-cover" />}
           {attachment.kind === "audio" && <div className="flex h-12 w-12 items-center justify-center rounded bg-secondary"><Mic className="h-5 w-5" /></div>}
-          <span className="flex-1 truncate text-xs text-muted-foreground">{attachment.kind} attached</span>
+          <span className="flex-1 truncate text-xs text-muted-foreground">{t(`${attachment.kind} attached`)}</span>
           <button type="button" onClick={() => setAttachment(null)} className="rounded-full p-1 hover:bg-secondary"><X className="h-4 w-4" /></button>
         </div>
       )}
@@ -120,16 +122,16 @@ export function ChatComposer({
           <>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e, "image")} />
             <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={(e) => onFile(e, "video")} />
-            <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-secondary disabled:opacity-40" aria-label="Add photo">
+            <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-secondary disabled:opacity-40" aria-label={t("Add photo")}>
               <ImagePlus className="h-5 w-5" />
             </button>
-            <button type="button" onClick={() => videoRef.current?.click()} disabled={uploading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-secondary disabled:opacity-40" aria-label="Add video">
+            <button type="button" onClick={() => videoRef.current?.click()} disabled={uploading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-secondary disabled:opacity-40" aria-label={t("Add video")}>
               <Video className="h-5 w-5" />
             </button>
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={uploading ? "Uploading…" : "Message…"}
+              placeholder={uploading ? t("Uploading…") : t("Message…")}
               maxLength={2000}
               className="min-w-0 flex-1 rounded-full border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
             />
@@ -138,7 +140,7 @@ export function ChatComposer({
                 <Send className="h-4 w-4" />
               </button>
             ) : (
-              <button type="button" onClick={startRecording} disabled={uploading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40" aria-label="Record voice">
+              <button type="button" onClick={startRecording} disabled={uploading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40" aria-label={t("Record voice")}>
                 <Mic className="h-4 w-4" />
               </button>
             )}
@@ -146,7 +148,7 @@ export function ChatComposer({
         ) : (
           <div className="flex w-full items-center gap-3 rounded-full bg-destructive/10 px-4 py-2.5">
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-destructive" />
-            <span className="flex-1 text-sm font-medium text-destructive">Recording… {Math.floor(recordSec / 60)}:{String(recordSec % 60).padStart(2, "0")}</span>
+            <span className="flex-1 text-sm font-medium text-destructive">{t("Recording…")} {Math.floor(recordSec / 60)}:{String(recordSec % 60).padStart(2, "0")}</span>
             <button type="button" onClick={stopRecording} className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive text-destructive-foreground" aria-label="Stop">
               <Square className="h-4 w-4 fill-current" />
             </button>

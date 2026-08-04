@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Lock, Star } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 function StarRow({ value, size = 14 }: { value: number; size?: number }) {
   return (
@@ -48,6 +49,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
 }
 
 export function ReviewsSection({ userId }: { userId: string }) {
+  const { t } = useT();
   const fetchReviewable = useServerFn(getReviewableProposals);
   const fetchReviews = useServerFn(getReviewsForUser);
   const fetchPrivate = useServerFn(getMyPrivateFeedback);
@@ -83,7 +85,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
         },
       }),
     onSuccess: () => {
-      toast.success("Review submitted");
+      toast.success(t("Review submitted"));
       qc.invalidateQueries({ queryKey: ["reviewable-proposals"] });
       qc.invalidateQueries({ queryKey: ["reviews"] });
       setTarget(null);
@@ -100,7 +102,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
     <>
       {pendingList.length > 0 && (
         <section className="mt-8 px-6">
-          <h2 className="text-lg font-semibold">Rate your recent stays</h2>
+          <h2 className="text-lg font-semibold">{t("Rate your recent stays")}</h2>
           <div className="mt-3 space-y-2">
             {pendingList.map((p: any) => (
               <div
@@ -114,14 +116,14 @@ export function ReviewsSection({ userId }: { userId: string }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
-                    {p.other_user?.display_name ?? "Host"}
+                    {p.other_user?.display_name ?? t("Host")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {p.start_date} → {p.end_date}
                   </p>
                 </div>
                 <Button size="sm" onClick={() => setTarget(p)}>
-                  Review
+                  {t("Review")}
                 </Button>
               </div>
             ))}
@@ -131,7 +133,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
 
       <section className="mt-8 px-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Reviews</h2>
+          <h2 className="text-lg font-semibold">{t("Reviews")}</h2>
           {received.data && received.data.count > 0 && (
             <div className="flex items-center gap-1.5">
               <StarRow value={received.data.average} />
@@ -143,7 +145,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
         {received.isLoading ? (
           <div className="mt-3 h-20 animate-pulse rounded-2xl bg-muted" />
         ) : (received.data?.reviews ?? []).length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">No reviews yet.</p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("No reviews yet.")}</p>
         ) : (
           <div className="mt-3 space-y-3">
             {received.data!.reviews.map((r: any) => (
@@ -155,7 +157,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
                     )}
                   </div>
                   <p className="text-sm font-semibold">
-                    {r.reviewer?.display_name ?? "Guest"}
+                     {r.reviewer?.display_name ?? t("Guest")}
                   </p>
                   <span className="ml-auto">
                     <StarRow value={r.rating} />
@@ -172,9 +174,9 @@ export function ReviewsSection({ userId }: { userId: string }) {
         <section className="mt-8 px-6">
           <div className="flex items-center gap-2">
             <Lock className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Private feedback</h2>
+            <h2 className="text-lg font-semibold">{t("Private feedback")}</h2>
           </div>
-          <p className="text-xs text-muted-foreground">Only visible to you</p>
+          <p className="text-xs text-muted-foreground">{t("Only visible to you")}</p>
           <div className="mt-3 space-y-3">
             {privateFb.data!.map((r: any) => (
               <article key={r.id} className="rounded-2xl border border-dashed border-border bg-muted/30 p-4">
@@ -200,24 +202,24 @@ export function ReviewsSection({ userId }: { userId: string }) {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Rating</Label>
+              <Label>{t("Rating")}</Label>
               <div className="mt-1">
                 <StarPicker value={rating} onChange={setRating} />
               </div>
             </div>
             <div>
-              <Label>Public comment (optional)</Label>
+              <Label>{t("Public comment (optional)")}</Label>
               <Textarea
                 rows={3}
                 maxLength={1000}
-                placeholder="Share your experience..."
+                placeholder={t("Share your experience...")}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
             </div>
             <div>
               <Label className="flex items-center gap-1.5">
-                <Lock className="h-3.5 w-3.5" /> Private feedback (optional)
+                 <Lock className="h-3.5 w-3.5" /> {t("Private feedback (optional)")}
               </Label>
               <p className="text-xs text-muted-foreground">
                 Only visible to {target?.other_user?.display_name ?? "the host"}.
@@ -225,7 +227,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
               <Textarea
                 rows={3}
                 maxLength={1000}
-                placeholder="Anything they should know privately?"
+                placeholder={t("Anything they should know privately?")}
                 value={privateText}
                 onChange={(e) => setPrivateText(e.target.value)}
               />
@@ -235,7 +237,7 @@ export function ReviewsSection({ userId }: { userId: string }) {
               disabled={submit.isPending}
               onClick={() => submit.mutate()}
             >
-              {submit.isPending ? "Submitting..." : "Submit review"}
+               {submit.isPending ? t("Submitting...") : t("Submit review")}
             </Button>
           </div>
         </DialogContent>
