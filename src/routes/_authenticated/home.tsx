@@ -74,10 +74,10 @@ function HomePage() {
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
               <span className="font-semibold">
-                {pendingReviews} offene Bewertung{pendingReviews === 1 ? "" : "en"}
+                {pendingReviews} {t(pendingReviews === 1 ? "pending review" : "pending reviews")}
               </span>
             </div>
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">Jetzt bewerten →</span>
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">{t("Review now")} →</span>
           </Link>
         </section>
       )}

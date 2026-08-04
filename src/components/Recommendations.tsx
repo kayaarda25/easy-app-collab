@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Beer, Camera, ImagePlus, MapPin, Plus, Star, Trash2, Utensils, Video, X } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 type Category = "destination" | "bar" | "restaurant" | "sightseeing" | "other";
 
@@ -29,6 +30,7 @@ const categoryMeta: Record<Category, { label: string; icon: typeof Star; color: 
 };
 
 export function Recommendations({ currentUserId }: { currentUserId?: string | null }) {
+  const { t } = useT();
   const fetchList = useServerFn(listRecommendations);
   const createFn = useServerFn(createRecommendation);
   const deleteFn = useServerFn(deleteRecommendation);
@@ -109,7 +111,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["recommendations"] });
-      toast.success("Recommendation shared");
+      toast.success(t("Recommendation shared"));
       setOpen(false);
       resetForm();
     },
@@ -125,24 +127,24 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
     <section className="mt-8 px-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Community recommendations</h3>
-          <p className="text-xs text-muted-foreground">Tips from other travelers</p>
+          <h3 className="text-lg font-semibold">{t("Community recommendations")}</h3>
+          <p className="text-xs text-muted-foreground">{t("Tips from other travelers")}</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <button className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold">
-              <Plus className="h-3.5 w-3.5" /> Share
+              <Plus className="h-3.5 w-3.5" /> {t("Share")}
             </button>
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Share a recommendation</DialogTitle>
+              <DialogTitle>{t("Share a recommendation")}</DialogTitle>
             </DialogHeader>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!form.title.trim()) {
-                  toast.error("Title is required");
+                  toast.error(t("Title is required"));
                   return;
                 }
                 create.mutate(form);
@@ -150,7 +152,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
               className="space-y-3"
             >
               <div>
-                <Label>Category</Label>
+                <Label>{t("Category")}</Label>
                 <Select
                   value={form.category}
                   onValueChange={(v) => setForm((f) => ({ ...f, category: v as Category }))}
@@ -161,41 +163,41 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                   <SelectContent>
                     {(Object.keys(categoryMeta) as Category[]).map((c) => (
                       <SelectItem key={c} value={c}>
-                        {categoryMeta[c].label}
+                        {t(categoryMeta[c].label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Title</Label>
+                <Label>{t("Title")}</Label>
                 <Input
                   value={form.title}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  placeholder="e.g. Sunset rooftop in Lisbon"
+                  placeholder={t("e.g. Sunset rooftop in Lisbon")}
                   maxLength={120}
                 />
               </div>
               <div>
-                <Label>Description</Label>
+                <Label>{t("Description")}</Label>
                 <Textarea
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="Why do you love it?"
+                  placeholder={t("Why do you love it?")}
                   maxLength={1000}
                   rows={3}
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>City</Label>
+                  <Label>{t("City")}</Label>
                   <Input
                     value={form.city}
                     onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
                   />
                 </div>
                 <div>
-                  <Label>Country</Label>
+                  <Label>{t("Country")}</Label>
                   <Input
                     value={form.country}
                     onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
@@ -203,7 +205,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 </div>
               </div>
               <div>
-                <Label>Photo (optional)</Label>
+                <Label>{t("Photo (optional)")}</Label>
                 {form.image_url ? (
                   <div className="relative mt-1 overflow-hidden rounded-xl border border-border">
                     <img src={form.image_url} alt="" className="h-40 w-full object-cover" />
@@ -219,7 +221,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 ) : (
                   <label className="mt-1 flex h-24 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:bg-muted/50">
                     <ImagePlus className="h-5 w-5" />
-                    {uploading === "image" ? "Uploading..." : "Choose from gallery"}
+                    {uploading === "image" ? t("Uploading…") : t("Choose from gallery")}
                     <input
                       type="file"
                       accept="image/*"
@@ -237,7 +239,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 )}
               </div>
               <div>
-                <Label>Video (optional)</Label>
+                <Label>{t("Video (optional)")}</Label>
                 {form.video_url ? (
                   <div className="relative mt-1 overflow-hidden rounded-xl border border-border">
                     <video src={form.video_url} controls className="h-40 w-full bg-black object-cover" />
@@ -253,7 +255,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 ) : (
                   <label className="mt-1 flex h-24 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:bg-muted/50">
                     <Video className="h-5 w-5" />
-                    {uploading === "video" ? "Uploading..." : "Choose video from gallery"}
+                    {uploading === "video" ? t("Uploading…") : t("Choose video from gallery")}
                     <input
                       type="file"
                       accept="video/*"
@@ -271,7 +273,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 )}
               </div>
               <div>
-                <Label>Link (optional)</Label>
+                <Label>{t("Link (optional)")}</Label>
                 <Input
                   type="url"
                   value={form.link_url}
@@ -280,7 +282,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                 />
               </div>
               <Button type="submit" className="w-full" disabled={create.isPending || uploading !== null}>
-                {create.isPending ? "Sharing..." : uploading ? "Uploading media..." : "Share"}
+                {create.isPending ? t("Sharing...") : uploading ? t("Uploading media...") : t("Share")}
               </Button>
             </form>
           </DialogContent>
@@ -291,7 +293,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
         <div className="mt-4 h-96 animate-pulse rounded-2xl bg-muted" />
       ) : (list.data ?? []).length === 0 ? (
         <p className="mt-4 rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
-          No recommendations yet. Be the first to share one!
+          {t("No recommendations yet. Be the first to share one!")}
         </p>
       ) : (
         <div className="mt-4 -mx-6 flex flex-col">
@@ -316,7 +318,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                     )}
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold leading-tight">
-                        {r.author?.display_name ?? "Traveler"}
+                        {r.author?.display_name ?? t("Traveler")}
                       </p>
                       {(r.city || r.country) && (
                         <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -364,7 +366,7 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                       <button
                         onClick={() => remove.mutate(r.id)}
                         className="shrink-0 text-muted-foreground hover:text-destructive"
-                        aria-label="Delete"
+                        aria-label={t("Delete")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

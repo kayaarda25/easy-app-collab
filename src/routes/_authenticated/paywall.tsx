@@ -19,12 +19,12 @@ function PaywallPage() {
   const fetchEnt = useServerFn(getMyEntitlement);
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
 
-  const isNative = typeof window !== "undefined" && /Capacitor/i.test((window as any).Capacitor?.platform ?? "");
+  const isNative = false;
 
   const handlePurchase = (planId: PlanId) => {
     if (!isNative) {
-      toast.info("Subscriptions are available in the iOS & Android app", {
-        description: "Download flatch. from the App Store or Google Play to upgrade.",
+      toast.info(t("Subscriptions are available in the iOS & Android app"), {
+        description: t("Download flatch. from the App Store or Google Play to upgrade."),
       });
       return;
     }

@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicProfile } from "@/lib/flatch.functions";
 import { ArrowLeft, BadgeCheck, MapPin, Star, Home as HomeIcon, Languages } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/u/$userId")({
   head: () => ({ meta: [{ title: "Profile — flatch." }] }),
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/_authenticated/u/$userId")({
 });
 
 function ProfilePage() {
+  const { t } = useT();
   const { userId } = Route.useParams();
   const navigate = useNavigate();
   const fetchProfile = useServerFn(getPublicProfile);
@@ -20,12 +22,12 @@ function ProfilePage() {
   });
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center text-sm text-muted-foreground">Loading…</div>;
+    return <div className="flex h-screen items-center justify-center text-sm text-muted-foreground">{t("Loading…")}</div>;
   }
   if (error || !data?.profile) {
     return (
       <div className="flex h-screen items-center justify-center p-6 text-center">
-        <p className="text-sm text-muted-foreground">Profile not available.</p>
+        <p className="text-sm text-muted-foreground">{t("Profile not available.")}</p>
       </div>
     );
   }
@@ -39,7 +41,7 @@ function ProfilePage() {
         <button onClick={() => navigate({ to: ".." as any })} className="rounded-full p-1.5 hover:bg-secondary">
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold">Profile</h1>
+        <h1 className="text-lg font-bold">{t("Profile")}</h1>
       </header>
 
       <div className="mx-auto max-w-md px-5 py-6">
@@ -48,7 +50,7 @@ function ProfilePage() {
             {p.avatar_url && <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />}
           </div>
           <div className="mt-3 flex items-center gap-1.5">
-            <h2 className="text-xl font-bold">{p.display_name ?? "Traveler"}</h2>
+            <h2 className="text-xl font-bold">{p.display_name ?? t("Traveler")}</h2>
             {verified && <BadgeCheck className="h-5 w-5 text-primary" />}
           </div>
           {(p.city || p.country) && (
@@ -67,7 +69,7 @@ function ProfilePage() {
 
         {p.bio && (
           <section className="mt-6 rounded-2xl border border-border bg-card p-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">About</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("About")}</h3>
             <p className="mt-2 whitespace-pre-line text-sm">{p.bio}</p>
           </section>
         )}
@@ -75,7 +77,7 @@ function ProfilePage() {
         {p.languages && p.languages.length > 0 && (
           <section className="mt-4 rounded-2xl border border-border bg-card p-4">
             <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Languages className="h-3.5 w-3.5" /> Languages
+               <Languages className="h-3.5 w-3.5" /> {t("Languages")}
             </h3>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {p.languages.map((l: string) => (
@@ -88,7 +90,7 @@ function ProfilePage() {
         {data.properties.length > 0 && (
           <section className="mt-4">
             <h3 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <HomeIcon className="h-3.5 w-3.5" /> Homes
+               <HomeIcon className="h-3.5 w-3.5" /> {t("Homes")}
             </h3>
             <div className="space-y-3">
               {data.properties.map((prop: any) => {
@@ -99,7 +101,7 @@ function ProfilePage() {
                     <div className="p-3">
                       <p className="font-semibold">{prop.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {[prop.city, prop.country].filter(Boolean).join(", ")} · {prop.bedrooms} bd · {prop.max_guests} guests
+                         {[prop.city, prop.country].filter(Boolean).join(", ")} · {prop.bedrooms} {t("bedrooms")} · {prop.max_guests} {t("guests")}
                       </p>
                     </div>
                   </div>
@@ -111,7 +113,7 @@ function ProfilePage() {
 
         {data.reviews.length > 0 && (
           <section className="mt-4">
-            <h3 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reviews</h3>
+            <h3 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("Reviews")}</h3>
             <div className="space-y-3">
               {data.reviews.map((r: any, i: number) => (
                 <div key={i} className="rounded-2xl border border-border bg-card p-4">

@@ -96,7 +96,7 @@ function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5 MB");
+      toast.error(t("Image must be under 5 MB"));
       return;
     }
     setUploadingAvatar(true);
@@ -113,7 +113,7 @@ function ProfilePage() {
       if (sErr || !signed) throw sErr ?? new Error("Failed to sign URL");
       await updateFn({ data: { avatar_url: signed.signedUrl } });
       qc.invalidateQueries({ queryKey: ["profile"] });
-      toast.success("Profile photo updated");
+      toast.success(t("Profile photo updated"));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -125,7 +125,7 @@ function ProfilePage() {
     await updateFn({ data: { display_name: name, bio } });
     qc.invalidateQueries({ queryKey: ["profile"] });
     setEditing(false);
-    toast.success("Profile updated");
+    toast.success(t("Profile updated"));
   };
 
   return (
@@ -191,8 +191,8 @@ function ProfilePage() {
           )}
           {editing ? (
             <div className="mt-3 space-y-2">
-              <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className="input" placeholder="Name" />
-              <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={3} className="input resize-none" placeholder="Bio" />
+              <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className="input" placeholder={t("Name")} />
+              <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={3} className="input resize-none" placeholder={t("Bio")} />
               <div className="flex gap-2">
                 <button onClick={() => setEditing(false)} className="flex-1 rounded-full border border-border py-2 text-sm font-semibold">{t("profile.cancel")}</button>
                 <button onClick={save} className="flex-1 rounded-full bg-primary py-2 text-sm font-semibold text-primary-foreground">{t("profile.save")}</button>
@@ -247,8 +247,8 @@ function ProfilePage() {
         myRecos.length === 0 ? (
           <EmptyState
             icon={Grid3x3}
-            title="No posts yet"
-            subtitle="Share your favorite spots from the Home tab"
+            title={t("No posts yet")}
+            subtitle={t("Share your favorite spots from the Home tab")}
           />
         ) : (
           <div className="grid grid-cols-3 gap-0.5">
@@ -270,9 +270,9 @@ function ProfilePage() {
       ) : (props.data ?? []).length === 0 ? (
         <EmptyState
           icon={HomeIcon}
-          title="No homes yet"
-          subtitle="Add your first home to start swapping"
-          action={{ label: "Add home", onClick: () => navigate({ to: "/property/new" }) }}
+          title={t("No homes yet")}
+          subtitle={t("Add your first home to start swapping")}
+          action={{ label: t("Add home"), onClick: () => navigate({ to: "/property/new" }) }}
         />
       ) : (
         <div className="grid grid-cols-3 gap-0.5">
@@ -298,7 +298,7 @@ function ProfilePage() {
         <section className="mt-8 flex items-center justify-center gap-1.5 px-6 pb-6 text-sm text-muted-foreground">
           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
           <span className="font-semibold text-foreground">{reviews.data.average.toFixed(1)}</span>
-          <span>· {reviews.data.count} reviews</span>
+          <span>· {reviews.data.count} {t("Reviews")}</span>
         </section>
       )}
     </PageShell>
