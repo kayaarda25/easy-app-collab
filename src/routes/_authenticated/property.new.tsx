@@ -8,6 +8,7 @@ import { PRE_MADE_HOUSE_RULES, HOUSE_RULE_CATEGORIES } from "@/lib/house-rules";
 import { AddressAutocomplete, type ResolvedAddress } from "@/components/AddressAutocomplete";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Upload, X, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/property/new")({
   head: () => ({ meta: [{ title: "New home — flatch." }] }),
@@ -26,6 +27,7 @@ const PROPERTY_TYPES = [
 const AMENITIES = ["Wifi", "Kitchen", "Washer", "Parking", "Pool", "AC", "Heating", "TV", "Workspace", "Garden"];
 
 function NewPropertyPage() {
+  const { t } = useT();
   const navigate = useNavigate();
   const createFn = useServerFn(createProperty);
 
@@ -133,7 +135,7 @@ function NewPropertyPage() {
         }
       }
 
-      toast.success("Home listed!");
+      toast.success(t("Home listed!"));
       navigate({ to: "/home" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
@@ -146,17 +148,17 @@ function NewPropertyPage() {
     <div className="min-h-screen bg-background pb-12">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
         <button onClick={() => navigate({ to: "/home" })} className="rounded-full p-1.5 hover:bg-secondary"><ArrowLeft className="h-5 w-5" /></button>
-        <h1 className="text-lg font-bold">List your home</h1>
+        <h1 className="text-lg font-bold">{t("List your home")}</h1>
       </header>
 
       <form onSubmit={submit} className="mx-auto max-w-md space-y-5 px-6 py-6">
-        <Field label="Title" required><input required maxLength={100} value={title} onChange={(e) => setTitle(e.target.value)} className="input" placeholder="Cozy loft near the river" /></Field>
-        <Field label="Description"><textarea rows={4} maxLength={2000} value={description} onChange={(e) => setDescription(e.target.value)} className="input resize-none" placeholder="What makes your home special?" /></Field>
+        <Field label={t("Title")} required><input required maxLength={100} value={title} onChange={(e) => setTitle(e.target.value)} className="input" placeholder={t("Cozy loft near the river")} /></Field>
+        <Field label={t("Description")}><textarea rows={4} maxLength={2000} value={description} onChange={(e) => setDescription(e.target.value)} className="input resize-none" placeholder={t("What makes your home special?")} /></Field>
 
-        <Field label="Property type">
+        <Field label={t("Property type")}>
           <div className="flex flex-wrap gap-2">
             {PROPERTY_TYPES.map((t) => (
-              <button type="button" key={t.value} onClick={() => setType(t.value)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${type === t.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t.label}</button>
+              <button type="button" key={t.value} onClick={() => setType(t.value)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${type === t.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t(t.label)}</button>
             ))}
           </div>
         </Field>

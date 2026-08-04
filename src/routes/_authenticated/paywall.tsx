@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { Check, Crown, ArrowLeft, ExternalLink } from "lucide-react";
 import { PageShell } from "@/components/BottomNav";
 import { PLAN_INFO, type PlanId } from "@/lib/subscription";
@@ -19,7 +20,10 @@ function PaywallPage() {
   const fetchEnt = useServerFn(getMyEntitlement);
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
 
-  const isNative = false;
+  const [isNative, setIsNative] = useState(false);
+  useEffect(() => {
+    setIsNative(/Capacitor/i.test((window as any).Capacitor?.platform ?? ""));
+  }, []);
 
   const handlePurchase = (planId: PlanId) => {
     if (!isNative) {

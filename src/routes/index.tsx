@@ -5,6 +5,7 @@ import onboardingHome from "@/assets/onboarding-home.jpg";
 import onboardingTravel from "@/assets/onboarding-travel.jpg";
 import onboardingChat from "@/assets/onboarding-chat.jpg";
 import { Logo } from "@/components/Logo";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +38,7 @@ const slides = [
 ];
 
 function Welcome() {
+  const { t } = useT();
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const startX = useRef<number | null>(null);
@@ -88,7 +90,7 @@ function Welcome() {
               onClick={() => navigate({ to: "/auth", search: { mode: "signup" } })}
               className="text-sm font-medium text-white/70 hover:text-white"
             >
-              Skip
+              {t("Skip")}
             </button>
           )}
         </div>
@@ -102,13 +104,13 @@ function Welcome() {
             key={`t-${index}`}
             className="text-3xl font-bold tracking-tight text-white animate-[fade-in_0.4s_ease-out]"
           >
-            {slide.title}
+            {t(slide.title)}
           </h1>
           <p
             key={`b-${index}`}
             className="mt-3 max-w-sm text-base text-white/80 animate-[fade-in_0.5s_ease-out]"
           >
-            {slide.body}
+            {t(slide.body)}
           </p>
 
           {/* Dots */}
@@ -132,13 +134,13 @@ function Welcome() {
             onClick={next}
             className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 text-base font-semibold text-black shadow-lg transition active:scale-[0.98]"
           >
-            {isLast ? "Loslegen" : "Weiter"}
+            {isLast ? t("Loslegen") : t("Weiter")}
             <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </button>
           <p className="mt-4 text-center text-sm text-white/70">
-            Schon dabei?{" "}
+            {t("Schon dabei?")}{" "}
             <Link to="/auth" search={{ mode: "login" }} className="font-semibold text-white">
-              Anmelden
+              {t("Anmelden")}
             </Link>
           </p>
         </div>
