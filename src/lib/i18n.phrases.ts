@@ -274,9 +274,50 @@ const ROWS: Record<string, Row> = {
   "Your flatch.points balance": ["Your flatch.points balance", "Dein flatch.points-Guthaben", "Votre solde flatch.points", "Il tuo saldo flatch.points", "Tu saldo de flatch.points", "O seu saldo flatch.points", "Je flatch.points-saldo", "flatch.points bakiyen"],
 };
 
+const DE_FALLBACK: Record<string, string> = {
+  "2FA is enabled": "2FA ist aktiviert",
+  "6-digit code": "6-stelliger Code",
+  "Add an extra layer of security using an authenticator app.": "Schütze dein Konto zusätzlich mit einer Authenticator-App.",
+  "Add any additional house rules here...": "Weitere Hausregeln hier ergänzen...",
+  "Add check-in instructions": "Check-in-Anweisungen hinzufügen",
+  "Add check-out instructions": "Check-out-Anweisungen hinzufügen",
+  "Anmelden": "Anmelden",
+  "Anything they should know privately?": "Was sollte die Person privat wissen?",
+  "Bathrooms": "Badezimmer", "Bedrooms": "Schlafzimmer", "Beds": "Betten",
+  "Check your email to verify your account before signing in.": "Prüfe deine E-Mails und bestätige dein Konto, bevor du dich anmeldest.",
+  "Check-in instructions": "Check-in-Anweisungen", "Check-out instructions": "Check-out-Anweisungen",
+  "Choose from gallery": "Aus Galerie auswählen", "Choose photos": "Fotos auswählen", "Choose video from gallery": "Video aus Galerie auswählen",
+  "City / Region": "Stadt / Region", "Cozy loft near the river": "Gemütliches Loft nahe am Fluss",
+  "Custom rules (optional)": "Eigene Regeln (optional)", "Disable": "Deaktivieren", "Enable": "Aktivieren",
+  "Download flatch. from the App Store or Google Play to upgrade.": "Lade flatch. aus dem App Store oder bei Google Play herunter, um ein Upgrade durchzuführen.",
+  "Enter your email first": "Gib zuerst deine E-Mail-Adresse ein", "Find address": "Adresse finden",
+  "Guest": "Gast", "Home listed!": "Wohnung veröffentlicht!", "Host": "Gastgeber:in", "House rules": "Hausregeln",
+  "Image must be under 10 MB": "Das Bild darf maximal 10 MB groß sein", "List your home": "Wohnung inserieren",
+  "Loslegen": "Loslegen", "Max guests": "Max. Gäste", "No.": "Nr.", "Or enter manually:": "Oder manuell eingeben:",
+  "Password reset email sent": "E-Mail zum Zurücksetzen des Passworts gesendet", "Photos": "Fotos", "Preview": "Vorschau",
+  "Private feedback (optional)": "Privates Feedback (optional)", "Profile not available.": "Profil nicht verfügbar.",
+  "Publish home": "Wohnung veröffentlichen", "Recommendation shared": "Empfehlung geteilt", "Review now": "Jetzt bewerten",
+  "Review submitted": "Bewertung gesendet", "Scan this code with your authenticator app": "Scanne diesen Code mit deiner Authenticator-App",
+  "Schon dabei?": "Schon dabei?", "Search 100+ rules...": "Über 100 Regeln durchsuchen...",
+  "Select city": "Stadt auswählen", "Select country": "Land auswählen", "Select country first": "Zuerst Land auswählen",
+  "Share your experience...": "Teile deine Erfahrung...", "Sharing...": "Wird geteilt...", "Skip": "Überspringen",
+  "Start typing — we'll fill in the fields below.": "Beginne zu tippen – wir füllen die Felder darunter aus.",
+  "Street": "Straße", "Submitting...": "Wird gesendet...",
+  "Subscriptions are available in the iOS & Android app": "Abos sind in der iOS- und Android-App verfügbar",
+  "Title is required": "Titel ist erforderlich", "Two-factor authentication": "Zwei-Faktor-Authentifizierung",
+  "Two-factor authentication disabled": "Zwei-Faktor-Authentifizierung deaktiviert",
+  "Two-factor authentication enabled": "Zwei-Faktor-Authentifizierung aktiviert",
+  "Uploading media...": "Medien werden hochgeladen...", "Weiter": "Weiter",
+  "What makes your home special?": "Was macht deine Wohnung besonders?", "Why do you love it?": "Warum liebst du diesen Ort?",
+  "Your account is protected with an authenticator app.": "Dein Konto ist mit einer Authenticator-App geschützt.",
+  "ZIP / Postal code": "PLZ", "e.g. Sunset rooftop in Lisbon": "z. B. Dachterrasse bei Sonnenuntergang in Lissabon",
+  "pending review": "offene Bewertung", "pending reviews": "offene Bewertungen", "selected": "ausgewählt",
+  "image attached": "Bild angehängt", "video attached": "Video angehängt", "audio attached": "Sprachnachricht angehängt",
+};
+
 export function translatePhrase(lang: LanguageCode, phrase: string): string | undefined {
   const row = ROWS[phrase];
-  if (!row) return undefined;
+  if (!row) return lang === "de" ? DE_FALLBACK[phrase] : undefined;
   const idx = ORDER.indexOf(lang);
   return idx >= 0 ? row[idx] || row[0] : row[0];
 }
