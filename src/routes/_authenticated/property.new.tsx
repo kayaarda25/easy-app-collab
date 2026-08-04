@@ -163,26 +163,26 @@ function NewPropertyPage() {
           </div>
         </Field>
 
-        <Field label="Find address">
+        <Field label={t("Find address")}>
           <AddressAutocomplete onSelect={applyAddress} />
-          <p className="mt-1 text-xs text-muted-foreground">Start typing — we'll fill in the fields below.</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("Start typing — we'll fill in the fields below.")}</p>
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Country" required>
+          <Field label={t("Country")} required>
             <select
               required
               value={country}
               onChange={(e) => { setCountry(e.target.value); setCity(""); }}
               className="input"
             >
-              <option value="">Select country</option>
+              <option value="">{t("Select country")}</option>
               {COUNTRIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </Field>
-          <Field label="City / Region" required>
+          <Field label={t("City / Region")} required>
             <select
               required
               value={city}
@@ -190,7 +190,7 @@ function NewPropertyPage() {
               disabled={!country}
               className="input disabled:opacity-50"
             >
-              <option value="">{country ? "Select city" : "Select country first"}</option>
+              <option value="">{country ? t("Select city") : t("Select country first")}</option>
               {(LOCATIONS[country] ?? []).map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -198,34 +198,34 @@ function NewPropertyPage() {
           </Field>
         </div>
 
-        <Field label="ZIP / Postal code">
+        <Field label={t("ZIP / Postal code")}>
           <input maxLength={20} value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="input" placeholder="1000" />
         </Field>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
-            <Field label="Street">
-              <input maxLength={200} value={street} onChange={(e) => setStreet(e.target.value)} className="input" placeholder="Main Street" />
+            <Field label={t("Street")}>
+              <input maxLength={200} value={street} onChange={(e) => setStreet(e.target.value)} className="input" placeholder={t("Street")} />
             </Field>
           </div>
           <div>
-            <Field label="No.">
+            <Field label={t("No.")}>
               <input maxLength={20} value={houseNumber} onChange={(e) => setHouseNumber(e.target.value)} className="input" placeholder="42" />
             </Field>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Bedrooms"><input type="number" min={0} max={20} value={bedrooms} onChange={(e) => setBedrooms(+e.target.value)} className="input" /></Field>
-          <Field label="Beds"><input type="number" min={1} max={40} value={beds} onChange={(e) => setBeds(+e.target.value)} className="input" /></Field>
-          <Field label="Bathrooms"><input type="number" min={0} max={20} step={0.5} value={bathrooms} onChange={(e) => setBathrooms(+e.target.value)} className="input" /></Field>
-          <Field label="Max guests"><input type="number" min={1} max={40} value={maxGuests} onChange={(e) => setMaxGuests(+e.target.value)} className="input" /></Field>
+          <Field label={t("Bedrooms")}><input type="number" min={0} max={20} value={bedrooms} onChange={(e) => setBedrooms(+e.target.value)} className="input" /></Field>
+          <Field label={t("Beds")}><input type="number" min={1} max={40} value={beds} onChange={(e) => setBeds(+e.target.value)} className="input" /></Field>
+          <Field label={t("Bathrooms")}><input type="number" min={0} max={20} step={0.5} value={bathrooms} onChange={(e) => setBathrooms(+e.target.value)} className="input" /></Field>
+          <Field label={t("Max guests")}><input type="number" min={1} max={40} value={maxGuests} onChange={(e) => setMaxGuests(+e.target.value)} className="input" /></Field>
         </div>
 
-        <Field label="Amenities">
+        <Field label={t("Amenities")}>
           <div className="flex flex-wrap gap-2">
             {AMENITIES.map((a) => (
-              <button type="button" key={a} onClick={() => toggleAmenity(a)} className={`rounded-full border px-3 py-1.5 text-xs ${amenities.includes(a) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{a}</button>
+              <button type="button" key={a} onClick={() => toggleAmenity(a)} className={`rounded-full border px-3 py-1.5 text-xs ${amenities.includes(a) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t(a)}</button>
             ))}
           </div>
         </Field>
@@ -233,8 +233,8 @@ function NewPropertyPage() {
         {/* House Rules Selector */}
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-muted-foreground">House rules</label>
-            <span className="text-[10px] text-muted-foreground">{selectedRuleIds.length} selected</span>
+            <label className="text-xs font-medium text-muted-foreground">{t("House rules")}</label>
+            <span className="text-[10px] text-muted-foreground">{selectedRuleIds.length} {t("selected")}</span>
           </div>
 
           <div className="relative">
@@ -242,7 +242,7 @@ function NewPropertyPage() {
             <input
               value={ruleSearch}
               onChange={(e) => setRuleSearch(e.target.value)}
-              placeholder="Search 100+ rules..."
+              placeholder={t("Search 100+ rules...")}
               className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
@@ -297,7 +297,7 @@ function NewPropertyPage() {
 
           {selectedRuleIds.length > 0 && (
             <div className="rounded-xl bg-muted/40 p-3 space-y-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Preview</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t("Preview")}</p>
               <div className="space-y-1">
                 {PRE_MADE_HOUSE_RULES.filter((r) => selectedRuleIds.includes(r.id)).map((r) => (
                   <div key={r.id} className="flex items-start gap-2 text-xs">
@@ -310,28 +310,28 @@ function NewPropertyPage() {
           )}
 
           <div>
-            <label className="block text-[10px] font-medium text-muted-foreground mb-1">Custom rules (optional)</label>
+            <label className="block text-[10px] font-medium text-muted-foreground mb-1">{t("Custom rules (optional)")}</label>
             <textarea
               rows={3}
               maxLength={2000}
               value={customRules}
               onChange={(e) => setCustomRules(e.target.value)}
               className="input resize-none"
-              placeholder="Add any additional house rules here..."
+              placeholder={t("Add any additional house rules here...")}
             />
           </div>
         </div>
 
-        <Field label="Check-in instructions">
-          <textarea rows={3} maxLength={2000} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="input resize-none" placeholder="Lockbox code 1234 by the front door. Wifi password on the fridge." />
+        <Field label={t("Check-in instructions")}>
+          <textarea rows={3} maxLength={2000} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="input resize-none" placeholder={t("Add check-in instructions")} />
         </Field>
-        <Field label="Check-out instructions">
-          <textarea rows={3} maxLength={2000} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="input resize-none" placeholder="Strip the bed, take trash out, leave keys on the table." />
+        <Field label={t("Check-out instructions")}>
+          <textarea rows={3} maxLength={2000} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="input resize-none" placeholder={t("Add check-out instructions")} />
         </Field>
 
-        <Field label="Photos">
+        <Field label={t("Photos")}>
           <label className="flex h-32 cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40">
-            <Upload className="mr-2 h-4 w-4" /> Choose photos
+            <Upload className="mr-2 h-4 w-4" /> {t("Choose photos")}
             <input type="file" accept="image/*" multiple onChange={onFiles} className="hidden" />
           </label>
           {previews.length > 0 && (
@@ -349,7 +349,7 @@ function NewPropertyPage() {
         </Field>
 
         <button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-60">
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />} Publish home
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />} {t("Publish home")}
         </button>
       </form>
     </div>
