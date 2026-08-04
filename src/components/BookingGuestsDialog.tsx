@@ -8,6 +8,7 @@ import {
   deleteBookingGuest,
   listBookingGuests,
 } from "@/lib/booking-guests.functions";
+import { useT } from "@/lib/i18n";
 
 type Guest = {
   id: string;
@@ -35,6 +36,7 @@ export function BookingGuestsDialog({
   maxGuests?: number;
   onClose: () => void;
 }) {
+  const { t } = useT();
   const qc = useQueryClient();
   const listFn = useServerFn(listBookingGuests);
   const addFn = useServerFn(addBookingGuest);
@@ -68,7 +70,7 @@ export function BookingGuestsDialog({
         },
       }),
     onSuccess: () => {
-      toast.success("Gast hinzugefügt");
+      toast.success(t("Gast hinzugefügt"));
       setForm({ first_name: "", last_name: "", birthdate: "", id_number: "", id_type: "passport", note: "" });
       setShowForm(false);
       qc.invalidateQueries({ queryKey: key });
@@ -79,7 +81,7 @@ export function BookingGuestsDialog({
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Gast entfernt");
+      toast.success(t("Gast entfernt"));
       qc.invalidateQueries({ queryKey: key });
     },
   });
@@ -98,10 +100,10 @@ export function BookingGuestsDialog({
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold">
-              <Users className="h-5 w-5" /> Gäste erfassen
+               <Users className="h-5 w-5" /> {t("Gäste erfassen")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Zusätzliche Personen für diese Buchung {typeof maxGuests === "number" ? `(max. ${maxGuests})` : ""}
+               {t("Zusätzliche Personen für diese Buchung")} {typeof maxGuests === "number" ? `(${t("max.")} ${maxGuests})` : ""}
             </p>
           </div>
           <button onClick={onClose} className="rounded-full p-1.5 hover:bg-secondary"><X className="h-5 w-5" /></button>
@@ -113,7 +115,7 @@ export function BookingGuestsDialog({
           <div className="space-y-2">
             {guests.length === 0 && !showForm && (
               <p className="rounded-xl bg-muted/50 px-3 py-4 text-center text-xs text-muted-foreground">
-                Noch keine zusätzlichen Gäste erfasst.
+                 {t("Noch keine zusätzlichen Gäste erfasst.")}
               </p>
             )}
             {guests.map((g) => (
@@ -121,14 +123,14 @@ export function BookingGuestsDialog({
                 <div className="min-w-0 flex-1 text-sm">
                   <p className="font-semibold">{g.first_name} {g.last_name}</p>
                   <p className="text-xs text-muted-foreground">
-                    * {g.birthdate} · {ID_TYPES.find((t) => t.value === g.id_type)?.label ?? g.id_type}: {g.id_number}
+                     * {g.birthdate} · {t(ID_TYPES.find((type) => type.value === g.id_type)?.label ?? g.id_type)}: {g.id_number}
                   </p>
                   {g.note && <p className="mt-1 text-xs text-muted-foreground">{g.note}</p>}
                 </div>
                 <button
-                  onClick={() => { if (confirm("Gast entfernen?")) del.mutate(g.id); }}
+                   onClick={() => { if (confirm(t("Gast entfernen?"))) del.mutate(g.id); }}
                   className="rounded-full p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                  aria-label="Entfernen"
+                   aria-label={t("Entfernen")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -140,37 +142,37 @@ export function BookingGuestsDialog({
         {showForm ? (
           <div className="mt-4 space-y-3 rounded-2xl border border-border bg-background/50 p-4">
             <div className="grid grid-cols-2 gap-3">
-              <label className="block"><span className="text-xs text-muted-foreground">Vorname</span>
+               <label className="block"><span className="text-xs text-muted-foreground">{t("Vorname")}</span>
                 <input className="input mt-1" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} maxLength={80} />
               </label>
-              <label className="block"><span className="text-xs text-muted-foreground">Nachname</span>
+               <label className="block"><span className="text-xs text-muted-foreground">{t("Nachname")}</span>
                 <input className="input mt-1" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} maxLength={80} />
               </label>
             </div>
-            <label className="block"><span className="text-xs text-muted-foreground">Geburtsdatum</span>
+             <label className="block"><span className="text-xs text-muted-foreground">{t("Geburtsdatum")}</span>
               <input type="date" className="input mt-1" value={form.birthdate} onChange={(e) => setForm({ ...form, birthdate: e.target.value })} />
             </label>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block"><span className="text-xs text-muted-foreground">Dokument</span>
+               <label className="block"><span className="text-xs text-muted-foreground">{t("Dokument")}</span>
                 <select className="input mt-1" value={form.id_type} onChange={(e) => setForm({ ...form, id_type: e.target.value as Guest["id_type"] })}>
-                  {ID_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                   {ID_TYPES.map((type) => <option key={type.value} value={type.value}>{t(type.label)}</option>)}
                 </select>
               </label>
-              <label className="block"><span className="text-xs text-muted-foreground">Dokument-Nr.</span>
+               <label className="block"><span className="text-xs text-muted-foreground">{t("Dokument-Nr.")}</span>
                 <input className="input mt-1" value={form.id_number} onChange={(e) => setForm({ ...form, id_number: e.target.value })} maxLength={60} />
               </label>
             </div>
-            <label className="block"><span className="text-xs text-muted-foreground">Notiz (optional)</span>
+             <label className="block"><span className="text-xs text-muted-foreground">{t("Notiz (optional)")}</span>
               <input className="input mt-1" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} maxLength={300} />
             </label>
             <div className="flex gap-2 pt-1">
-              <button onClick={() => setShowForm(false)} className="flex-1 rounded-full border border-border px-4 py-2.5 text-sm font-semibold">Abbrechen</button>
+               <button onClick={() => setShowForm(false)} className="flex-1 rounded-full border border-border px-4 py-2.5 text-sm font-semibold">{t("Abbrechen")}</button>
               <button
                 disabled={!canSubmit || add.isPending}
                 onClick={() => add.mutate()}
                 className="flex-1 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {add.isPending ? "Speichern…" : "Speichern"}
+                 {add.isPending ? t("Speichern…") : t("Speichern")}
               </button>
             </div>
           </div>
@@ -181,7 +183,7 @@ export function BookingGuestsDialog({
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
             <Plus className="h-4 w-4" />
-            {atMax ? "Max. Gäste erreicht" : "Gast hinzufügen"}
+             {atMax ? t("Max. Gäste erreicht") : t("Gast hinzufügen")}
           </button>
         )}
       </div>
