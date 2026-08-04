@@ -49,6 +49,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function ProfilePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useT();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchProps = useServerFn(getMyProperties);
   const updateFn = useServerFn(updateMyProfile);
