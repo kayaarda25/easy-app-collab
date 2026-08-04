@@ -1,4 +1,5 @@
 import { useLanguage, type LanguageCode } from "@/lib/language";
+import { translatePhrase } from "@/lib/i18n.phrases";
 
 /** Base dictionary (English). Every other language overrides these keys. */
 const en = {
@@ -50,9 +51,9 @@ const en = {
   "settings.signOut": "Sign out",
 };
 
-export type TranslationKey = keyof typeof en;
+export type TranslationKey = keyof typeof en | (string & {});
 
-type Dict = Partial<Record<TranslationKey, string>>;
+type Dict = Partial<Record<string, string>>;
 
 const de: Dict = {
   "nav.home": "Start",
@@ -372,7 +373,10 @@ const tr: Dict = {
 const DICTS: Record<LanguageCode, Dict> = { en, de, fr, it, es, pt, nl, tr };
 
 export function translate(lang: LanguageCode, key: TranslationKey): string {
-  return DICTS[lang]?.[key] ?? en[key] ?? key;
+  const k = key as string;
+  const dotted = DICTS[lang]?.[k] ?? (en as Record<string, string>)[k];
+  if (dotted) return dotted;
+  return translatePhrase(lang, k) ?? k;
 }
 
 /** Returns `t(key)` bound to the active app language. Re-renders on language change. */

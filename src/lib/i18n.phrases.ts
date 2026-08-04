@@ -1,0 +1,194 @@
+import type { LanguageCode } from "@/lib/language";
+
+/**
+ * Phrase dictionary keyed by the literal source string used in components.
+ * Tuple order: [en, de, fr, it, es, pt, nl, tr]
+ */
+const ORDER: LanguageCode[] = ["en", "de", "fr", "it", "es", "pt", "nl", "tr"];
+
+type Row = [string, string, string, string, string, string, string, string];
+
+const ROWS: Record<string, Row> = {
+  // ---- Discover / Swipe ----
+  "Discover": ["Discover", "Entdecken", "Découvrir", "Scopri", "Descubrir", "Descobrir", "Ontdek", "Keşfet"],
+  "Filters": ["Filters", "Filter", "Filtres", "Filtri", "Filtros", "Filtros", "Filters", "Filtreler"],
+  "All homes worldwide": ["All homes worldwide", "Alle Wohnungen weltweit", "Tous les logements dans le monde", "Tutte le case nel mondo", "Todas las casas del mundo", "Todas as casas no mundo", "Alle woningen wereldwijd", "Dünya genelindeki tüm evler"],
+  "Refine the homes in your swipe feed.": ["Refine the homes in your swipe feed.", "Verfeinere die Wohnungen in deinem Feed.", "Affinez les logements de votre fil.", "Affina le case nel tuo feed.", "Ajusta las casas de tu feed.", "Refine as casas no seu feed.", "Verfijn de woningen in je feed.", "Akışındaki evleri daralt."],
+  "Refine the homes you see on the map.": ["Refine the homes you see on the map.", "Verfeinere die Wohnungen auf der Karte.", "Affinez les logements affichés sur la carte.", "Affina le case che vedi sulla mappa.", "Ajusta las casas que ves en el mapa.", "Refine as casas que vê no mapa.", "Verfijn de woningen op de kaart.", "Haritada gördüğün evleri daralt."],
+  "Bedrooms (min)": ["Bedrooms (min)", "Schlafzimmer (min.)", "Chambres (min)", "Camere da letto (min)", "Dormitorios (mín)", "Quartos (mín)", "Slaapkamers (min)", "Yatak odası (min)"],
+  "Max guests (min)": ["Max guests (min)", "Max. Gäste (min.)", "Voyageurs max (min)", "Ospiti max (min)", "Huéspedes máx (mín)", "Hóspedes máx (mín)", "Max. gasten (min)", "Maks. misafir (min)"],
+  "Property type": ["Property type", "Objekttyp", "Type de logement", "Tipo di alloggio", "Tipo de propiedad", "Tipo de imóvel", "Type woning", "Mülk türü"],
+  "Amenities": ["Amenities", "Ausstattung", "Équipements", "Servizi", "Comodidades", "Comodidades", "Voorzieningen", "Olanaklar"],
+  "Pets allowed": ["Pets allowed", "Haustiere erlaubt", "Animaux acceptés", "Animali ammessi", "Se admiten mascotas", "Animais permitidos", "Huisdieren toegestaan", "Evcil hayvan serbest"],
+  "Smoking allowed": ["Smoking allowed", "Rauchen erlaubt", "Fumeurs autorisés", "Fumatori ammessi", "Se permite fumar", "Fumar permitido", "Roken toegestaan", "Sigara serbest"],
+  "Workspace": ["Workspace", "Arbeitsplatz", "Espace de travail", "Postazione di lavoro", "Espacio de trabajo", "Espaço de trabalho", "Werkplek", "Çalışma alanı"],
+  "Min host rating": ["Min host rating", "Min. Gastgeber-Bewertung", "Note minimale de l'hôte", "Valutazione minima host", "Valoración mínima del anfitrión", "Avaliação mínima do anfitrião", "Min. beoordeling host", "Min. ev sahibi puanı"],
+  "Verified only": ["Verified only", "Nur verifiziert", "Vérifiés uniquement", "Solo verificati", "Solo verificados", "Apenas verificados", "Alleen geverifieerd", "Sadece doğrulanmış"],
+  "No more homes": ["No more homes", "Keine Wohnungen mehr", "Plus de logements", "Nessuna altra casa", "No hay más casas", "Sem mais casas", "Geen woningen meer", "Başka ev yok"],
+  "Check back later or try another location.": ["Check back later or try another location.", "Schau später wieder vorbei oder probiere einen anderen Ort.", "Revenez plus tard ou essayez un autre lieu.", "Torna più tardi o prova un'altra località.", "Vuelve más tarde o prueba otro lugar.", "Volte mais tarde ou tente outro local.", "Kom later terug of probeer een andere plek.", "Daha sonra tekrar bak ya da başka bir yer dene."],
+  "Any": ["Any", "Egal", "Peu importe", "Qualsiasi", "Cualquiera", "Qualquer", "Alles", "Farketmez"],
+  "Reset": ["Reset", "Zurücksetzen", "Réinitialiser", "Reimposta", "Restablecer", "Repor", "Herstellen", "Sıfırla"],
+  "Apply": ["Apply", "Anwenden", "Appliquer", "Applica", "Aplicar", "Aplicar", "Toepassen", "Uygula"],
+  "It's a match! 🎉": ["It's a match! 🎉", "Es ist ein Match! 🎉", "C'est un match ! 🎉", "È un match! 🎉", "¡Es un match! 🎉", "É um match! 🎉", "Het is een match! 🎉", "Eşleştiniz! 🎉"],
+
+  // ---- Search ----
+  "Where to?": ["Where to?", "Wohin?", "Où allez-vous ?", "Dove vai?", "¿A dónde?", "Para onde?", "Waarheen?", "Nereye?"],
+  "Discover homes worldwide.": ["Discover homes worldwide.", "Entdecke Wohnungen weltweit.", "Découvrez des logements dans le monde entier.", "Scopri case in tutto il mondo.", "Descubre casas en todo el mundo.", "Descubra casas em todo o mundo.", "Ontdek woningen wereldwijd.", "Dünya genelinde evleri keşfet."],
+  "Search a city or country": ["Search a city or country", "Stadt oder Land suchen", "Rechercher une ville ou un pays", "Cerca una città o un paese", "Busca una ciudad o país", "Pesquisar cidade ou país", "Zoek een stad of land", "Şehir veya ülke ara"],
+  "Search is a Premium feature": ["Search is a Premium feature", "Suche ist eine Premium-Funktion", "La recherche est une fonction Premium", "La ricerca è una funzione Premium", "La búsqueda es una función Premium", "A pesquisa é uma função Premium", "Zoeken is een Premium-functie", "Arama bir Premium özelliktir"],
+  "Popular destinations": ["Popular destinations", "Beliebte Ziele", "Destinations populaires", "Destinazioni popolari", "Destinos populares", "Destinos populares", "Populaire bestemmingen", "Popüler destinasyonlar"],
+  "All homes on flatch.": ["All homes on flatch.", "Alle Wohnungen auf flatch.", "Tous les logements sur flatch.", "Tutte le case su flatch.", "Todas las casas en flatch.", "Todas as casas no flatch.", "Alle woningen op flatch.", "flatch.'teki tüm evler"],
+
+  // ---- Points ----
+  "History": ["History", "Verlauf", "Historique", "Cronologia", "Historial", "Histórico", "Geschiedenis", "Geçmiş"],
+  "Loading…": ["Loading…", "Lädt…", "Chargement…", "Caricamento…", "Cargando…", "A carregar…", "Laden…", "Yükleniyor…"],
+  "No transactions yet.": ["No transactions yet.", "Noch keine Transaktionen.", "Aucune transaction pour le moment.", "Ancora nessuna transazione.", "Aún no hay transacciones.", "Ainda sem transações.", "Nog geen transacties.", "Henüz işlem yok."],
+  "Upgrade to start collecting": ["Upgrade to start collecting", "Upgrade, um zu sammeln", "Passez à l'offre supérieure pour cumuler", "Passa a premium per accumulare", "Mejora para empezar a acumular", "Faça upgrade para começar a acumular", "Upgrade om te sparen", "Toplamaya başlamak için yükselt"],
+  "Premium bonus available": ["Premium bonus available", "Premium-Bonus verfügbar", "Bonus Premium disponible", "Bonus Premium disponibile", "Bono Premium disponible", "Bónus Premium disponível", "Premium-bonus beschikbaar", "Premium bonusu mevcut"],
+  "Earned from stay": ["Earned from stay", "Aus Aufenthalt verdient", "Gagnés lors d'un séjour", "Guadagnati da un soggiorno", "Ganados por estancia", "Ganhos com estadia", "Verdiend met verblijf", "Konaklamadan kazanıldı"],
+  "Premium bonus": ["Premium bonus", "Premium-Bonus", "Bonus Premium", "Bonus Premium", "Bono Premium", "Bónus Premium", "Premium-bonus", "Premium bonusu"],
+  "Spent on stay": ["Spent on stay", "Für Aufenthalt ausgegeben", "Dépensés pour un séjour", "Spesi per un soggiorno", "Gastados en estancia", "Gastos em estadia", "Besteed aan verblijf", "Konaklamaya harcandı"],
+  "Reserved for booking": ["Reserved for booking", "Für Buchung reserviert", "Réservés pour une réservation", "Riservati per la prenotazione", "Reservados para la reserva", "Reservados para reserva", "Gereserveerd voor boeking", "Rezervasyon için ayrıldı"],
+  "Reservation released": ["Reservation released", "Reservierung freigegeben", "Réservation libérée", "Prenotazione rilasciata", "Reserva liberada", "Reserva libertada", "Reservering vrijgegeven", "Rezervasyon serbest bırakıldı"],
+  "Refund": ["Refund", "Rückerstattung", "Remboursement", "Rimborso", "Reembolso", "Reembolso", "Terugbetaling", "İade"],
+  "Expired": ["Expired", "Abgelaufen", "Expirés", "Scaduti", "Caducados", "Expirados", "Verlopen", "Süresi doldu"],
+  "Adjustment": ["Adjustment", "Anpassung", "Ajustement", "Rettifica", "Ajuste", "Ajuste", "Aanpassing", "Düzeltme"],
+
+  // ---- Notifications ----
+  "Notifications": ["Notifications", "Benachrichtigungen", "Notifications", "Notifiche", "Notificaciones", "Notificações", "Meldingen", "Bildirimler"],
+  "You're all caught up.": ["You're all caught up.", "Alles erledigt.", "Vous êtes à jour.", "Sei aggiornato.", "Estás al día.", "Está tudo em dia.", "Je bent bij.", "Her şey güncel."],
+  "Delete": ["Delete", "Löschen", "Supprimer", "Elimina", "Eliminar", "Eliminar", "Verwijderen", "Sil"],
+
+  // ---- Paywall ----
+  "Choose your plan": ["Choose your plan", "Wähle deinen Plan", "Choisissez votre offre", "Scegli il tuo piano", "Elige tu plan", "Escolha o seu plano", "Kies je abonnement", "Planını seç"],
+  "Current plan": ["Current plan", "Aktueller Plan", "Offre actuelle", "Piano attuale", "Plan actual", "Plano atual", "Huidig abonnement", "Mevcut plan"],
+  "Free": ["Free", "Kostenlos", "Gratuit", "Gratis", "Gratis", "Grátis", "Gratis", "Ücretsiz"],
+
+  // ---- Onboarding ----
+  "Step 1 of 2": ["Step 1 of 2", "Schritt 1 von 2", "Étape 1 sur 2", "Passo 1 di 2", "Paso 1 de 2", "Passo 1 de 2", "Stap 1 van 2", "Adım 1 / 2"],
+  "Tell us about yourself": ["Tell us about yourself", "Erzähl uns von dir", "Parlez-nous de vous", "Parlaci di te", "Cuéntanos sobre ti", "Fale-nos sobre si", "Vertel iets over jezelf", "Bize kendinden bahset"],
+  "This helps other members get to know you.": ["This helps other members get to know you.", "So lernen dich andere Mitglieder kennen.", "Cela aide les autres membres à vous connaître.", "Aiuta gli altri membri a conoscerti.", "Ayuda a otros miembros a conocerte.", "Ajuda outros membros a conhecê-lo.", "Zo leren andere leden je kennen.", "Bu, diğer üyelerin seni tanımasına yardımcı olur."],
+  "Tap to change": ["Tap to change", "Zum Ändern tippen", "Touchez pour modifier", "Tocca per cambiare", "Toca para cambiar", "Toque para alterar", "Tik om te wijzigen", "Değiştirmek için dokun"],
+  "Add a profile photo (optional)": ["Add a profile photo (optional)", "Profilfoto hinzufügen (optional)", "Ajouter une photo de profil (facultatif)", "Aggiungi una foto profilo (facoltativa)", "Añade una foto de perfil (opcional)", "Adicione uma foto de perfil (opcional)", "Profielfoto toevoegen (optioneel)", "Profil fotoğrafı ekle (isteğe bağlı)"],
+  "Your name": ["Your name", "Dein Name", "Votre nom", "Il tuo nome", "Tu nombre", "O seu nome", "Je naam", "Adın"],
+  "City": ["City", "Stadt", "Ville", "Città", "Ciudad", "Cidade", "Stad", "Şehir"],
+  "Country": ["Country", "Land", "Pays", "Paese", "País", "País", "Land", "Ülke"],
+  "Short bio": ["Short bio", "Kurze Bio", "Courte bio", "Breve bio", "Biografía breve", "Bio curta", "Korte bio", "Kısa biyografi"],
+  "Continue": ["Continue", "Weiter", "Continuer", "Continua", "Continuar", "Continuar", "Doorgaan", "Devam"],
+
+  // ---- Reviews (German source) ----
+  "Bewertungen": ["Reviews", "Bewertungen", "Avis", "Recensioni", "Reseñas", "Avaliações", "Beoordelingen", "Değerlendirmeler"],
+  "Erledigt": ["Completed", "Erledigt", "Terminé", "Completati", "Completado", "Concluído", "Voltooid", "Tamamlandı"],
+  "Person bewerten": ["Rate person", "Person bewerten", "Évaluer la personne", "Valuta la persona", "Valorar a la persona", "Avaliar pessoa", "Persoon beoordelen", "Kişiyi değerlendir"],
+  "Liegenschaft bewerten": ["Rate property", "Liegenschaft bewerten", "Évaluer le logement", "Valuta l'alloggio", "Valorar la propiedad", "Avaliar o imóvel", "Woning beoordelen", "Mülkü değerlendir"],
+  "Bewertung senden": ["Submit review", "Bewertung senden", "Envoyer l'avis", "Invia recensione", "Enviar reseña", "Enviar avaliação", "Beoordeling versturen", "Değerlendirmeyi gönder"],
+  "Speichere…": ["Saving…", "Speichere…", "Enregistrement…", "Salvataggio…", "Guardando…", "A guardar…", "Opslaan…", "Kaydediliyor…"],
+  "Lädt…": ["Loading…", "Lädt…", "Chargement…", "Caricamento…", "Cargando…", "A carregar…", "Laden…", "Yükleniyor…"],
+  "Bewertung gespeichert": ["Review saved", "Bewertung gespeichert", "Avis enregistré", "Recensione salvata", "Reseña guardada", "Avaliação guardada", "Beoordeling opgeslagen", "Değerlendirme kaydedildi"],
+  "Wie war es mit dieser Person?": ["How was it with this person?", "Wie war es mit dieser Person?", "Comment cela s'est-il passé avec cette personne ?", "Com'è andata con questa persona?", "¿Qué tal con esta persona?", "Como correu com esta pessoa?", "Hoe was het met deze persoon?", "Bu kişiyle nasıldı?"],
+  "Wie war die Liegenschaft?": ["How was the property?", "Wie war die Liegenschaft?", "Comment était le logement ?", "Com'era l'alloggio?", "¿Cómo estaba la propiedad?", "Como estava o imóvel?", "Hoe was de woning?", "Mülk nasıldı?"],
+  "Privates Feedback (nur intern sichtbar, optional)": ["Private feedback (internal only, optional)", "Privates Feedback (nur intern sichtbar, optional)", "Retour privé (interne uniquement, facultatif)", "Feedback privato (solo interno, facoltativo)", "Comentario privado (solo interno, opcional)", "Feedback privado (apenas interno, opcional)", "Privéfeedback (alleen intern, optioneel)", "Özel geri bildirim (yalnızca dahili, isteğe bağlı)"],
+
+  // ---- Home feed (German source) ----
+  "Deine Matches": ["Your matches", "Deine Matches", "Vos matchs", "I tuoi match", "Tus matches", "Os teus matches", "Jouw matches", "Eşleşmelerin"],
+  "Noch keine Matches – starte mit Swipen!": ["No matches yet – start swiping!", "Noch keine Matches – starte mit Swipen!", "Pas encore de matchs – commencez à swiper !", "Ancora nessun match – inizia a scorrere!", "Aún no hay matches: ¡empieza a deslizar!", "Ainda sem matches – comece a deslizar!", "Nog geen matches – begin met swipen!", "Henüz eşleşme yok – kaydırmaya başla!"],
+  "Stadt eingeben...": ["Enter a city...", "Stadt eingeben...", "Saisir une ville...", "Inserisci una città...", "Introduce una ciudad...", "Introduza uma cidade...", "Voer een stad in...", "Şehir gir..."],
+  "Teile deine Geheimtipps": ["Share your secret tips", "Teile deine Geheimtipps", "Partagez vos bons plans", "Condividi i tuoi consigli segreti", "Comparte tus secretos", "Partilhe as suas dicas secretas", "Deel je geheime tips", "Gizli ipuçlarını paylaş"],
+  "Wähle eine Kategorie aus": ["Pick a category", "Wähle eine Kategorie aus", "Choisissez une catégorie", "Scegli una categoria", "Elige una categoría", "Escolha uma categoria", "Kies een categorie", "Bir kategori seç"],
+  "Empfohlene Ziele": ["Recommended destinations", "Empfohlene Ziele", "Destinations recommandées", "Destinazioni consigliate", "Destinos recomendados", "Destinos recomendados", "Aanbevolen bestemmingen", "Önerilen destinasyonlar"],
+  "Community-": ["Community", "Community-", "Communauté", "Community", "Comunidad", "Comunidade", "Community-", "Topluluk"],
+  "Empfehlungen": ["recommendations", "Empfehlungen", "recommandations", "consigli", "recomendaciones", "recomendações", "aanbevelingen", "önerileri"],
+  "Alle": ["All", "Alle", "Tout", "Tutti", "Todo", "Tudo", "Alles", "Tümü"],
+  "Essen": ["Food", "Essen", "Restaurants", "Cibo", "Comida", "Comida", "Eten", "Yemek"],
+  "Kultur": ["Culture", "Kultur", "Culture", "Cultura", "Cultura", "Cultura", "Cultuur", "Kültür"],
+  "Natur": ["Nature", "Natur", "Nature", "Natura", "Naturaleza", "Natureza", "Natuur", "Doğa"],
+  "Insider": ["Insider", "Insider", "Insider", "Insider", "Insider", "Insider", "Insider", "Insider"],
+  "Ort suchen (Google Maps)": ["Search a place (Google Maps)", "Ort suchen (Google Maps)", "Rechercher un lieu (Google Maps)", "Cerca un luogo (Google Maps)", "Buscar un lugar (Google Maps)", "Pesquisar local (Google Maps)", "Zoek een plek (Google Maps)", "Yer ara (Google Maps)"],
+  "Titel": ["Title", "Titel", "Titre", "Titolo", "Título", "Título", "Titel", "Başlık"],
+  "Beschreibung": ["Description", "Beschreibung", "Description", "Descrizione", "Descripción", "Descrição", "Beschrijving", "Açıklama"],
+  "Stadt": ["City", "Stadt", "Ville", "Città", "Ciudad", "Cidade", "Stad", "Şehir"],
+  "Land": ["Country", "Land", "Pays", "Paese", "País", "País", "Land", "Ülke"],
+  "Foto": ["Photo", "Foto", "Photo", "Foto", "Foto", "Foto", "Foto", "Fotoğraf"],
+  "Foto auswählen": ["Choose photo", "Foto auswählen", "Choisir une photo", "Scegli foto", "Elegir foto", "Escolher foto", "Foto kiezen", "Fotoğraf seç"],
+  "Teilen": ["Share", "Teilen", "Partager", "Condividi", "Compartir", "Partilhar", "Delen", "Paylaş"],
+  "Teilen...": ["Sharing...", "Teilen...", "Partage...", "Condivisione...", "Compartiendo...", "A partilhar...", "Delen...", "Paylaşılıyor..."],
+  "Lädt...": ["Loading...", "Lädt...", "Chargement...", "Caricamento...", "Cargando...", "A carregar...", "Laden...", "Yükleniyor..."],
+  "Tipp geteilt": ["Tip shared", "Tipp geteilt", "Astuce partagée", "Consiglio condiviso", "Consejo compartido", "Dica partilhada", "Tip gedeeld", "İpucu paylaşıldı"],
+  "Alle ›": ["All ›", "Alle ›", "Tout ›", "Tutti ›", "Todos ›", "Todos ›", "Alles ›", "Tümü ›"],
+
+  // ---- Chat ----
+  "Propose a swap": ["Propose a swap", "Tausch vorschlagen", "Proposer un échange", "Proponi uno scambio", "Proponer un intercambio", "Propor uma troca", "Ruil voorstellen", "Takas öner"],
+  "Their home": ["Their home", "Ihr Zuhause", "Leur logement", "La loro casa", "Su casa", "A casa deles", "Hun woning", "Onların evi"],
+  "They don't have an active listing.": ["They don't have an active listing.", "Diese Person hat kein aktives Inserat.", "Cette personne n'a pas d'annonce active.", "Non ha un annuncio attivo.", "No tiene un anuncio activo.", "Não tem um anúncio ativo.", "Deze persoon heeft geen actieve advertentie.", "Aktif bir ilanı yok."],
+  "Start": ["Start", "Start", "Début", "Inizio", "Inicio", "Início", "Start", "Başlangıç"],
+  "End": ["End", "Ende", "Fin", "Fine", "Fin", "Fim", "Einde", "Bitiş"],
+  "Guests": ["Guests", "Gäste", "Voyageurs", "Ospiti", "Huéspedes", "Hóspedes", "Gasten", "Misafirler"],
+  "Message (optional)": ["Message (optional)", "Nachricht (optional)", "Message (facultatif)", "Messaggio (facoltativo)", "Mensaje (opcional)", "Mensagem (opcional)", "Bericht (optioneel)", "Mesaj (isteğe bağlı)"],
+  "Cancel": ["Cancel", "Abbrechen", "Annuler", "Annulla", "Cancelar", "Cancelar", "Annuleren", "İptal"],
+  "Send": ["Send", "Senden", "Envoyer", "Invia", "Enviar", "Enviar", "Verstuur", "Gönder"],
+  "Swap proposal": ["Swap proposal", "Tauschvorschlag", "Proposition d'échange", "Proposta di scambio", "Propuesta de intercambio", "Proposta de troca", "Ruilvoorstel", "Takas teklifi"],
+  "Proposal sent": ["Proposal sent", "Vorschlag gesendet", "Proposition envoyée", "Proposta inviata", "Propuesta enviada", "Proposta enviada", "Voorstel verzonden", "Teklif gönderildi"],
+  "Übersetzen": ["Translate", "Übersetzen", "Traduire", "Traduci", "Traducir", "Traduzir", "Vertalen", "Çevir"],
+  "Übersetze…": ["Translating…", "Übersetze…", "Traduction…", "Traduzione…", "Traduciendo…", "A traduzir…", "Vertalen…", "Çevriliyor…"],
+  "Erneut versuchen": ["Try again", "Erneut versuchen", "Réessayer", "Riprova", "Reintentar", "Tentar novamente", "Opnieuw proberen", "Tekrar dene"],
+  "Zielsprache": ["Target language", "Zielsprache", "Langue cible", "Lingua di destinazione", "Idioma de destino", "Idioma de destino", "Doeltaal", "Hedef dil"],
+
+  // ---- Help chat ----
+  "flatch. Hilfe": ["flatch. Help", "flatch. Hilfe", "Aide flatch.", "Assistenza flatch.", "Ayuda de flatch.", "Ajuda flatch.", "flatch. Hulp", "flatch. Yardım"],
+  "Hilfe & Support": ["Help & support", "Hilfe & Support", "Aide et assistance", "Aiuto e supporto", "Ayuda y soporte", "Ajuda e apoio", "Hulp & ondersteuning", "Yardım ve destek"],
+  "Live Support": ["Live support", "Live Support", "Assistance en direct", "Supporto live", "Soporte en vivo", "Apoio ao vivo", "Live support", "Canlı destek"],
+  "Mitarbeiter wird verbunden": ["Connecting an agent", "Mitarbeiter wird verbunden", "Mise en relation avec un agent", "Collegamento con un operatore", "Conectando con un agente", "A ligar a um agente", "Medewerker wordt verbonden", "Temsilciye bağlanıyor"],
+  "Ein Mitarbeiter antwortet dir": ["An agent will reply to you", "Ein Mitarbeiter antwortet dir", "Un agent va vous répondre", "Un operatore ti risponderà", "Un agente te responderá", "Um agente irá responder-lhe", "Een medewerker antwoordt je", "Bir temsilci sana yanıt verecek"],
+  "KI-Assistent · antwortet sofort": ["AI assistant · replies instantly", "KI-Assistent · antwortet sofort", "Assistant IA · répond instantanément", "Assistente AI · risponde subito", "Asistente IA · responde al instante", "Assistente IA · responde de imediato", "AI-assistent · antwoordt direct", "Yapay zekâ asistanı · anında yanıtlar"],
+  "Hallo! 👋 Wie kann ich dir helfen?": ["Hi! 👋 How can I help you?", "Hallo! 👋 Wie kann ich dir helfen?", "Bonjour ! 👋 Comment puis-je vous aider ?", "Ciao! 👋 Come posso aiutarti?", "¡Hola! 👋 ¿En qué puedo ayudarte?", "Olá! 👋 Como posso ajudar?", "Hallo! 👋 Hoe kan ik je helpen?", "Merhaba! 👋 Sana nasıl yardımcı olabilirim?"],
+  "Mit Mitarbeiter verbinden": ["Connect with an agent", "Mit Mitarbeiter verbinden", "Contacter un agent", "Contatta un operatore", "Hablar con un agente", "Falar com um agente", "Verbinden met medewerker", "Temsilciye bağlan"],
+  "Verbinde…": ["Connecting…", "Verbinde…", "Connexion…", "Connessione…", "Conectando…", "A ligar…", "Verbinden…", "Bağlanıyor…"],
+  "Frage stellen…": ["Ask a question…", "Frage stellen…", "Poser une question…", "Fai una domanda…", "Haz una pregunta…", "Faça uma pergunta…", "Stel een vraag…", "Bir soru sor…"],
+  "Nachricht an Support…": ["Message to support…", "Nachricht an Support…", "Message au support…", "Messaggio al supporto…", "Mensaje al soporte…", "Mensagem para o apoio…", "Bericht aan support…", "Desteğe mesaj…"],
+  // ---- Batch 3 ----
+  "Accept": ["Accept", "Annehmen", "Accepter", "Accetta", "Aceptar", "Aceitar", "Accepteren", "Kabul et"],
+  "Decline": ["Decline", "Ablehnen", "Refuser", "Rifiuta", "Rechazar", "Recusar", "Weigeren", "Reddet"],
+  "Direct swap": ["Direct swap", "Direkter Tausch", "Échange direct", "Scambio diretto", "Intercambio directo", "Troca direta", "Directe ruil", "Doğrudan takas"],
+  "Use flatch.points": ["Use flatch.points", "flatch.points nutzen", "Utiliser les flatch.points", "Usa i flatch.points", "Usar flatch.points", "Usar flatch.points", "flatch.points gebruiken", "flatch.points kullan"],
+  "Propose swap": ["Propose swap", "Tausch vorschlagen", "Proposer un échange", "Proponi scambio", "Proponer intercambio", "Propor troca", "Ruil voorstellen", "Takas öner"],
+  "Ready to switch": ["Ready to switch", "Bereit zum Tausch", "Prêt à échanger", "Pronto allo scambio", "Listo para intercambiar", "Pronto para trocar", "Klaar om te ruilen", "Takasa hazır"],
+  "Ready": ["Ready", "Bereit", "Prêt", "Pronto", "Listo", "Pronto", "Klaar", "Hazır"],
+  "Gäste erfassen": ["Add guests", "Gäste erfassen", "Ajouter des voyageurs", "Aggiungi ospiti", "Añadir huéspedes", "Adicionar hóspedes", "Gasten toevoegen", "Misafir ekle"],
+  "guests": ["guests", "Gäste", "voyageurs", "ospiti", "huéspedes", "hóspedes", "gasten", "misafir"],
+  "homes": ["homes", "Wohnungen", "logements", "case", "casas", "casas", "woningen", "ev"],
+  "more": ["more", "weitere", "de plus", "altri", "más", "mais", "meer", "daha"],
+  "Show": ["Show", "Zeige", "Afficher", "Mostra", "Mostrar", "Mostrar", "Toon", "Göster"],
+  "Showing homes in": ["Showing homes in", "Wohnungen in", "Logements à", "Case a", "Casas en", "Casas em", "Woningen in", "Evler:"],
+  "View in Swipe Feed": ["View in Swipe Feed", "Im Swipe-Feed ansehen", "Voir dans le fil", "Vedi nel feed", "Ver en el feed", "Ver no feed", "Bekijk in swipe-feed", "Kaydırma akışında gör"],
+  "Verified listings only": ["Verified listings only", "Nur verifizierte Inserate", "Annonces vérifiées uniquement", "Solo annunci verificati", "Solo anuncios verificados", "Apenas anúncios verificados", "Alleen geverifieerde advertenties", "Sadece doğrulanmış ilanlar"],
+  "New search": ["New search", "Neue Suche", "Nouvelle recherche", "Nuova ricerca", "Nueva búsqueda", "Nova pesquisa", "Nieuwe zoekopdracht", "Yeni arama"],
+  "Things to do in": ["Things to do in", "Aktivitäten in", "À faire à", "Cose da fare a", "Qué hacer en", "O que fazer em", "Te doen in", "Yapılacaklar:"],
+  "Entdecke Lieblingsorte von anderen Reisenden.": ["Discover favourite places from other travellers.", "Entdecke Lieblingsorte von anderen Reisenden.", "Découvrez les lieux préférés d'autres voyageurs.", "Scopri i luoghi preferiti di altri viaggiatori.", "Descubre los lugares favoritos de otros viajeros.", "Descubra os lugares favoritos de outros viajantes.", "Ontdek favoriete plekken van andere reizigers.", "Diğer gezginlerin favori yerlerini keşfet."],
+  "Keine Tipps gefunden.": ["No tips found.", "Keine Tipps gefunden.", "Aucun conseil trouvé.", "Nessun consiglio trovato.", "No se encontraron consejos.", "Nenhuma dica encontrada.", "Geen tips gevonden.", "İpucu bulunamadı."],
+  "Noch keine Empfehlungen.": ["No recommendations yet.", "Noch keine Empfehlungen.", "Pas encore de recommandations.", "Ancora nessun consiglio.", "Aún no hay recomendaciones.", "Ainda sem recomendações.", "Nog geen aanbevelingen.", "Henüz öneri yok."],
+  "Noch keine Ziele verfügbar.": ["No destinations available yet.", "Noch keine Ziele verfügbar.", "Aucune destination disponible.", "Nessuna destinazione disponibile.", "Aún no hay destinos disponibles.", "Ainda sem destinos disponíveis.", "Nog geen bestemmingen beschikbaar.", "Henüz varış noktası yok."],
+  "Tipp hinzufügen": ["Add a tip", "Tipp hinzufügen", "Ajouter un conseil", "Aggiungi un consiglio", "Añadir consejo", "Adicionar dica", "Tip toevoegen", "İpucu ekle"],
+  "Tipp teilen": ["Share a tip", "Tipp teilen", "Partager un conseil", "Condividi un consiglio", "Compartir consejo", "Partilhar dica", "Tip delen", "İpucu paylaş"],
+  "Titel erforderlich": ["Title required", "Titel erforderlich", "Titre requis", "Titolo obbligatorio", "Título obligatorio", "Título obrigatório", "Titel vereist", "Başlık gerekli"],
+  "Restaurant, Bar oder Ort eingeben — Titel & Ort werden automatisch ausgefüllt.": ["Enter a restaurant, bar or place — title and location fill in automatically.", "Restaurant, Bar oder Ort eingeben — Titel & Ort werden automatisch ausgefüllt.", "Saisissez un restaurant, un bar ou un lieu — le titre et le lieu se remplissent automatiquement.", "Inserisci un ristorante, bar o luogo — titolo e località si compilano da soli.", "Escribe un restaurante, bar o lugar — el título y la ubicación se rellenan solos.", "Escreva um restaurante, bar ou local — o título e o local preenchem-se automaticamente.", "Voer een restaurant, bar of plek in — titel en locatie worden automatisch ingevuld.", "Restoran, bar veya yer gir — başlık ve konum otomatik dolar."],
+  "Wi-Fi": ["Wi-Fi", "WLAN", "Wi-Fi", "Wi-Fi", "Wi-Fi", "Wi-Fi", "wifi", "Wi-Fi"],
+  "Auto-Übersetzung": ["Auto-translation", "Auto-Übersetzung", "Traduction automatique", "Traduzione automatica", "Traducción automática", "Tradução automática", "Automatische vertaling", "Otomatik çeviri"],
+  "KI schreibt…": ["AI is typing…", "KI schreibt…", "L'IA écrit…", "L'IA sta scrivendo…", "La IA está escribiendo…", "A IA está a escrever…", "AI typt…", "Yapay zekâ yazıyor…"],
+  "Ich beantworte allgemeine Fragen zu flatch. Wenn es um deine konkrete Buchung geht, verbinde ich dich mit einem Mitarbeiter.": ["I answer general questions about flatch. For your specific booking, I'll connect you with an agent.", "Ich beantworte allgemeine Fragen zu flatch. Wenn es um deine konkrete Buchung geht, verbinde ich dich mit einem Mitarbeiter.", "Je réponds aux questions générales sur flatch. Pour votre réservation, je vous mets en relation avec un agent.", "Rispondo a domande generali su flatch. Per la tua prenotazione ti metto in contatto con un operatore.", "Respondo preguntas generales sobre flatch. Para tu reserva, te conecto con un agente.", "Respondo a perguntas gerais sobre a flatch. Para a sua reserva, ligo-o a um agente.", "Ik beantwoord algemene vragen over flatch. Voor je boeking verbind ik je met een medewerker.", "flatch hakkında genel soruları yanıtlarım. Rezervasyonun için seni bir temsilciye bağlarım."],
+  "Bewerte nach dem Check-out die Person und die Liegenschaft, in der du gewohnt hast.": ["After check-out, rate the person and the home you stayed in.", "Bewerte nach dem Check-out die Person und die Liegenschaft, in der du gewohnt hast.", "Après le départ, évaluez la personne et le logement.", "Dopo il check-out, valuta la persona e la casa.", "Tras el check-out, valora a la persona y la vivienda.", "Após o check-out, avalie a pessoa e a casa.", "Beoordeel na het uitchecken de persoon en de woning.", "Çıkıştan sonra kişiyi ve kaldığın evi değerlendir."],
+  "Zurzeit gibt es nichts zu bewerten.": ["Nothing to review right now.", "Zurzeit gibt es nichts zu bewerten.", "Rien à évaluer pour le moment.", "Al momento non c'è nulla da valutare.", "No hay nada que valorar ahora.", "Nada para avaliar de momento.", "Er is nu niets te beoordelen.", "Şu anda değerlendirilecek bir şey yok."],
+  "Mark all read": ["Mark all read", "Alle als gelesen markieren", "Tout marquer comme lu", "Segna tutto come letto", "Marcar todo como leído", "Marcar tudo como lido", "Alles als gelezen markeren", "Tümünü okundu işaretle"],
+  "Most popular": ["Most popular", "Am beliebtesten", "Le plus populaire", "Più popolare", "Más popular", "Mais popular", "Populairst", "En popüler"],
+  "Manage subscription": ["Manage subscription", "Abo verwalten", "Gérer l'abonnement", "Gestisci abbonamento", "Gestionar suscripción", "Gerir subscrição", "Abonnement beheren", "Aboneliği yönet"],
+  "Upgrade to": ["Upgrade to", "Upgrade auf", "Passer à", "Passa a", "Cambiar a", "Mudar para", "Upgraden naar", "Yükselt:"],
+  "Upgrade for more homes, more swipes, and member perks.": ["Upgrade for more homes, more swipes, and member perks.", "Upgrade für mehr Wohnungen, mehr Swipes und Mitglieder-Vorteile.", "Passez à la version supérieure pour plus de logements, de swipes et d'avantages.", "Passa a premium per più case, più swipe e vantaggi.", "Mejora tu plan para más casas, más swipes y ventajas.", "Faça upgrade para mais casas, mais swipes e vantagens.", "Upgrade voor meer woningen, meer swipes en voordelen.", "Daha fazla ev, swipe ve ayrıcalık için yükselt."],
+  "Purchases are processed via the App Store / Google Play. Subscriptions auto-renew until cancelled in your store account.": ["Purchases are processed via the App Store / Google Play. Subscriptions auto-renew until cancelled in your store account.", "Käufe werden über den App Store / Google Play abgewickelt. Abos verlängern sich automatisch, bis du sie im Store-Konto kündigst.", "Les achats sont traités via l'App Store / Google Play. Les abonnements se renouvellent automatiquement jusqu'à résiliation.", "Gli acquisti avvengono tramite App Store / Google Play. Gli abbonamenti si rinnovano fino alla disdetta.", "Las compras se procesan vía App Store / Google Play. Las suscripciones se renuevan hasta que las canceles.", "As compras são processadas via App Store / Google Play. As subscrições renovam-se até serem canceladas.", "Aankopen verlopen via de App Store / Google Play. Abonnementen verlengen automatisch tot je opzegt.", "Satın almalar App Store / Google Play üzerinden yapılır. Abonelikler iptal edilene kadar otomatik yenilenir."],
+  "Your balance": ["Your balance", "Dein Guthaben", "Votre solde", "Il tuo saldo", "Tu saldo", "O seu saldo", "Je saldo", "Bakiyen"],
+};
+
+export function translatePhrase(lang: LanguageCode, phrase: string): string | undefined {
+  const row = ROWS[phrase];
+  if (!row) return undefined;
+  const idx = ORDER.indexOf(lang);
+  return idx >= 0 ? row[idx] || row[0] : row[0];
+}

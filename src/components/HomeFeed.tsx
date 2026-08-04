@@ -35,6 +35,7 @@ import {
 import { toast } from "sonner";
 import { PlaceSearch } from "@/components/PlaceSearch";
 import { getPlacePhotoUrl } from "@/lib/places.functions";
+import { useT } from "@/lib/i18n";
 
 type RecCategory = "destination" | "bar" | "restaurant" | "sightseeing" | "other";
 type FilterKey = "all" | "essen" | "kultur" | "natur" | "insider";
@@ -107,6 +108,7 @@ function catMeta(c: RecCategory) {
 
 export function HomeFeed({ city }: { city?: string | null }) {
   const listFn = useServerFn(listRecommendations);
+  const { t } = useT();
   const matchesFn = useServerFn(getMyMatches);
   const createFn = useServerFn(createRecommendation);
   const propsFn = useServerFn(getAllPropertyLocations);
@@ -152,7 +154,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["recommendations"] });
-      toast.success("Tipp geteilt");
+      toast.success(t("Tipp geteilt"));
       setDialogOpen(false);
     },
     onError: (e: any) => toast.error(e?.message ?? "Fehler"),
@@ -231,13 +233,13 @@ export function HomeFeed({ city }: { city?: string | null }) {
       {/* Matches strip */}
       <section className="px-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Deine Matches</h3>
+          <h3 className="text-lg font-semibold">{t("Deine Matches")}</h3>
           <Link to="/matches" className="text-sm font-semibold text-primary">
-            Alle ›
+            {t("Alle ›")}
           </Link>
         </div>
         {(matches.data ?? []).length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Noch keine Matches – starte mit Swipen!</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t("Noch keine Matches – starte mit Swipen!")}</p>
         ) : (
           <div className="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-1">
             {(matches.data ?? []).slice(0, 12).map((m: any) => (
@@ -260,7 +262,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
                   </div>
                   {m.ready_to_switch && (
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-semibold text-white shadow">
-                      Ready
+                      {t("Ready")}
                     </span>
                   )}
                 </div>
@@ -278,16 +280,16 @@ export function HomeFeed({ city }: { city?: string | null }) {
 
       {/* Things to do */}
       <section className="px-6">
-        <h3 className="text-xl font-bold">Things to do in {headerCity}</h3>
+        <h3 className="text-xl font-bold">{t("Things to do in")} {headerCity}</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Entdecke Lieblingsorte von anderen Reisenden.
+          {t("Entdecke Lieblingsorte von anderen Reisenden.")}
         </p>
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Stadt eingeben..."
+            placeholder={t("Stadt eingeben...")}
             className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -299,8 +301,8 @@ export function HomeFeed({ city }: { city?: string | null }) {
               <Plus className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-base font-semibold">Teile deine Geheimtipps</p>
-              <p className="text-xs text-muted-foreground">Wähle eine Kategorie aus</p>
+              <p className="text-base font-semibold">{t("Teile deine Geheimtipps")}</p>
+              <p className="text-xs text-muted-foreground">{t("Wähle eine Kategorie aus")}</p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-4 gap-3">
@@ -318,7 +320,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
                 <span className={`flex h-10 w-10 items-center justify-center rounded-full ${c.ring} ${c.bubble}`}>
                   <c.Icon className="h-5 w-5" />
                 </span>
-                <span className="text-xs font-semibold">{c.label}</span>
+                <span className="text-xs font-semibold">{t(c.label)}</span>
               </button>
             ))}
           </div>
@@ -345,7 +347,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
                   : "border border-border bg-background text-foreground"
               }`}
             >
-              {f.label}
+              {t(f.label)}
             </button>
           ))}
         </div>
@@ -387,7 +389,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
         </div>
         {filteredAll.length === 0 && (
           <p className="mt-4 rounded-2xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-            Keine Tipps gefunden.
+            {t("Keine Tipps gefunden.")}
           </p>
         )}
       </section>
@@ -395,12 +397,12 @@ export function HomeFeed({ city }: { city?: string | null }) {
       {/* Community feed */}
       <section className="px-6">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-xl font-bold leading-tight">Community-<br />Empfehlungen</h3>
+          <h3 className="text-xl font-bold leading-tight">{t("Community-")}<br />{t("Empfehlungen")}</h3>
           <button
             onClick={() => openCreate("restaurant")}
             className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow"
           >
-            <Plus className="h-4 w-4" /> Tipp hinzufügen
+            <Plus className="h-4 w-4" /> {t("Tipp hinzufügen")}
           </button>
         </div>
         <div className="mt-4 space-y-4">
@@ -478,7 +480,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
           })}
           {filteredAll.length === 0 && (
             <p className="rounded-2xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-              Noch keine Empfehlungen.
+              {t("Noch keine Empfehlungen.")}
             </p>
           )}
         </div>
@@ -487,12 +489,12 @@ export function HomeFeed({ city }: { city?: string | null }) {
       {/* Recommended destinations */}
       <section className="px-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">Empfohlene Ziele</h3>
-            <button className="text-sm font-semibold text-primary">Alle ›</button>
+            <h3 className="text-xl font-bold">{t("Empfohlene Ziele")}</h3>
+            <button className="text-sm font-semibold text-primary">{t("Alle ›")}</button>
           </div>
         {destinations.length === 0 ? (
           <p className="mt-3 rounded-2xl border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-            Noch keine Ziele verfügbar.
+            {t("Noch keine Ziele verfügbar.")}
           </p>
         ) : (
           <div className="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
@@ -517,13 +519,13 @@ export function HomeFeed({ city }: { city?: string | null }) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Tipp teilen · {catMeta(draftCat).label}</DialogTitle>
+            <DialogTitle>{t("Tipp teilen")} · {t(catMeta(draftCat).label)}</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               if (!form.title.trim()) {
-                toast.error("Titel erforderlich");
+                toast.error(t("Titel erforderlich"));
                 return;
               }
               create.mutate();
@@ -531,7 +533,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
             className="space-y-3"
           >
             <div>
-              <Label>Ort suchen (Google Maps)</Label>
+              <Label>{t("Ort suchen (Google Maps)")}</Label>
               <div className="mt-1">
                 <PlaceSearch
                   onSelect={async (p) => {
@@ -557,10 +559,10 @@ export function HomeFeed({ city }: { city?: string | null }) {
                   }}
                 />
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">Restaurant, Bar oder Ort eingeben — Titel & Ort werden automatisch ausgefüllt.</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Restaurant, Bar oder Ort eingeben — Titel & Ort werden automatisch ausgefüllt.")}</p>
             </div>
             <div>
-              <Label>Titel</Label>
+              <Label>{t("Titel")}</Label>
               <Input
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
@@ -569,7 +571,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
               />
             </div>
             <div>
-              <Label>Beschreibung</Label>
+              <Label>{t("Beschreibung")}</Label>
               <Textarea
                 rows={3}
                 value={form.description}
@@ -579,16 +581,16 @@ export function HomeFeed({ city }: { city?: string | null }) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Stadt</Label>
+                <Label>{t("Stadt")}</Label>
                 <Input value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
               </div>
               <div>
-                <Label>Land</Label>
+                <Label>{t("Land")}</Label>
                 <Input value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
               </div>
             </div>
             <div>
-              <Label>Foto</Label>
+              <Label>{t("Foto")}</Label>
               {form.image_url ? (
                 <div className="relative mt-1 overflow-hidden rounded-xl border border-border">
                   <img src={form.image_url} alt="" className="h-40 w-full object-cover" />
@@ -603,7 +605,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
               ) : (
                 <label className="mt-1 flex h-24 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground">
                   <ImagePlus className="h-5 w-5" />
-                  {uploading ? "Lädt..." : "Foto auswählen"}
+                  {uploading ? t("Lädt...") : t("Foto auswählen")}
                   <input
                     type="file"
                     accept="image/*"
@@ -619,7 +621,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
               )}
             </div>
             <Button type="submit" className="w-full" disabled={create.isPending || uploading}>
-              {create.isPending ? "Teilen..." : "Teilen"}
+              {create.isPending ? t("Teilen...") : t("Teilen")}
             </Button>
           </form>
         </DialogContent>

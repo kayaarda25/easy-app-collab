@@ -14,6 +14,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useT, translate } from "@/lib/i18n";
+import { detectLanguage } from "@/lib/language";
 
 const search = z.object({
   city: z.string().optional(),
@@ -72,7 +74,7 @@ function SwipePage() {
       swipeFn({ data: vars }),
     onSuccess: (result) => {
       if (result.matched) {
-        toast.success("It's a match! 🎉", { duration: 4000 });
+        toast.success(translate(detectLanguage(), "It's a match! 🎉"), { duration: 4000 });
         qc.invalidateQueries({ queryKey: ["matches"] });
       }
       setIndex((i) => i + 1);
@@ -101,17 +103,18 @@ function SwipePage() {
     (filters.propertyType ? 1 : 0);
 
   const current = filtered[index];
+  const { t } = useT();
 
   return (
     <PageShell>
       <header className="flex items-center justify-between px-6 pt-6">
-        <h1 className="text-xl font-bold tracking-tight">Discover</h1>
+        <h1 className="text-xl font-bold tracking-tight">{t("Discover")}</h1>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setFiltersOpen(true)}
             className="relative flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition hover:bg-secondary/80"
-            aria-label="Filters"
+            aria-label={t("Filters")}
           >
             <SlidersHorizontal className="h-5 w-5" />
             {activeCount > 0 && (
@@ -131,7 +134,7 @@ function SwipePage() {
 
       <div className="px-6 pt-2">
         <p className="text-sm text-muted-foreground">
-          {city ? `Showing homes in ${city}` : "All homes worldwide"}
+          {city ? `${t("Showing homes in")} ${city}` : t("All homes worldwide")}
           {activeCount > 0 ? ` · ${activeCount} filter${activeCount === 1 ? "" : "s"}` : ""}
         </p>
       </div>
@@ -154,13 +157,13 @@ function SwipePage() {
       <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
         <DialogContent className="max-w-md rounded-2xl border border-border bg-card">
           <DialogHeader className="text-left">
-            <DialogTitle>Filters</DialogTitle>
-            <DialogDescription>Refine the homes in your swipe feed.</DialogDescription>
+            <DialogTitle>{t("Filters")}</DialogTitle>
+            <DialogDescription>{t("Refine the homes in your swipe feed.")}</DialogDescription>
           </DialogHeader>
 
           <div className="mt-2 space-y-5">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Bedrooms (min)</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Bedrooms (min)")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 1, 2, 3, 4].map((n) => (
                   <button
@@ -173,14 +176,14 @@ function SwipePage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {n === 0 ? "Any" : `${n}+`}
+                    {n === 0 ? t("Any") : `${n}+`}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Max guests (min)</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Max guests (min)")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 1, 2, 4, 6, 8].map((n) => (
                   <button
@@ -193,34 +196,34 @@ function SwipePage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {n === 0 ? "Any" : `${n}+`}
+                    {n === 0 ? t("Any") : `${n}+`}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Property type</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Property type")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {["", "apartment", "house", "loft", "studio", "villa"].map((t) => (
+                {["", "apartment", "house", "loft", "studio", "villa"].map((pt) => (
                   <button
-                    key={t || "any"}
+                    key={pt || "any"}
                     type="button"
-                    onClick={() => { setFilters((f) => ({ ...f, propertyType: t })); setIndex(0); }}
+                    onClick={() => { setFilters((f) => ({ ...f, propertyType: pt })); setIndex(0); }}
                     className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition ${
-                      filters.propertyType === t
+                      filters.propertyType === pt
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {t || "Any"}
+                    {pt || t("Any")}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Amenities</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Amenities")}</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {([
                   ["wifi", "Wi-Fi"],
@@ -237,7 +240,7 @@ function SwipePage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {label}
+                    {t(label)}
                   </button>
                 ))}
               </div>
@@ -249,7 +252,7 @@ function SwipePage() {
                 onClick={() => { setFilters(DEFAULT_SWIPE_FILTERS); setIndex(0); }}
                 className="text-xs font-medium text-muted-foreground underline-offset-4 hover:underline"
               >
-                Reset
+                {t("Reset")}
               </button>
               <button
                 type="button"
@@ -320,15 +323,16 @@ function SwipeCard({
 }
 
 function EmptyState() {
+  const { t } = useT();
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent">
         <Sparkles className="h-8 w-8 text-primary" />
       </div>
-      <h2 className="mt-4 text-xl font-bold">No more homes</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Check back later or try another location.</p>
+      <h2 className="mt-4 text-xl font-bold">{t("No more homes")}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{t("Check back later or try another location.")}</p>
       <Link to="/search" className="mt-6 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground">
-        New search
+        {t("New search")}
       </Link>
     </div>
   );
