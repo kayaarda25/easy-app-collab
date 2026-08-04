@@ -50,23 +50,8 @@ function HomePage() {
         </div>
       </header>
 
-      <section className="px-6">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-glow p-6 text-primary-foreground shadow-[var(--shadow-elegant)]">
-          <Sparkles className="h-6 w-6 opacity-90" />
-          <h2 className="mt-3 text-xl font-bold">{t("home.readyTitle")}</h2>
-          <p className="mt-1 text-sm opacity-90">{t("home.readyBody")}</p>
-          <Link
-            to="/swipe"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary"
-          >
-            <Compass className="h-4 w-4" />
-            {t("home.start")}
-          </Link>
-        </div>
-      </section>
-
       {pendingReviews > 0 && (
-        <section className="mt-4 px-6">
+        <section className="px-6">
           <Link
             to="/reviews"
             className="flex items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm"
