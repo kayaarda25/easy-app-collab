@@ -10,6 +10,7 @@ import {
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 import {
   Camera,
   Grid3x3,

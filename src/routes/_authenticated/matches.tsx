@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getMyMatches } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 import { Heart, MessageCircle, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/matches")({
