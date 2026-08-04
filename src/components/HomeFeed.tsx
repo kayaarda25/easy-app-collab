@@ -226,7 +226,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
     })
     .filter(Boolean) as any[];
   const destinations = [...recDestinations, ...propDestinations].slice(0, 12);
-  const headerCity = city ?? "your city";
+  const headerCity = city ?? t("your city");
 
   return (
     <div className="space-y-8 pb-4">
@@ -267,7 +267,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
                   )}
                 </div>
                 <p className="mt-2 truncate text-sm font-semibold leading-tight">
-                  {m.other_user?.display_name ?? "User"}
+                   {m.other_user?.display_name ?? t("User")}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
                   {m.their_property?.city ?? ""}
@@ -331,7 +331,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-white">
               <Plus className="h-4 w-4" />
             </span>
-            Klicke auf eine Kategorie um deinen Tipp hinzuzufügen
+            {t("Klicke auf eine Kategorie um deinen Tipp hinzuzufügen")}
           </button>
         </div>
 
@@ -419,9 +419,9 @@ export function HomeFeed({ city }: { city?: string | null }) {
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/30 to-accent" />
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-bold">{r.author?.display_name ?? "Traveler"}</p>
+                       <p className="text-sm font-bold">{r.author?.display_name ?? t("Traveler")}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {r.author?.display_name ?? "Traveler"}'s Tipp: {r.title}
+                         {r.author?.display_name ?? t("Traveler")}{t("'s tip:")} {r.title}
                       </p>
                     </div>
                   </div>
@@ -434,7 +434,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
                     <img src={r.image_url} alt={r.title} className="aspect-[16/10] w-full object-cover" loading="lazy" />
                     {fromMatch && (
                       <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow">
-                        <MessageCircle className="h-3 w-3" /> Von Match
+                         <MessageCircle className="h-3 w-3" /> {t("Von Match")}
                       </span>
                     )}
                   </div>
@@ -466,11 +466,11 @@ export function HomeFeed({ city }: { city?: string | null }) {
                         rel="noreferrer"
                         className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary"
                       >
-                        Mehr erfahren
+                         {t("Mehr erfahren")}
                       </a>
                     ) : (
                       <button className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary">
-                        Mehr erfahren
+                         {t("Mehr erfahren")}
                       </button>
                     )}
                   </div>

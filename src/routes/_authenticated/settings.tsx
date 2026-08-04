@@ -106,7 +106,7 @@ function SettingsPage() {
             subtitle={
               ent.data?.effectivePlan === "basic"
                 ? t("settings.upgrade")
-                : `${t("settings.status")}: ${ent.data?.status}`
+                : `${t("settings.status")}: ${t(ent.data?.status ?? "active")}`
             }
             onClick={() => navigate({ to: "/paywall" })}
           />

@@ -46,6 +46,7 @@ export function VerificationBadges({
   showLabels?: boolean;
   className?: string;
 }) {
+  const { t } = useT();
   const badges = computeBadges(source);
   if (badges.length === 0) return null;
   const pad = size === "xs" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1 text-xs";
@@ -56,9 +57,9 @@ export function VerificationBadges({
         const m = META[b];
         const Icon = m.icon;
         return (
-          <span key={b} title={m.label} className={cn("inline-flex items-center gap-1 rounded-full font-semibold", pad, m.tone)}>
+          <span key={b} title={t(m.label)} className={cn("inline-flex items-center gap-1 rounded-full font-semibold", pad, m.tone)}>
             <Icon className={icon} />
-            {showLabels && <span>{m.label}</span>}
+            {showLabels && <span>{t(m.label)}</span>}
           </span>
         );
       })}

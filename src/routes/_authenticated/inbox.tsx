@@ -55,7 +55,7 @@ function InboxPage() {
                     </p>
                     {m.ready_to_switch && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="h-3 w-3" /> Ready to switch
+                        <CheckCircle2 className="h-3 w-3" /> {t("Ready to switch")}
                       </span>
                     )}
                   </div>
