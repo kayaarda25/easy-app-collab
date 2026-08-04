@@ -3,8 +3,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { listNotifications } from "@/lib/flatch.functions";
+import { useT } from "@/lib/i18n";
 
 export function NotificationsBell() {
+  const { t } = useT();
   const fetchN = useServerFn(listNotifications);
   const q = useQuery({
     queryKey: ["notifications"],
@@ -16,7 +18,7 @@ export function NotificationsBell() {
   return (
     <Link
       to="/notifications"
-      aria-label="Notifications"
+      aria-label={t("Notifications")}
       className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted"
     >
       <Bell className="h-5 w-5" />

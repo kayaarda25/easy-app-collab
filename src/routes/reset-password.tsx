@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({ meta: [{ title: "Reset password — flatch." }] }),
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
+  const { t } = useT();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +23,7 @@ function ResetPasswordPage() {
     setLoading(false);
     if (error) toast.error(error.message);
     else {
-      toast.success("Password updated");
+      toast.success(t("Password updated"));
       navigate({ to: "/home" });
     }
   };
@@ -29,10 +31,10 @@ function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <form onSubmit={submit} className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-        <h1 className="text-2xl font-bold">Set a new password</h1>
+        <h1 className="text-2xl font-bold">{t("Set a new password")}</h1>
         <input
           type="password"
-          placeholder="New password"
+          placeholder={t("New password")}
           required
           minLength={6}
           value={password}
@@ -45,7 +47,7 @@ function ResetPasswordPage() {
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          Update password
+          {t("Update password")}
         </button>
       </form>
     </div>

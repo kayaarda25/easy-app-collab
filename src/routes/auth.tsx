@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/language";
+import { useT } from "@/lib/i18n";
 
 async function goAfterLogin(navigate: ReturnType<typeof useNavigate>) {
   try {
@@ -42,6 +43,7 @@ function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
   const [lang, setLang] = useLanguage();
+  const { t } = useT();
   const [isSignup, setIsSignup] = useState(mode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -94,7 +96,7 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin + "/home" },
         });
         if (error) throw error;
-        toast.success("Check your email to verify your account before signing in.");
+        toast.success(t("Check your email to verify your account before signing in."));
         setIsSignup(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -139,21 +141,21 @@ function AuthPage() {
 
   const handleReset = async () => {
     if (!email) {
-      toast.error("Enter your email first");
+      toast.error(t("Enter your email first"));
       return;
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + "/reset-password",
     });
     if (error) toast.error(error.message);
-    else toast.success("Password reset email sent");
+    else toast.success(t("Password reset email sent"));
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-accent/40 via-background to-background px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-4 flex justify-end">
-          <label className="sr-only" htmlFor="app-lang">App language</label>
+          <label className="sr-only" htmlFor="app-lang">{t("App language")}</label>
           <select
             id="app-lang"
             value={lang}
@@ -173,22 +175,22 @@ function AuthPage() {
 
         {mfaChallenge ? (
           <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-            <h1 className="text-2xl font-bold tracking-tight">Two-factor code</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app.</p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("Two-factor code")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("Enter the 6-digit code from your authenticator app.")}</p>
             <form onSubmit={submitMfa} className="mt-6 space-y-3">
               <input value={mfaCode} onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoFocus placeholder="123456" className="w-full rounded-xl border border-input bg-background px-4 py-3 text-center text-lg tracking-widest focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30" />
               <button type="submit" disabled={loading || mfaCode.length !== 6} className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60">
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />} Verify
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />} {t("Verify")}
               </button>
             </form>
           </div>
         ) : (
         <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
           <h1 className="text-2xl font-bold tracking-tight">
-            {isSignup ? "Create your account" : "Welcome back"}
+            {isSignup ? t("Create your account") : t("Welcome back")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isSignup ? "Start swapping homes worldwide." : "Sign in to continue."}
+            {isSignup ? t("Start swapping homes worldwide.") : t("Sign in to continue.")}
           </p>
 
           <button
@@ -197,7 +199,7 @@ function AuthPage() {
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-3 text-sm font-semibold transition hover:bg-secondary disabled:opacity-50"
           >
             <GoogleIcon />
-            Continue with Google
+            {t("Continue with Google")}
           </button>
 
           <button
@@ -206,19 +208,19 @@ function AuthPage() {
             className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-foreground px-4 py-3 text-sm font-semibold text-background transition hover:opacity-90 disabled:opacity-50"
           >
             <AppleIcon />
-            Continue with Apple
+            {t("Continue with Apple")}
           </button>
 
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <div className="h-px flex-1 bg-border" />
-            or
+            {t("or")}
             <div className="h-px flex-1 bg-border" />
           </div>
 
           <form onSubmit={handleEmail} className="space-y-3">
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t("Email")}
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -226,7 +228,7 @@ function AuthPage() {
             />
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t("Password")}
               required
               minLength={6}
               value={password}
@@ -239,7 +241,7 @@ function AuthPage() {
               className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSignup ? "Create account" : "Log in"}
+              {isSignup ? t("Create account") : t("Log in")}
             </button>
           </form>
 
@@ -248,17 +250,17 @@ function AuthPage() {
               onClick={handleReset}
               className="mt-3 w-full text-xs text-muted-foreground hover:text-foreground"
             >
-              Forgot your password?
+              {t("Forgot your password?")}
             </button>
           )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {isSignup ? "Already have an account?" : "New to flatch.?"}{" "}
+            {isSignup ? t("Already have an account?") : t("New to flatch.?")}{" "}
             <button
               onClick={() => setIsSignup(!isSignup)}
               className="font-semibold text-primary hover:underline"
             >
-              {isSignup ? "Log in" : "Sign up"}
+              {isSignup ? t("Log in") : t("Sign up")}
             </button>
           </p>
         </div>
