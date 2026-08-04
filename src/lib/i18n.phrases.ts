@@ -41,7 +41,6 @@ const ROWS: Record<string, Row> = {
 
   // ---- Points ----
   "History": ["History", "Verlauf", "Historique", "Cronologia", "Historial", "Histórico", "Geschiedenis", "Geçmiş"],
-  "Loading…": ["Loading…", "Lädt…", "Chargement…", "Caricamento…", "Cargando…", "A carregar…", "Laden…", "Yükleniyor…"],
   "No transactions yet.": ["No transactions yet.", "Noch keine Transaktionen.", "Aucune transaction pour le moment.", "Ancora nessuna transazione.", "Aún no hay transacciones.", "Ainda sem transações.", "Nog geen transacties.", "Henüz işlem yok."],
   "Upgrade to start collecting": ["Upgrade to start collecting", "Upgrade, um zu sammeln", "Passez à l'offre supérieure pour cumuler", "Passa a premium per accumulare", "Mejora para empezar a acumular", "Faça upgrade para começar a acumular", "Upgrade om te sparen", "Toplamaya başlamak için yükselt"],
   "Premium bonus available": ["Premium bonus available", "Premium-Bonus verfügbar", "Bonus Premium disponible", "Bonus Premium disponibile", "Bono Premium disponible", "Bónus Premium disponível", "Premium-bonus beschikbaar", "Premium bonusu mevcut"],
@@ -57,7 +56,6 @@ const ROWS: Record<string, Row> = {
   // ---- Notifications ----
   "Notifications": ["Notifications", "Benachrichtigungen", "Notifications", "Notifiche", "Notificaciones", "Notificações", "Meldingen", "Bildirimler"],
   "You're all caught up.": ["You're all caught up.", "Alles erledigt.", "Vous êtes à jour.", "Sei aggiornato.", "Estás al día.", "Está tudo em dia.", "Je bent bij.", "Her şey güncel."],
-  "Delete": ["Delete", "Löschen", "Supprimer", "Elimina", "Eliminar", "Eliminar", "Verwijderen", "Sil"],
 
   // ---- Paywall ----
   "Choose your plan": ["Choose your plan", "Wähle deinen Plan", "Choisissez votre offre", "Scegli il tuo piano", "Elige tu plan", "Escolha o seu plano", "Kies je abonnement", "Planını seç"],
@@ -272,7 +270,6 @@ const ROWS: Record<string, Row> = {
   "Uploading…": ["Uploading…", "Wird hochgeladen…", "Téléversement…", "Caricamento…", "Subiendo…", "A carregar…", "Uploaden…", "Yükleniyor…"],
   "Recording…": ["Recording…", "Aufnahme…", "Enregistrement…", "Registrazione…", "Grabando…", "A gravar…", "Opname…", "Kaydediliyor…"],
   "Search address...": ["Search address...", "Adresse suchen...", "Rechercher une adresse...", "Cerca indirizzo...", "Buscar dirección...", "Pesquisar morada...", "Adres zoeken...", "Adres ara..."],
-  "Notifications": ["Notifications", "Benachrichtigungen", "Notifications", "Notifiche", "Notificaciones", "Notificações", "Meldingen", "Bildirimler"],
   "Upgrade to earn flatch.points": ["Upgrade to earn flatch.points", "Upgrade, um flatch.points zu sammeln", "Passez à une offre supérieure pour gagner des flatch.points", "Fai l'upgrade per guadagnare flatch.points", "Mejora tu plan para ganar flatch.points", "Faça upgrade para ganhar flatch.points", "Upgrade om flatch.points te verdienen", "flatch.points kazanmak için yükselt"],
   "Your flatch.points balance": ["Your flatch.points balance", "Dein flatch.points-Guthaben", "Votre solde flatch.points", "Il tuo saldo flatch.points", "Tu saldo de flatch.points", "O seu saldo flatch.points", "Je flatch.points-saldo", "flatch.points bakiyen"],
 };
