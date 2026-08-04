@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { autocompleteAddress, getPlaceDetails } from "@/lib/places.functions";
 import { Loader2, MapPin } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export type ResolvedAddress = {
   formattedAddress: string;
@@ -15,6 +16,7 @@ export type ResolvedAddress = {
 };
 
 export function AddressAutocomplete({ onSelect }: { onSelect: (a: ResolvedAddress) => void }) {
+  const { t } = useT();
   const ac = useServerFn(autocompleteAddress);
   const det = useServerFn(getPlaceDetails);
   const [q, setQ] = useState("");
@@ -67,7 +69,7 @@ export function AddressAutocomplete({ onSelect }: { onSelect: (a: ResolvedAddres
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => items.length && setOpen(true)}
           className="input pl-9"
-          placeholder="Search address..."
+          placeholder={t("Search address...")}
           autoComplete="off"
         />
         {loading && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />}

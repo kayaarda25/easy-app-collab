@@ -29,7 +29,7 @@ function OnboardingPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5 MB");
+      toast.error(t("Image must be under 5 MB"));
       return;
     }
     setUploadingAvatar(true);
@@ -66,7 +66,7 @@ function OnboardingPage() {
           onboarded: true,
         },
       });
-      toast.success("Profile saved");
+      toast.success(t("Profile saved"));
       navigate({ to: "/property/new" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
@@ -112,10 +112,10 @@ function OnboardingPage() {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label={t("City")}><input value={city} onChange={(e) => setCity(e.target.value)} maxLength={80} className="input" placeholder="Berlin" /></Field>
-            <Field label={t("Country")}><input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={80} className="input" placeholder="Germany" /></Field>
+            <Field label={t("Country")}><input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={80} className="input" placeholder={t("Country")} /></Field>
           </div>
           <Field label={t("Short bio")}>
-            <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={4} className="input resize-none" placeholder="A traveler who loves hosting." />
+            <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={4} className="input resize-none" placeholder={t("Short bio")} />
           </Field>
 
           <button type="submit" disabled={loading} className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-60">

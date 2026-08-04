@@ -162,7 +162,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
 
   const uploadImage = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Bild max. 10 MB");
+      toast.error(t("Image must be under 10 MB"));
       return;
     }
     setUploading(true);
@@ -567,7 +567,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 maxLength={120}
-                placeholder="z. B. Sonnenuntergang-Rooftop"
+                placeholder={t("e.g. Sunset rooftop in Lisbon")}
               />
             </div>
             <div>
