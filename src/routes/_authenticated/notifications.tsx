@@ -10,6 +10,7 @@ import {
 import { PageShell } from "@/components/BottomNav";
 import { Bell, Heart, MessageCircle, Star, CalendarCheck, Send, Trash2, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({ meta: [{ title: "Notifications — flatch." }] }),
@@ -66,6 +67,7 @@ function NotificationsPage() {
 
   const items = q.data?.items ?? [];
   const unread = q.data?.unread ?? 0;
+  const { t } = useT();
 
   return (
     <PageShell>
@@ -73,23 +75,23 @@ function NotificationsPage() {
         <Link to="/home" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border">
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-lg font-semibold">Notifications</h1>
+        <h1 className="text-lg font-semibold">{t("Notifications")}</h1>
         <Button
           size="sm"
           variant="ghost"
           disabled={unread === 0 || mAll.isPending}
           onClick={() => mAll.mutate()}
         >
-          Mark all read
+          {t("Mark all read")}
         </Button>
       </header>
 
       {q.isLoading ? (
-        <div className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</div>
+        <div className="px-6 py-10 text-center text-sm text-muted-foreground">{t("Loading…")}</div>
       ) : items.length === 0 ? (
         <div className="px-6 py-16 text-center">
           <Bell className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="mt-3 text-sm text-muted-foreground">You're all caught up.</p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("You're all caught up.")}</p>
         </div>
       ) : (
         <ul className="divide-y divide-border">
@@ -111,7 +113,7 @@ function NotificationsPage() {
                 </div>
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); mDel.mutate(n.id); }}
-                  aria-label="Delete"
+                  aria-label={t("Delete")}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
                 >
                   <Trash2 className="h-4 w-4" />

@@ -9,9 +9,11 @@ import {
   sendUserMessage,
   escalateToHuman,
 } from "@/lib/support.functions";
+import { useT } from "@/lib/i18n";
 
 export function HelpChat() {
   const [open, setOpen] = useState(false);
+  const { t } = useT();
   const [ticketId, setTicketId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [suggestEscalate, setSuggestEscalate] = useState(false);
@@ -95,7 +97,7 @@ export function HelpChat() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          aria-label="Hilfe & Support"
+          aria-label={t("Hilfe & Support")}
           className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition hover:scale-105 active:scale-95"
         >
           <HelpCircle className="h-6 w-6" />
@@ -115,10 +117,10 @@ export function HelpChat() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold">
-                    {status === "active" ? "Live Support" : status === "pending" ? "Mitarbeiter wird verbunden" : "flatch. Hilfe"}
+                    {status === "active" ? t("Live Support") : status === "pending" ? t("Mitarbeiter wird verbunden") : t("flatch. Hilfe")}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {status === "active" || status === "pending" ? "Ein Mitarbeiter antwortet dir" : "KI-Assistent · antwortet sofort"}
+                    {status === "active" || status === "pending" ? t("Ein Mitarbeiter antwortet dir") : t("KI-Assistent · antwortet sofort")}
                   </p>
                 </div>
               </div>
@@ -130,9 +132,9 @@ export function HelpChat() {
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {!ticketId && !tickets.isLoading && (
                 <div className="rounded-2xl bg-secondary/50 p-4 text-sm">
-                  <p className="font-medium">Hallo! 👋 Wie kann ich dir helfen?</p>
+                  <p className="font-medium">{t("Hallo! 👋 Wie kann ich dir helfen?")}</p>
                   <p className="mt-1 text-muted-foreground">
-                    Ich beantworte allgemeine Fragen zu flatch. Wenn es um deine konkrete Buchung geht, verbinde ich dich mit einem Mitarbeiter.
+                    {t("Ich beantworte allgemeine Fragen zu flatch. Wenn es um deine konkrete Buchung geht, verbinde ich dich mit einem Mitarbeiter.")}
                   </p>
                 </div>
               )}
@@ -141,7 +143,7 @@ export function HelpChat() {
               ))}
               {send.isPending && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" /> KI schreibt…
+                  <Loader2 className="h-3 w-3 animate-spin" /> {t("KI schreibt…")}
                 </div>
               )}
               {suggestEscalate && status === "ai" && (
@@ -151,7 +153,7 @@ export function HelpChat() {
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
                 >
                   <Headset className="h-4 w-4" />
-                  {escalate.isPending ? "Verbinde…" : "Mit Mitarbeiter verbinden"}
+                  {escalate.isPending ? t("Verbinde…") : t("Mit Mitarbeiter verbinden")}
                 </button>
               )}
               <div ref={bottomRef} />
@@ -166,7 +168,7 @@ export function HelpChat() {
                     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
                   }}
                   rows={1}
-                  placeholder={status === "active" ? "Nachricht an Support…" : "Frage stellen…"}
+                  placeholder={status === "active" ? t("Nachricht an Support…") : t("Frage stellen…")}
                   className="flex-1 resize-none rounded-2xl border border-border bg-secondary/40 px-3 py-2 text-sm outline-none focus:border-primary"
                 />
                 <button

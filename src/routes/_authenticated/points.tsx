@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getMyPointsBalance, getMyPointsHistory } from "@/lib/points.functions";
 import { PageShell } from "@/components/BottomNav";
 import { ArrowLeft, Coins, Gift, Hourglass, Info, TrendingDown, TrendingUp } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/points")({
   head: () => ({ meta: [{ title: "flatch.points — flatch." }] }),
@@ -35,6 +36,7 @@ function fmtDate(s: string | null | undefined) {
 
 function PointsPage() {
   const router = useRouter();
+  const { t } = useT();
   const balanceFn = useServerFn(getMyPointsBalance);
   const historyFn = useServerFn(getMyPointsHistory);
   const balance = useQuery({ queryKey: ["points-balance"], queryFn: () => balanceFn() });
@@ -55,7 +57,7 @@ function PointsPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-amber-700/80 dark:text-amber-300/80">
-                Your balance
+                {t("Your balance")}
               </p>
               <div className="mt-2 flex items-baseline gap-2">
                 <Coins className="h-8 w-8 text-amber-600" />
@@ -80,7 +82,7 @@ function PointsPage() {
           <div className="mt-4 flex items-start gap-3 rounded-2xl border border-dashed border-border bg-secondary/40 p-4 text-sm">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <div>
-              <p className="font-semibold">Upgrade to start collecting</p>
+              <p className="font-semibold">{t("Upgrade to start collecting")}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 flatch.points let you swap homes asynchronously — you don't need to swap at the same time.
                 Available on Standard & Premium plans.
@@ -96,7 +98,7 @@ function PointsPage() {
           <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
             <Gift className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
             <div>
-              <p className="font-semibold">Premium bonus available</p>
+              <p className="font-semibold">{t("Premium bonus available")}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Host 7 nights successfully and receive an extra +7 flatch.points — once per account.
               </p>
@@ -104,11 +106,11 @@ function PointsPage() {
           </div>
         )}
 
-        <h2 className="mt-8 mb-3 text-lg font-bold">History</h2>
+        <h2 className="mt-8 mb-3 text-lg font-bold">{t("History")}</h2>
         <div className="rounded-2xl border border-border bg-card">
-          {history.isLoading && <div className="p-4 text-sm text-muted-foreground">Loading…</div>}
+          {history.isLoading && <div className="p-4 text-sm text-muted-foreground">{t("Loading…")}</div>}
           {history.data && history.data.length === 0 && (
-            <div className="p-6 text-center text-sm text-muted-foreground">No transactions yet.</div>
+            <div className="p-6 text-center text-sm text-muted-foreground">{t("No transactions yet.")}</div>
           )}
           <ul className="divide-y divide-border">
             {(history.data ?? []).map((h) => {
@@ -118,7 +120,7 @@ function PointsPage() {
               return (
                 <li key={h.id} className={`flex items-center justify-between gap-3 px-4 py-3 ${dimmed ? "opacity-60" : ""}`}>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{meta.label}</p>
+                    <p className="text-sm font-medium">{t(meta.label)}</p>
                     <p className="text-xs text-muted-foreground">
                       {fmtDate(h.created_at)}
                       {h.status !== "active" && <span className="ml-1.5 capitalize">· {h.status}</span>}

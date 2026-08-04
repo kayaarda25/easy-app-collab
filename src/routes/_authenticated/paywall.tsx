@@ -6,6 +6,7 @@ import { PageShell } from "@/components/BottomNav";
 import { PLAN_INFO, type PlanId } from "@/lib/subscription";
 import { getMyEntitlement } from "@/lib/subscription.functions";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/paywall")({
   head: () => ({ meta: [{ title: "Plans — flatch." }] }),
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/paywall")({
 
 function PaywallPage() {
   const navigate = useNavigate();
+  const { t } = useT();
   const fetchEnt = useServerFn(getMyEntitlement);
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
 
@@ -46,11 +48,11 @@ function PaywallPage() {
         <button onClick={() => navigate({ to: "/profile" })} className="rounded-full p-2 hover:bg-secondary">
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-2xl font-bold">Choose your plan</h1>
+        <h1 className="text-2xl font-bold">{t("Choose your plan")}</h1>
       </header>
 
       <p className="px-6 pt-2 text-sm text-muted-foreground">
-        Upgrade for more homes, more swipes, and member perks.
+        {t("Upgrade for more homes, more swipes, and member perks.")}
       </p>
 
       <div className="space-y-4 px-6 pt-6 pb-6">
@@ -67,7 +69,7 @@ function PaywallPage() {
             >
               {isPremium && (
                 <div className="absolute -top-3 left-5 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
-                  <Crown className="h-3 w-3" /> Most popular
+                  <Crown className="h-3 w-3" /> {t("Most popular")}
                 </div>
               )}
               <div className="flex items-baseline justify-between">
@@ -94,7 +96,7 @@ function PaywallPage() {
                       : "bg-primary text-primary-foreground hover:opacity-90"
                 }`}
               >
-                {isCurrent ? "Current plan" : id === "basic" ? "Free" : `Upgrade to ${info.name}`}
+                {isCurrent ? t("Current plan") : id === "basic" ? t("Free") : `${t("Upgrade to")} ${info.name}`}
               </button>
             </div>
           );
@@ -105,12 +107,12 @@ function PaywallPage() {
             onClick={manageSubscription}
             className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 text-sm font-semibold"
           >
-            Manage subscription <ExternalLink className="h-4 w-4" />
+            {t("Manage subscription")} <ExternalLink className="h-4 w-4" />
           </button>
         )}
 
         <p className="px-2 pt-2 text-center text-[11px] text-muted-foreground">
-          Purchases are processed via the App Store / Google Play. Subscriptions auto-renew until cancelled in your store account.
+          {t("Purchases are processed via the App Store / Google Play. Subscriptions auto-renew until cancelled in your store account.")}
         </p>
       </div>
     </PageShell>

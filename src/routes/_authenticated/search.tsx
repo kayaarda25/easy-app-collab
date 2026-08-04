@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 import { Search as SearchIcon, MapPin, Lock, Crown, X, Bed, Bath, Users, Home, SlidersHorizontal, Star, ShieldCheck } from "lucide-react";
 import { getMyEntitlement } from "@/lib/subscription.functions";
 import { getAllPropertyLocations } from "@/lib/flatch.functions";
@@ -92,6 +93,7 @@ const AMENITY_PATTERNS = {
 
 function SearchPage() {
   const navigate = useNavigate();
+  const { t } = useT();
   const [city, setCity] = useState("");
   const [selected, setSelected] = useState<PropertyLocation | null>(null);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
@@ -143,8 +145,8 @@ function SearchPage() {
   return (
     <PageShell>
       <header className="px-6 pt-8 pb-2">
-        <h1 className="text-3xl font-bold tracking-tight">Where to?</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Discover homes worldwide.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("Where to?")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("Discover homes worldwide.")}</p>
       </header>
 
       <div className="px-6 mt-4">
@@ -155,7 +157,7 @@ function SearchPage() {
               <input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder="Search a city or country"
+                placeholder={t("Search a city or country")}
                 className="w-full rounded-full border border-border bg-card py-3.5 pl-12 pr-4 text-sm shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
             </form>
@@ -179,7 +181,7 @@ function SearchPage() {
             className="relative flex w-full items-center gap-3 rounded-full border border-border bg-card py-3.5 pl-12 pr-4 text-sm shadow-[var(--shadow-card)]"
           >
             <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <span className="text-muted-foreground">Search is a Premium feature</span>
+            <span className="text-muted-foreground">{t("Search is a Premium feature")}</span>
             <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-xs font-semibold text-primary-foreground">
               <Crown className="h-3 w-3" /> Premium
             </span>
@@ -188,7 +190,7 @@ function SearchPage() {
       </div>
 
       <section className="mt-8 px-6">
-        <h2 className="text-sm font-semibold text-muted-foreground">Popular destinations</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground">{t("Popular destinations")}</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {SUGGESTIONS.map((s) => (
             <button
@@ -205,7 +207,7 @@ function SearchPage() {
 
       <section className="mt-10 px-6">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-muted-foreground">All homes on flatch.</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground">{t("All homes on flatch.")}</h2>
           <span className="text-xs text-muted-foreground">
             {points.length} of {allPoints.length} listed
           </span>
@@ -335,7 +337,7 @@ function SearchPage() {
 
               {selected.amenities && selected.amenities.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs font-medium text-muted-foreground">Amenities</p>
+                  <p className="text-xs font-medium text-muted-foreground">{t("Amenities")}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {selected.amenities.slice(0, 10).map((a) => (
                       <span key={a} className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
@@ -344,7 +346,7 @@ function SearchPage() {
                     ))}
                     {selected.amenities.length > 10 && (
                       <span className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
-                        +{selected.amenities.length - 10} more
+                        +{selected.amenities.length - 10} {t("more")}
                       </span>
                     )}
                   </div>
@@ -358,7 +360,7 @@ function SearchPage() {
                 }}
                 className="mt-5 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
               >
-                View in Swipe Feed
+                {t("View in Swipe Feed")}
               </button>
             </div>
           </DialogContent>
@@ -368,13 +370,13 @@ function SearchPage() {
       <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
         <DialogContent className="max-w-md rounded-2xl border border-border bg-card">
           <DialogHeader className="text-left">
-            <DialogTitle>Filters</DialogTitle>
-            <DialogDescription>Refine the homes you see on the map.</DialogDescription>
+            <DialogTitle>{t("Filters")}</DialogTitle>
+            <DialogDescription>{t("Refine the homes you see on the map.")}</DialogDescription>
           </DialogHeader>
 
           <div className="mt-2 space-y-5">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Bedrooms (min)</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Bedrooms (min)")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 1, 2, 3, 4].map((n) => (
                   <button
@@ -387,14 +389,14 @@ function SearchPage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {n === 0 ? "Any" : `${n}+`}
+                    {n === 0 ? t("Any") : `${n}+`}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Max guests (min)</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Max guests (min)")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 1, 2, 4, 6, 8].map((n) => (
                   <button
@@ -407,14 +409,14 @@ function SearchPage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {n === 0 ? "Any" : `${n}+`}
+                    {n === 0 ? t("Any") : `${n}+`}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Amenities</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Amenities")}</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {([
                   ["wifi", "Wi-Fi"],
@@ -432,14 +434,14 @@ function SearchPage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {label}
+                    {t(label)}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Min host rating</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("Min host rating")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 3, 3.5, 4, 4.5].map((n) => (
                   <button
@@ -452,7 +454,7 @@ function SearchPage() {
                         : "border-border bg-background text-foreground hover:border-primary/40"
                     }`}
                   >
-                    {n === 0 ? "Any" : (<><Star className="h-3 w-3 fill-current" /> {n}+</>)}
+                    {n === 0 ? t("Any") : (<><Star className="h-3 w-3 fill-current" /> {n}+</>)}
                   </button>
                 ))}
               </div>
@@ -460,7 +462,7 @@ function SearchPage() {
 
             <label className="flex cursor-pointer items-center justify-between rounded-xl border border-border bg-background px-3 py-2.5">
               <span className="inline-flex items-center gap-2 text-sm font-medium">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" /> Verified listings only
+                <ShieldCheck className="h-4 w-4 text-emerald-500" /> {t("Verified listings only")}
               </span>
               <input
                 type="checkbox"
@@ -477,14 +479,14 @@ function SearchPage() {
               onClick={() => setFilters(DEFAULT_FILTERS)}
               className="flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium"
             >
-              Reset
+              {t("Reset")}
             </button>
             <button
               type="button"
               onClick={() => setFiltersOpen(false)}
               className="flex-1 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
             >
-              Show {points.length} homes
+              {t("Show")} {points.length} {t("homes")}
             </button>
           </div>
         </DialogContent>

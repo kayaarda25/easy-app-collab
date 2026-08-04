@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { ChatComposer } from "@/components/ChatComposer";
 import { BookingGuestsDialog } from "@/components/BookingGuestsDialog";
 import { useLanguage } from "@/lib/language";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/chat/$matchId")({
   head: () => ({ meta: [{ title: "Chat — flatch." }] }),
@@ -29,6 +30,7 @@ function ChatPage() {
   const { matchId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useT();
 
   const msgsFn = useServerFn(getMessages);
   const sendFn = useServerFn(sendMessage);
@@ -162,7 +164,7 @@ function ChatPage() {
               <p className="truncate text-sm font-semibold">{match?.other_user?.display_name ?? "User"}</p>
             {(match as any)?.ready_to_switch && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="h-3 w-3" /> Ready to switch
+                <CheckCircle2 className="h-3 w-3" /> {t("Ready to switch")}
               </span>
             )}
             </div>
@@ -170,19 +172,19 @@ function ChatPage() {
           </div>
         </Link>
         <button onClick={() => setShowProposal(true)} className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-          Propose swap
+          {t("Propose swap")}
         </button>
       </header>
       <div className="flex items-center justify-between border-b border-border bg-background/60 px-4 py-1.5 text-xs">
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-          <Languages className="h-3.5 w-3.5" /> Auto-Übersetzung
+          <Languages className="h-3.5 w-3.5" /> {t("Auto-Übersetzung")}
         </span>
         <div className="flex items-center gap-2">
           <select
             value={targetLang}
             onChange={(e) => setTargetLang(e.target.value)}
             className="rounded-md border border-border bg-background px-1.5 py-0.5 text-xs"
-            aria-label="Zielsprache"
+            aria-label={t("Zielsprache")}
           >
             <option value="de">Deutsch</option>
             <option value="en">English</option>
@@ -270,7 +272,7 @@ function ChatPage() {
                           className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium opacity-70 hover:opacity-100"
                         >
                           {tr?.loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Languages className="h-3 w-3" />}
-                          {tr?.error ? "Erneut versuchen" : tr?.loading ? "Übersetze…" : "Übersetzen"}
+                          {tr?.error ? t("Erneut versuchen") : tr?.loading ? t("Übersetze…") : t("Übersetzen")}
                         </button>
                       )}
                     </div>
@@ -305,7 +307,7 @@ function ChatPage() {
                 qc.invalidateQueries({ queryKey: ["points-history"] });
               }
               qc.invalidateQueries({ queryKey: ["proposals", matchId] });
-              toast.success("Proposal sent");
+              toast.success(t("Proposal sent"));
               setShowProposal(false);
             } catch (e: any) {
               const msg = String(e?.message ?? e);
@@ -322,27 +324,28 @@ function ChatPage() {
 
 function ProposalCard({ proposal, onUpdate }: { proposal: any; onUpdate: (s: "accepted" | "rejected" | "cancelled" | "confirmed") => void }) {
   const isAsync = proposal.kind === "async";
+  const { t } = useT();
   const [showGuests, setShowGuests] = useState(false);
   const canManageGuests = proposal.status === "accepted" || proposal.status === "confirmed";
   return (
     <div className="mb-3 rounded-2xl border border-primary/20 bg-accent/50 p-4">
       <div className="flex items-center gap-2 text-xs font-semibold text-primary">
         {isAsync ? <Coins className="h-4 w-4" /> : <Calendar className="h-4 w-4" />}
-        {isAsync ? `flatch.points booking · ${proposal.points_amount ?? 0} pts` : "Swap proposal"}
+        {isAsync ? `flatch.points booking · ${proposal.points_amount ?? 0} pts` : t("Swap proposal")}
       </div>
       <p className="mt-2 text-sm">
         <span className="font-medium">{proposal.start_date}</span> → <span className="font-medium">{proposal.end_date}</span>
-        {" "}· {proposal.guests} guests
+        {" "}· {proposal.guests} {t("guests")}
       </p>
       {proposal.message && <p className="mt-1 text-sm text-muted-foreground">{proposal.message}</p>}
-      <p className="mt-2 text-xs text-muted-foreground">Status: <span className="font-semibold capitalize">{proposal.status}</span></p>
+      <p className="mt-2 text-xs text-muted-foreground">{t("Status")}: <span className="font-semibold capitalize">{proposal.status}</span></p>
       {proposal.status === "pending" && (
         <div className="mt-3 flex gap-2">
           <button onClick={() => onUpdate("accepted")} className="flex flex-1 items-center justify-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-            <Check className="h-3.5 w-3.5" /> Accept
+            <Check className="h-3.5 w-3.5" /> {t("Accept")}
           </button>
           <button onClick={() => onUpdate("rejected")} className="flex flex-1 items-center justify-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold">
-            <X className="h-3.5 w-3.5" /> Decline
+            <X className="h-3.5 w-3.5" /> {t("Decline")}
           </button>
         </div>
       )}
@@ -351,7 +354,7 @@ function ProposalCard({ proposal, onUpdate }: { proposal: any; onUpdate: (s: "ac
           onClick={() => setShowGuests(true)}
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5"
         >
-          <Users className="h-3.5 w-3.5" /> Gäste erfassen
+          <Users className="h-3.5 w-3.5" /> {t("Gäste erfassen")}
         </button>
       )}
       {showGuests && (
@@ -392,6 +395,7 @@ function ProposalModal({
   const [busy, setBusy] = useState(false);
   const [homes, setHomes] = useState<any[] | null>(null);
   const [propertyId, setPropertyId] = useState<string>("");
+  const { t } = useT();
 
   useEffect(() => {
     if (mode === "async" && !homes) {
@@ -407,23 +411,23 @@ function ProposalModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-t-3xl bg-card p-6 sm:rounded-3xl">
-        <h2 className="text-xl font-bold">Propose a swap</h2>
+        <h2 className="text-xl font-bold">{t("Propose a swap")}</h2>
         <div className="mt-3 grid grid-cols-2 gap-2 rounded-full bg-secondary p-1 text-xs font-semibold">
           <button type="button" onClick={() => setMode("direct")} className={`rounded-full py-2 transition ${mode === "direct" ? "bg-background shadow" : "text-muted-foreground"}`}>
-            Direct swap
+            {t("Direct swap")}
           </button>
           <button type="button" onClick={() => setMode("async")} className={`inline-flex items-center justify-center gap-1.5 rounded-full py-2 transition ${mode === "async" ? "bg-background shadow" : "text-muted-foreground"}`}>
-            <Coins className="h-3.5 w-3.5" /> Use flatch.points
+            <Coins className="h-3.5 w-3.5" /> {t("Use flatch.points")}
           </button>
         </div>
         <div className="mt-4 space-y-3">
           {mode === "async" && (
             <label className="block">
-              <span className="text-xs text-muted-foreground">Their home</span>
+              <span className="text-xs text-muted-foreground">{t("Their home")}</span>
               {homes === null ? (
-                <p className="mt-1 text-xs text-muted-foreground">Loading…</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("Loading…")}</p>
               ) : homes.length === 0 ? (
-                <p className="mt-1 text-xs text-destructive">They don't have an active listing.</p>
+                <p className="mt-1 text-xs text-destructive">{t("They don't have an active listing.")}</p>
               ) : (
                 <select value={propertyId} onChange={(e) => setPropertyId(e.target.value)} className="input mt-1">
                   {homes.map((h) => (
@@ -434,11 +438,11 @@ function ProposalModal({
             </label>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <label className="block"><span className="text-xs text-muted-foreground">Start</span><input type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="input mt-1" /></label>
-            <label className="block"><span className="text-xs text-muted-foreground">End</span><input type="date" required value={end} onChange={(e) => setEnd(e.target.value)} className="input mt-1" /></label>
+            <label className="block"><span className="text-xs text-muted-foreground">{t("Start")}</span><input type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="input mt-1" /></label>
+            <label className="block"><span className="text-xs text-muted-foreground">{t("End")}</span><input type="date" required value={end} onChange={(e) => setEnd(e.target.value)} className="input mt-1" /></label>
           </div>
-          <label className="block"><span className="text-xs text-muted-foreground">Guests</span><input type="number" min={1} max={40} value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="input mt-1" /></label>
-          <label className="block"><span className="text-xs text-muted-foreground">Message (optional)</span><textarea rows={3} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} className="input mt-1 resize-none" /></label>
+          <label className="block"><span className="text-xs text-muted-foreground">{t("Guests")}</span><input type="number" min={1} max={40} value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="input mt-1" /></label>
+          <label className="block"><span className="text-xs text-muted-foreground">{t("Message (optional)")}</span><textarea rows={3} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} className="input mt-1 resize-none" /></label>
           {mode === "async" && nights > 0 && (
             <div className="rounded-xl bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
               <Coins className="mr-1 inline h-3.5 w-3.5" />
@@ -447,7 +451,7 @@ function ProposalModal({
           )}
         </div>
         <div className="mt-5 flex gap-2">
-          <button onClick={onClose} className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold">Cancel</button>
+          <button onClick={onClose} className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold">{t("Cancel")}</button>
           <button
             disabled={busy || !start || !end || (mode === "async" && !propertyId)}
             onClick={async () => {
@@ -456,7 +460,7 @@ function ProposalModal({
               finally { setBusy(false); }
             }}
             className="flex-1 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-          >Send</button>
+          >{t("Send")}</button>
         </div>
       </div>
     </div>
