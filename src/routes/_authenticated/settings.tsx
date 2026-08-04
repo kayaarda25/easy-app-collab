@@ -19,6 +19,7 @@ import {
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { VerificationChecklist } from "@/components/VerificationBadges";
 import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/language";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — flatch." }] }),
@@ -60,6 +61,7 @@ function SettingsPage() {
   const fetchEnt = useServerFn(getMyEntitlement);
   const checkAdmin = useServerFn(isAdmin);
   const [lang, setLang] = useLanguage();
+  const { t } = useT();
 
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
@@ -84,34 +86,34 @@ function SettingsPage() {
   return (
     <PageShell>
       <header className="px-6 pt-8 pb-2">
-        <h1 className="text-3xl font-bold">Settings</h1>
+        <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
       </header>
 
       <section className="mt-4 px-6">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Account
+          {t("settings.account")}
         </h2>
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <Row
             icon={UserIcon}
-            title="Edit profile"
-            subtitle="Name, bio, photo"
+            title={t("settings.editProfile")}
+            subtitle={t("settings.editProfileSub")}
             onClick={() => navigate({ to: "/profile" })}
           />
           <Row
             icon={Crown}
-            title={`${PLAN_INFO[ent.data?.effectivePlan ?? "basic"].name} plan`}
+            title={`${PLAN_INFO[ent.data?.effectivePlan ?? "basic"].name} ${t("settings.plan")}`}
             subtitle={
               ent.data?.effectivePlan === "basic"
-                ? "Upgrade for more homes & swipes"
-                : `Status: ${ent.data?.status}`
+                ? t("settings.upgrade")
+                : `${t("settings.status")}: ${ent.data?.status}`
             }
             onClick={() => navigate({ to: "/paywall" })}
           />
           <Row
             icon={Bell}
-            title="Notifications"
-            subtitle="In-app & email reminders"
+            title={t("settings.notifications")}
+            subtitle={t("settings.notificationsSub")}
             onClick={() => navigate({ to: "/notifications" })}
           />
         </div>
@@ -119,7 +121,7 @@ function SettingsPage() {
 
       <section className="mt-6 px-6">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Security
+          {t("settings.security")}
         </h2>
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="border-b border-border last:border-b-0">
@@ -130,7 +132,7 @@ function SettingsPage() {
 
       <section className="mt-6 px-6">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Trust & verification
+          {t("settings.trust")}
         </h2>
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <VerificationChecklist source={verificationSource} />
@@ -140,13 +142,13 @@ function SettingsPage() {
       {admin.data === true && (
         <section className="mt-6 px-6">
           <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Admin
+            {t("settings.admin")}
           </h2>
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <Row
               icon={Shield}
-              title="Admin dashboard"
-              subtitle="Users, properties, matches, bookings & more"
+              title={t("settings.adminDash")}
+              subtitle={t("settings.adminDashSub")}
               onClick={() => navigate({ to: "/admin" })}
             />
           </div>
@@ -155,14 +157,14 @@ function SettingsPage() {
 
       <section className="mt-6 px-6">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Preferences
+          {t("settings.preferences")}
         </h2>
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex items-center gap-3 p-4">
             <Globe className="h-4 w-4 text-primary" />
             <div className="flex-1">
-              <p className="text-sm font-semibold">App language</p>
-              <p className="text-xs text-muted-foreground">Used across the app and chat translation</p>
+              <p className="text-sm font-semibold">{t("settings.language")}</p>
+              <p className="text-xs text-muted-foreground">{t("settings.languageSub")}</p>
             </div>
             <select
               value={lang}
@@ -177,7 +179,7 @@ function SettingsPage() {
             </select>
           </div>
           <div className="flex items-center gap-3 border-t border-border p-4 text-sm text-muted-foreground">
-            <ShieldCheck className="h-4 w-4" /> Privacy & data — coming soon
+            <ShieldCheck className="h-4 w-4" /> {t("settings.privacy")}
           </div>
         </div>
       </section>
@@ -189,7 +191,7 @@ function SettingsPage() {
             className="flex w-full items-center gap-3 p-4 text-left hover:bg-secondary/50"
           >
             <LogOut className="h-5 w-5 text-destructive" />
-            <span className="text-sm font-semibold text-destructive">Sign out</span>
+            <span className="text-sm font-semibold text-destructive">{t("settings.signOut")}</span>
           </button>
         </div>
       </section>

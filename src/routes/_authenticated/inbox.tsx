@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getMyMatches } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 import { MessageCircle, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
@@ -12,18 +13,19 @@ export const Route = createFileRoute("/_authenticated/inbox")({
 
 function InboxPage() {
   const fn = useServerFn(getMyMatches);
+  const { t } = useT();
   const q = useQuery({ queryKey: ["matches"], queryFn: () => fn() });
 
   return (
     <PageShell>
       <header className="px-6 pt-8 pb-4">
-        <h1 className="text-3xl font-bold tracking-tight">Inbox</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("inbox.title")}</h1>
       </header>
       <div className="space-y-2 px-4">
         {(q.data ?? []).length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <MessageCircle className="h-10 w-10 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">No conversations yet.</p>
+            <p className="mt-3 text-sm text-muted-foreground">{t("inbox.empty")}</p>
           </div>
         ) : (
           (q.data ?? []).map((m: any) => {

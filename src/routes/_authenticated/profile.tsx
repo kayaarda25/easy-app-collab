@@ -10,6 +10,7 @@ import {
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 import {
   Camera,
   Grid3x3,
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function ProfilePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useT();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchProps = useServerFn(getMyProperties);
   const updateFn = useServerFn(updateMyProfile);
@@ -130,14 +132,14 @@ function ProfilePage() {
     <PageShell>
       <header className="flex items-center justify-between px-6 pt-8 pb-2">
         <h1 className="truncate text-xl font-bold">
-          {profile.data?.display_name ?? "Profile"}
+          {profile.data?.display_name ?? t("nav.profile")}
         </h1>
         <div className="flex items-center gap-2">
           <PointsBadge compact />
           <button
           onClick={() => navigate({ to: "/settings" })}
           className="rounded-full p-2 hover:bg-secondary"
-          aria-label="Settings"
+          aria-label={t("profile.settings")}
         >
           <SettingsIcon className="h-5 w-5 text-muted-foreground" />
           </button>
@@ -172,9 +174,9 @@ function ProfilePage() {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatar} />
 
           <div className="flex flex-1 items-center justify-around text-center">
-            <Stat label="Posts" value={myRecos.length} />
-            <Stat label="Homes" value={(props.data ?? []).length} />
-            <Stat label="Reviews" value={reviews.data?.count ?? 0} />
+            <Stat label={t("profile.posts")} value={myRecos.length} />
+            <Stat label={t("profile.homes")} value={(props.data ?? []).length} />
+            <Stat label={t("profile.reviews")} value={reviews.data?.count ?? 0} />
           </div>
         </div>
 
@@ -192,8 +194,8 @@ function ProfilePage() {
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className="input" placeholder="Name" />
               <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={3} className="input resize-none" placeholder="Bio" />
               <div className="flex gap-2">
-                <button onClick={() => setEditing(false)} className="flex-1 rounded-full border border-border py-2 text-sm font-semibold">Cancel</button>
-                <button onClick={save} className="flex-1 rounded-full bg-primary py-2 text-sm font-semibold text-primary-foreground">Save</button>
+                <button onClick={() => setEditing(false)} className="flex-1 rounded-full border border-border py-2 text-sm font-semibold">{t("profile.cancel")}</button>
+                <button onClick={save} className="flex-1 rounded-full bg-primary py-2 text-sm font-semibold text-primary-foreground">{t("profile.save")}</button>
               </div>
             </div>
           ) : (
@@ -207,12 +209,12 @@ function ProfilePage() {
               onClick={startEdit}
               className="flex-1 rounded-lg bg-secondary py-1.5 text-sm font-semibold"
             >
-              <Pencil className="mr-1 inline h-3.5 w-3.5" /> Edit profile
+              <Pencil className="mr-1 inline h-3.5 w-3.5" /> {t("profile.edit")}
             </button>
             <button
               onClick={() => navigate({ to: "/property/new" })}
               className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-semibold"
-              aria-label="Add home"
+              aria-label={t("profile.addHome")}
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -228,7 +230,7 @@ function ProfilePage() {
             tab === "posts" ? "border-b-2 border-foreground text-foreground" : "text-muted-foreground"
           }`}
         >
-          <Grid3x3 className="h-4 w-4" /> Posts
+          <Grid3x3 className="h-4 w-4" /> {t("profile.posts")}
         </button>
         <button
           onClick={() => setTab("homes")}
@@ -236,7 +238,7 @@ function ProfilePage() {
             tab === "homes" ? "border-b-2 border-foreground text-foreground" : "text-muted-foreground"
           }`}
         >
-          <HomeIcon className="h-4 w-4" /> Homes
+          <HomeIcon className="h-4 w-4" /> {t("profile.homes")}
         </button>
       </div>
 

@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getMyMatches } from "@/lib/flatch.functions";
 import { PageShell } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 import { Heart, MessageCircle, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/matches")({
@@ -11,14 +12,15 @@ export const Route = createFileRoute("/_authenticated/matches")({
 });
 
 function MatchesPage() {
+  const { t } = useT();
   const fn = useServerFn(getMyMatches);
   const q = useQuery({ queryKey: ["matches"], queryFn: () => fn() });
 
   return (
     <PageShell>
       <header className="px-6 pt-8 pb-4">
-        <h1 className="text-3xl font-bold tracking-tight">Matches</h1>
-        <p className="mt-1 text-sm text-muted-foreground">People who want to swap with you.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("matches.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("matches.subtitle")}</p>
       </header>
 
       <div className="space-y-3 px-6">
@@ -27,7 +29,7 @@ function MatchesPage() {
         ) : (q.data ?? []).length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-border py-12 text-center">
             <Heart className="h-10 w-10 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">No matches yet.</p>
+            <p className="mt-3 text-sm text-muted-foreground">{t("matches.empty")}</p>
             <Link to="/search" className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
               Start swiping
             </Link>

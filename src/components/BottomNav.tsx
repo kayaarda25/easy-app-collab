@@ -1,18 +1,20 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Heart, Home as HomeIcon, MessageCircle, Search, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useT, type TranslationKey } from "@/lib/i18n";
 
 const items = [
-  { to: "/home", label: "Home", icon: HomeIcon },
-  { to: "/swipe", label: "Swipe", icon: Search },
-  { to: "/matches", label: "Matches", icon: Heart },
-  { to: "/inbox", label: "Inbox", icon: MessageCircle },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/home", labelKey: "nav.home" as TranslationKey, icon: HomeIcon },
+  { to: "/swipe", labelKey: "nav.swipe" as TranslationKey, icon: Search },
+  { to: "/matches", labelKey: "nav.matches" as TranslationKey, icon: Heart },
+  { to: "/inbox", labelKey: "nav.inbox" as TranslationKey, icon: MessageCircle },
+  { to: "/profile", labelKey: "nav.profile" as TranslationKey, icon: User },
 ] as const;
 
 const NAV_ORDER = items.map((i) => i.to);
 
 export function BottomNav() {
+  const { t } = useT();
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex max-w-md items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
@@ -24,7 +26,7 @@ export function BottomNav() {
             activeProps={{ className: "text-primary" }}
           >
             <item.icon className="h-5 w-5" />
-            {item.label}
+            {t(item.labelKey)}
           </Link>
         ))}
       </div>
