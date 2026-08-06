@@ -485,7 +485,7 @@ export function HomeFeed({ city }: { city?: string | null }) {
       <section className="px-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold">{t("Empfohlene Ziele")}</h3>
-            <button className="text-sm font-semibold text-primary">{t("Alle ›")}</button>
+            <Link to="/swipe" className="text-sm font-semibold text-primary">{t("Alle ›")}</Link>
           </div>
         <div className="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
           {destinations.map((d) => (
