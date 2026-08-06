@@ -9,6 +9,7 @@ import {
   getAllPropertyLocations,
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { FEATURED_DESTINATIONS } from "@/lib/destinations";
 import {
   Dialog,
   DialogContent,
@@ -201,31 +202,25 @@ export function HomeFeed({ city }: { city?: string | null }) {
     });
   }, [list, filter, search]);
 
-  const recDestinations = list
-    .filter((r: any) => r.category === "destination" && r.image_url)
-    .map((r: any) => ({
-      id: `rec-${r.id}`,
-      image_url: r.image_url,
-      title: r.title,
-      city: r.city,
-      country: r.country,
+  // Anzahl verfügbarer Immobilien pro Stadt (aus dem Feed)
+  const cityCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    (properties.data ?? []).forEach((p: any) => {
+      const key = (p.city ?? "").toLowerCase();
+      if (!key) return;
+      m.set(key, (m.get(key) ?? 0) + 1);
+    });
+    return m;
+  }, [properties.data]);
+
+  const destinations = useMemo(() => {
+    const featured = FEATURED_DESTINATIONS.map((d) => ({
+      ...d,
+      count: cityCounts.get(d.city.toLowerCase()) ?? 0,
     }));
-  const propDestinations = (properties.data ?? [])
-    .map((p: any) => {
-      const img = [...(p.property_images ?? [])].sort(
-        (a: any, b: any) => (a.position ?? 0) - (b.position ?? 0),
-      )[0]?.url;
-      if (!img) return null;
-      return {
-        id: `prop-${p.id}`,
-        image_url: img,
-        title: p.title,
-        city: p.city,
-        country: p.country,
-      };
-    })
-    .filter(Boolean) as any[];
-  const destinations = [...recDestinations, ...propDestinations].slice(0, 12);
+    // Städte mit verfügbaren Immobilien zuerst
+    return featured.sort((a, b) => b.count - a.count);
+  }, [cityCounts]);
   const headerCity = city ?? t("your city");
 
   return (
@@ -490,29 +485,30 @@ export function HomeFeed({ city }: { city?: string | null }) {
       <section className="px-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold">{t("Empfohlene Ziele")}</h3>
-            <button className="text-sm font-semibold text-primary">{t("Alle ›")}</button>
+            <Link to="/swipe" className="text-sm font-semibold text-primary">{t("Alle ›")}</Link>
           </div>
-        {destinations.length === 0 ? (
-          <p className="mt-3 rounded-2xl border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-            {t("Noch keine Ziele verfügbar.")}
-          </p>
-        ) : (
-          <div className="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
-            {destinations.map((d: any) => (
-              <div
-                key={`dest-${d.id}`}
-                className="relative h-56 w-64 flex-shrink-0 overflow-hidden rounded-3xl bg-muted"
-              >
-                <img src={d.image_url} alt={d.title} className="h-full w-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <p className="text-xl font-bold leading-tight">{d.city ?? d.title}</p>
-                  {d.country && <p className="text-sm opacity-90">{d.country}</p>}
-                </div>
+        <div className="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
+          {destinations.map((d) => (
+            <Link
+              key={`dest-${d.id}`}
+              to="/swipe"
+              search={{ city: d.city, country: d.country }}
+              className="relative h-56 w-64 flex-shrink-0 overflow-hidden rounded-3xl bg-muted transition active:scale-[0.98]"
+            >
+              <img src={d.image} alt={d.city} className="h-full w-full object-cover" loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              {d.count > 0 && (
+                <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-black">
+                  {d.count} {t(d.count === 1 ? "Home" : "Homes")}
+                </span>
+              )}
+              <div className="absolute bottom-4 left-4 text-white">
+                <p className="text-xl font-bold leading-tight">{d.city}</p>
+                <p className="text-sm opacity-90">{d.country}</p>
               </div>
-            ))}
-          </div>
-        )}
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* Add Tip Dialog */}
