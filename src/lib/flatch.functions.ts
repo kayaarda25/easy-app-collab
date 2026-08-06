@@ -815,7 +815,115 @@ export const listRecommendations = createServerFn({ method: "GET" })
         };
       }
     }
-    return list.map((r: any) => ({ ...r, author: profilesById[r.user_id] ?? null }));
+    const recIds = list.map((r: any) => r.id);
+    const likeCount: Record<string, number> = {};
+    const commentCount: Record<string, number> = {};
+    const likedByMe = new Set<string>();
+    if (recIds.length) {
+      const { data: likes } = await supabase
+        .from("recommendation_likes")
+        .select("recommendation_id, user_id")
+        .in("recommendation_id", recIds);
+      for (const l of likes ?? []) {
+        const rid = (l as any).recommendation_id as string;
+        likeCount[rid] = (likeCount[rid] ?? 0) + 1;
+        if ((l as any).user_id === context.userId) likedByMe.add(rid);
+      }
+      const { data: comments } = await supabase
+        .from("recommendation_comments")
+        .select("recommendation_id")
+        .in("recommendation_id", recIds);
+      for (const c of comments ?? []) {
+        const rid = (c as any).recommendation_id as string;
+        commentCount[rid] = (commentCount[rid] ?? 0) + 1;
+      }
+    }
+    return list.map((r: any) => ({
+      ...r,
+      author: profilesById[r.user_id] ?? null,
+      like_count: likeCount[r.id] ?? 0,
+      comment_count: commentCount[r.id] ?? 0,
+      liked_by_me: likedByMe.has(r.id),
+    }));
+  });
+
+export const toggleRecommendationLike = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ recommendation_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: existing } = await supabase
+      .from("recommendation_likes")
+      .select("id")
+      .eq("recommendation_id", data.recommendation_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (existing) {
+      const { error } = await supabase
+        .from("recommendation_likes")
+        .delete()
+        .eq("id", (existing as any).id);
+      if (error) throw error;
+      return { liked: false };
+    }
+    const { error } = await supabase
+      .from("recommendation_likes")
+      .insert({ recommendation_id: data.recommendation_id, user_id: userId });
+    if (error) throw error;
+    return { liked: true };
+  });
+
+export const listRecommendationComments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ recommendation_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: rows, error } = await supabase
+      .from("recommendation_comments")
+      .select("*")
+      .eq("recommendation_id", data.recommendation_id)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    if (error) throw error;
+    const list = rows ?? [];
+    const ids = Array.from(new Set(list.map((c: any) => c.user_id)));
+    const byId: Record<string, any> = {};
+    if (ids.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", ids);
+      for (const p of profs ?? []) byId[(p as any).id] = p;
+    }
+    return list.map((c: any) => ({ ...c, author: byId[c.user_id] ?? null }));
+  });
+
+export const createRecommendationComment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({ recommendation_id: z.string().uuid(), body: z.string().trim().min(1).max(1000) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error } = await supabase
+      .from("recommendation_comments")
+      .insert({ recommendation_id: data.recommendation_id, user_id: userId, body: data.body })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return row;
+  });
+
+export const deleteRecommendationComment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("recommendation_comments").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
   });
 
 export const createRecommendation = createServerFn({ method: "POST" })
