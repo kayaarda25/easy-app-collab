@@ -18,6 +18,7 @@ import {
 import { Beer, Camera, ImagePlus, MapPin, Plus, Star, Trash2, Utensils, Video, X } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/lib/i18n";
+import { RecommendationSocial } from "@/components/RecommendationSocial";
 
 type Category = "destination" | "bar" | "restaurant" | "sightseeing" | "other";
 
@@ -380,6 +381,13 @@ export function Recommendations({ currentUserId }: { currentUserId?: string | nu
                       {r.description}
                     </p>
                   )}
+                  <RecommendationSocial
+                    recommendationId={r.id}
+                    likeCount={r.like_count ?? 0}
+                    commentCount={r.comment_count ?? 0}
+                    likedByMe={!!r.liked_by_me}
+                    currentUserId={currentUserId}
+                  />
                   <div className="mt-2 flex items-center justify-between">
                     {created && (
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
