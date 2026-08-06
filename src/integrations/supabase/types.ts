@@ -1120,6 +1120,10 @@ export type Database = {
         Args: { _body: string; _match_id: string; _meta?: Json }
         Returns: undefined
       }
+      record_swipe: {
+        Args: { _direction: string; _property_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role:
