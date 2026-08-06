@@ -1080,7 +1080,12 @@ export const createReview = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (error) throw error;
+    if (error) {
+      if ((error as any).code === "23505") {
+        throw new Error("Du hast diese Bewertung bereits abgegeben.");
+      }
+      throw error;
+    }
     if (data.private_feedback && data.private_feedback.length > 0) {
       const { error: fErr } = await supabase
         .from("review_private_feedback")
