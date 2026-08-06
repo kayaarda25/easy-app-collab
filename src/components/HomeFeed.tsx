@@ -201,31 +201,25 @@ export function HomeFeed({ city }: { city?: string | null }) {
     });
   }, [list, filter, search]);
 
-  const recDestinations = list
-    .filter((r: any) => r.category === "destination" && r.image_url)
-    .map((r: any) => ({
-      id: `rec-${r.id}`,
-      image_url: r.image_url,
-      title: r.title,
-      city: r.city,
-      country: r.country,
+  // Anzahl verfügbarer Immobilien pro Stadt (aus dem Feed)
+  const cityCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    (properties.data ?? []).forEach((p: any) => {
+      const key = (p.city ?? "").toLowerCase();
+      if (!key) return;
+      m.set(key, (m.get(key) ?? 0) + 1);
+    });
+    return m;
+  }, [properties.data]);
+
+  const destinations = useMemo(() => {
+    const featured = FEATURED_DESTINATIONS.map((d) => ({
+      ...d,
+      count: cityCounts.get(d.city.toLowerCase()) ?? 0,
     }));
-  const propDestinations = (properties.data ?? [])
-    .map((p: any) => {
-      const img = [...(p.property_images ?? [])].sort(
-        (a: any, b: any) => (a.position ?? 0) - (b.position ?? 0),
-      )[0]?.url;
-      if (!img) return null;
-      return {
-        id: `prop-${p.id}`,
-        image_url: img,
-        title: p.title,
-        city: p.city,
-        country: p.country,
-      };
-    })
-    .filter(Boolean) as any[];
-  const destinations = [...recDestinations, ...propDestinations].slice(0, 12);
+    // Städte mit verfügbaren Immobilien zuerst
+    return featured.sort((a, b) => b.count - a.count);
+  }, [cityCounts]);
   const headerCity = city ?? t("your city");
 
   return (
