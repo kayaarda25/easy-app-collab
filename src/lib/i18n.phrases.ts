@@ -9,6 +9,13 @@ const ORDER: LanguageCode[] = ["en", "de", "fr", "it", "es", "pt", "nl", "tr"];
 type Row = [string, string, string, string, string, string, string, string];
 
 const ROWS: Record<string, Row> = {
+  // ---- Community likes & comments ----
+  "Like": ["Like", "Gefällt mir", "J'aime", "Mi piace", "Me gusta", "Gosto", "Vind ik leuk", "Beğen"],
+  "Comment": ["Comment", "Kommentieren", "Commenter", "Commenta", "Comentar", "Comentar", "Reageren", "Yorum yap"],
+  "No comments yet": ["No comments yet", "Noch keine Kommentare", "Aucun commentaire", "Nessun commento", "Aún no hay comentarios", "Ainda sem comentários", "Nog geen reacties", "Henüz yorum yok"],
+  "Add a comment…": ["Add a comment…", "Kommentar hinzufügen…", "Ajouter un commentaire…", "Aggiungi un commento…", "Añade un comentario…", "Adicionar comentário…", "Voeg een reactie toe…", "Yorum ekle…"],
+  "Send": ["Send", "Senden", "Envoyer", "Invia", "Enviar", "Enviar", "Versturen", "Gönder"],
+  "Could not save": ["Could not save", "Konnte nicht gespeichert werden", "Impossible d'enregistrer", "Impossibile salvare", "No se pudo guardar", "Não foi possível guardar", "Kon niet opslaan", "Kaydedilemedi"],
   // ---- Discover / Swipe ----
   "Discover": ["Discover", "Entdecken", "Découvrir", "Scopri", "Descubrir", "Descobrir", "Ontdek", "Keşfet"],
   "Filters": ["Filters", "Filter", "Filtres", "Filtri", "Filtros", "Filtros", "Filters", "Filtreler"],
