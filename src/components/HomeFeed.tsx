@@ -9,6 +9,7 @@ import {
   getAllPropertyLocations,
 } from "@/lib/flatch.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { FEATURED_DESTINATIONS } from "@/lib/destinations";
 import {
   Dialog,
   DialogContent,
