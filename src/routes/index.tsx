@@ -169,7 +169,7 @@ function LandingPage() {
             <a href="#fragen" className="transition-colors hover:text-[#f3ede4]">Fragen</a>
           </nav>
           <a
-            href="https://app.flatch.ch"
+            href="/welcome"
             className="rounded-full bg-[#f3ede4] px-5 py-2 text-sm font-medium text-[#0d0c0b] transition-transform hover:scale-[1.03] active:scale-95"
           >
             App öffnen
@@ -441,7 +441,7 @@ function LandingPage() {
             <a href="mailto:info@flatch.ch" className="transition-colors hover:text-[#f3ede4]">
               info@flatch.ch
             </a>
-            <a href="https://app.flatch.ch" className="transition-colors hover:text-[#f3ede4]">
+            <a href="/welcome" className="transition-colors hover:text-[#f3ede4]">
               App öffnen
             </a>
           </div>
