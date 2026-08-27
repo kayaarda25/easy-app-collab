@@ -200,7 +200,7 @@ function LandingPage() {
       </section>
 
       {/* Marquee */}
-      <div className="border-y border-white/5 bg-[#111 0f0e] py-5">
+      <div className="border-y border-white/5 bg-[#100e0d] py-5">
         <div className="flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
           <div className="flex shrink-0 animate-[web-marquee_38s_linear_infinite] gap-10 pr-10">
             {[...cities, ...cities].map((c, i) => (
