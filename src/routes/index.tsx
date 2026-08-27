@@ -1,15 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import onboardingHome from "@/assets/onboarding-home.jpg";
-import onboardingTravel from "@/assets/onboarding-travel.jpg";
-import onboardingChat from "@/assets/onboarding-chat.jpg";
 import heroImg from "@/assets/web-hero.jpg";
 import arriveImg from "@/assets/web-arrive.jpg";
 import cityImg from "@/assets/web-city.jpg";
 import keysImg from "@/assets/web-keys.jpg";
 import { Logo } from "@/components/Logo";
-import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   ssr: false,
