@@ -35,6 +35,10 @@ export const Route = createFileRoute("/")({
 
 function getIsAppHost() {
   if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  const preview = params.get("preview");
+  if (preview === "web") return false;
+  if (preview === "app") return true;
   const host = window.location.host;
   return host === "app.flatch.ch" || host.startsWith("app.") || host === "localhost:8080" || host === "localhost:3000";
 }
