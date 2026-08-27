@@ -1,12 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Logo } from "@/components/Logo";
+import onboardingHome from "@/assets/onboarding-home.jpg";
+import onboardingTravel from "@/assets/onboarding-travel.jpg";
+import onboardingChat from "@/assets/onboarding-chat.jpg";
 import heroImg from "@/assets/web-hero.jpg";
 import arriveImg from "@/assets/web-arrive.jpg";
 import cityImg from "@/assets/web-city.jpg";
 import keysImg from "@/assets/web-keys.jpg";
+import { Logo } from "@/components/Logo";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "flatch. — Tausche dein Zuhause, entdecke die Welt" },
@@ -21,13 +27,167 @@ export const Route = createFileRoute("/")({
         content: "Home Swapping für verifizierte Mitglieder. Bald im App Store und bei Google Play.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://flatch.ch" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://flatch.ch" }],
   }),
-  component: LandingPage,
+  component: IndexPage,
 });
+
+function getIsAppHost() {
+  if (typeof window === "undefined") return false;
+  const host = window.location.host;
+  return host === "app.flatch.ch" || host.startsWith("app.") || host === "localhost:8080" || host === "localhost:3000";
+}
+
+function IndexPage() {
+  const [isAppHost, setIsAppHost] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setIsAppHost(getIsAppHost());
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#0d0c0b]">
+        <Logo size={40} withWordmark wordmarkClassName="text-[#f3ede4]" />
+      </div>
+    );
+  }
+
+  return isAppHost ? <AppWelcome /> : <LandingPage />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                APP WELCOME                                 */
+/* -------------------------------------------------------------------------- */
+
+const slides = [
+  {
+    image: onboardingHome,
+    title: "Liste dein Zuhause",
+    body: "Fotos, Daten, Ausstattung — in wenigen Minuten online. Du entscheidest, wann es verfügbar ist.",
+  },
+  {
+    image: onboardingTravel,
+    title: "Swipe & Match",
+    body: "Entdecke Wohnungen weltweit. Wenn ihr euch beide liked, ist es ein Match.",
+  },
+  {
+    image: onboardingChat,
+    title: "Chatte & tausche",
+    body: "Plant Termine, klärt Details und tauscht eure Zuhause — alles sicher in der App.",
+  },
+];
+
+function AppWelcome() {
+  const { t } = useT();
+  const navigate = useNavigate();
+  const [index, setIndex] = useState(0);
+  const startX = useRef<number | null>(null);
+
+  const next = () => {
+    if (index < slides.length - 1) setIndex(index + 1);
+    else navigate({ to: "/auth", search: { mode: "signup" } });
+  };
+  const prev = () => index > 0 && setIndex(index - 1);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (startX.current == null) return;
+    const dx = e.changedTouches[0].clientX - startX.current;
+    if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
+    startX.current = null;
+  };
+
+  const slide = slides[index];
+  const isLast = index === slides.length - 1;
+
+  return (
+    <div className="fixed inset-0 flex flex-col overflow-hidden">
+      <div className="absolute inset-0">
+        {slides.map((s, i) => (
+          <img
+            key={i}
+            src={s.image}
+            alt=""
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+              i === index ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+      </div>
+
+      <div className="relative z-10 flex h-full flex-col">
+        <div className="flex items-center justify-between px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-4">
+          <Logo size={32} withWordmark wordmarkClassName="text-base text-white" />
+          {!isLast && (
+            <button
+              onClick={() => navigate({ to: "/auth", search: { mode: "signup" } })}
+              className="text-sm font-medium text-white/70 hover:text-white"
+            >
+              {t("Skip")}
+            </button>
+          )}
+        </div>
+
+        <div className="flex-1" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} />
+
+        <div className="px-6 pb-6">
+          <h1
+            key={`t-${index}`}
+            className="text-3xl font-bold tracking-tight text-white animate-[fade-in_0.4s_ease-out]"
+          >
+            {t(slide.title)}
+          </h1>
+          <p
+            key={`b-${index}`}
+            className="mt-3 max-w-sm text-base text-white/80 animate-[fade-in_0.5s_ease-out]"
+          >
+            {t(slide.body)}
+          </p>
+
+          <div className="flex gap-2 mt-6">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIndex(i)}
+                aria-label={`Slide ${i + 1}`}
+                className={`h-2 rounded-full transition-all ${
+                  i === index ? "w-6 bg-white" : "w-2 bg-white/40"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <button
+            onClick={next}
+            className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 text-base font-semibold text-black shadow-lg transition active:scale-[0.98]"
+          >
+            {isLast ? t("Loslegen") : t("Weiter")}
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </button>
+          <p className="mt-4 text-center text-sm text-white/70">
+            {t("Schon dabei?")}{" "}
+            <Link to="/auth" search={{ mode: "login" }} className="font-semibold text-white">
+              {t("Anmelden")}
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                LANDING PAGE                                */
+/* -------------------------------------------------------------------------- */
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -146,7 +306,6 @@ function LandingPage() {
         .web-serif { font-family: var(--web-serif); font-weight: 400; }
       `}</style>
 
-      {/* Nav */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-[#0d0c0b]/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Logo size={28} withWordmark wordmarkClassName="text-[#f3ede4] text-base" />
@@ -157,7 +316,7 @@ function LandingPage() {
             <a href="#fragen" className="transition-colors hover:text-[#f3ede4]">Fragen</a>
           </nav>
           <a
-            href="https://app.flatch.ch/app"
+            href="https://app.flatch.ch"
             className="rounded-full bg-[#f3ede4] px-5 py-2 text-sm font-medium text-[#0d0c0b] transition-transform hover:scale-[1.03] active:scale-95"
           >
             App öffnen
@@ -165,7 +324,6 @@ function LandingPage() {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
         <img
           src={heroImg}
@@ -201,7 +359,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Marquee */}
       <div className="border-y border-white/5 bg-[#100e0d] py-5">
         <div className="flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
           <div className="flex shrink-0 animate-[web-marquee_38s_linear_infinite] gap-10 pr-10">
@@ -217,7 +374,6 @@ function LandingPage() {
         </div>
       </div>
 
-      {/* Idee */}
       <section id="idee" className="mx-auto max-w-6xl px-6 py-28 sm:py-36">
         <div className="grid gap-14 md:grid-cols-12 md:gap-16">
           <div className="md:col-span-5">
@@ -256,7 +412,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Ablauf */}
       <section id="ablauf" className="border-t border-white/5 bg-[#100e0d] py-28 sm:py-36">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
@@ -296,7 +451,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Points */}
       <section id="points" className="mx-auto max-w-6xl px-6 py-28 sm:py-36">
         <div className="grid items-center gap-14 md:grid-cols-2">
           <Reveal>
@@ -334,7 +488,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Vertrauen */}
       <section className="relative overflow-hidden border-y border-white/5">
         <img
           src={cityImg}
@@ -358,7 +511,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section id="fragen" className="mx-auto max-w-4xl px-6 py-28 sm:py-36">
         <Reveal>
           <h2 className="web-serif text-[clamp(2rem,4.5vw,3rem)] leading-[1.05] text-[#f3ede4]">
@@ -382,7 +534,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Warteliste */}
       <section id="warteliste" className="border-t border-white/5 bg-[#100e0d] py-28 sm:py-36">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <Reveal>
@@ -430,7 +581,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-white/5 px-6 py-12">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
           <Logo size={24} withWordmark wordmarkClassName="text-[#c5bbaf] text-sm" />
@@ -438,7 +588,7 @@ function LandingPage() {
             <a href="mailto:info@flatch.ch" className="transition-colors hover:text-[#f3ede4]">
               info@flatch.ch
             </a>
-            <a href="https://app.flatch.ch/app" className="transition-colors hover:text-[#f3ede4]">
+            <a href="https://app.flatch.ch" className="transition-colors hover:text-[#f3ede4]">
               App öffnen
             </a>
           </div>
