@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -44,6 +45,11 @@ import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksFlatchPointsDailyRouteImport } from './routes/api/public/hooks/flatch-points-daily'
 import { Route as ApiPublicHooksCheckinRemindersRouteImport } from './routes/api/public/hooks/checkin-reminders'
 
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -232,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/welcome': typeof WelcomeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/matches': typeof AuthenticatedMatchesRoute
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/welcome': typeof WelcomeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/matches': typeof AuthenticatedMatchesRoute
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/welcome': typeof WelcomeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/_authenticated/matches': typeof AuthenticatedMatchesRoute
@@ -341,6 +350,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/welcome'
     | '/home'
     | '/inbox'
     | '/matches'
@@ -376,6 +386,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/welcome'
     | '/home'
     | '/inbox'
     | '/matches'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/welcome'
     | '/_authenticated/home'
     | '/_authenticated/inbox'
     | '/_authenticated/matches'
@@ -449,6 +461,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  WelcomeRoute: typeof WelcomeRoute
   ApiPublicHooksCheckinRemindersRoute: typeof ApiPublicHooksCheckinRemindersRoute
   ApiPublicHooksFlatchPointsDailyRoute: typeof ApiPublicHooksFlatchPointsDailyRoute
   ApiPublicWebhooksRevenuecatRoute: typeof ApiPublicWebhooksRevenuecatRoute
@@ -456,6 +469,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -765,6 +785,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  WelcomeRoute: WelcomeRoute,
   ApiPublicHooksCheckinRemindersRoute: ApiPublicHooksCheckinRemindersRoute,
   ApiPublicHooksFlatchPointsDailyRoute: ApiPublicHooksFlatchPointsDailyRoute,
   ApiPublicWebhooksRevenuecatRoute: ApiPublicWebhooksRevenuecatRoute,
