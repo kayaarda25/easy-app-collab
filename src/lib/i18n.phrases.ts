@@ -293,6 +293,21 @@ const ROWS: Record<string, Row> = {
   "Search address...": ["Search address...", "Adresse suchen...", "Rechercher une adresse...", "Cerca indirizzo...", "Buscar dirección...", "Pesquisar morada...", "Adres zoeken...", "Adres ara..."],
   "Upgrade to earn flatch.points": ["Upgrade to earn flatch.points", "Upgrade, um flatch.points zu sammeln", "Passez à une offre supérieure pour gagner des flatch.points", "Fai l'upgrade per guadagnare flatch.points", "Mejora tu plan para ganar flatch.points", "Faça upgrade para ganhar flatch.points", "Upgrade om flatch.points te verdienen", "flatch.points kazanmak için yükselt"],
   "Your flatch.points balance": ["Your flatch.points balance", "Dein flatch.points-Guthaben", "Votre solde flatch.points", "Il tuo saldo flatch.points", "Tu saldo de flatch.points", "O seu saldo flatch.points", "Je flatch.points-saldo", "flatch.points bakiyen"],
+
+  // ---- RevenueCat purchase flow ----
+  "Willkommen im Upgrade!": ["Welcome to your upgrade!", "Willkommen im Upgrade!", "Bienvenue dans votre upgrade !", "Benvenuto nell'upgrade!", "¡Bienvenido a tu mejora!", "Bem-vindo ao upgrade!", "Welkom bij je upgrade!", "Yükseltmene hoş geldin!"],
+  "Dein Abo wird aktiviert – das kann einen Moment dauern.": ["Your subscription is being activated – this can take a moment.", "Dein Abo wird aktiviert – das kann einen Moment dauern.", "Votre abonnement est en cours d'activation – cela peut prendre un moment.", "Il tuo abbonamento si sta attivando – potrebbe volerci un attimo.", "Tu suscripción se está activando, puede tardar un momento.", "A sua assinatura está a ser ativada – pode demorar um momento.", "Je abonnement wordt geactiveerd – dit kan even duren.", "Aboneliğin etkinleştiriliyor – biraz sürebilir."],
+  "Kauf abgebrochen": ["Purchase cancelled", "Kauf abgebrochen", "Achat annulé", "Acquisto annullato", "Compra cancelada", "Compra cancelada", "Aankoop geannuleerd", "Satın alma iptal edildi"],
+  "Abo derzeit nicht verfügbar": ["Subscription currently unavailable", "Abo derzeit nicht verfügbar", "Abonnement actuellement indisponible", "Abbonamento attualmente non disponibile", "Suscripción no disponible", "Assinatura indisponível no momento", "Abonnement momenteel niet beschikbaar", "Abonelik şu anda kullanılamıyor"],
+  "Bitte versuche es später erneut.": ["Please try again later.", "Bitte versuche es später erneut.", "Veuillez réessayer plus tard.", "Riprova più tardi.", "Inténtalo de nuevo más tarde.", "Tente novamente mais tarde.", "Probeer het later opnieuw.", "Lütfen daha sonra tekrar dene."],
+  "Kauf fehlgeschlagen": ["Purchase failed", "Kauf fehlgeschlagen", "Achat échoué", "Acquisto non riuscito", "Compra fallida", "Compra falhou", "Aankoop mislukt", "Satın alma başarısız"],
+  "Bitte versuche es erneut.": ["Please try again.", "Bitte versuche es erneut.", "Veuillez réessayer.", "Riprova.", "Inténtalo de nuevo.", "Tente novamente.", "Probeer het opnieuw.", "Lütfen tekrar dene."],
+  "Käufe wiederherstellen": ["Restore purchases", "Käufe wiederherstellen", "Restaurer les achats", "Ripristina acquisti", "Restaurar compras", "Restaurar compras", "Aankopen herstellen", "Satın alımları geri yükle"],
+  "Keine aktiven Käufe gefunden": ["No active purchases found", "Keine aktiven Käufe gefunden", "Aucun achat actif trouvé", "Nessun acquisto attivo trovato", "No se encontraron compras activas", "Nenhuma compra ativa encontrada", "Geen actieve aankopen gevonden", "Aktif satın alma bulunamadı"],
+  "Wiederherstellung fehlgeschlagen": ["Restore failed", "Wiederherstellung fehlgeschlagen", "Restauration échouée", "Ripristino non riuscito", "Restauración fallida", "Restauro falhou", "Herstellen mislukt", "Geri yükleme başarısız"],
+  "Wird verarbeitet…": ["Processing…", "Wird verarbeitet…", "Traitement…", "Elaborazione…", "Procesando…", "A processar…", "Verwerken…", "İşleniyor…"],
+  "Wird geprüft…": ["Checking…", "Wird geprüft…", "Vérification…", "Verifica…", "Comprobando…", "A verificar…", "Controleren…", "Kontrol ediliyor…"],
+  "Käufe wiederhergestellt": ["Purchases restored", "Käufe wiederhergestellt", "Achats restaurés", "Acquisti ripristinati", "Compras restauradas", "Compras restauradas", "Aankopen hersteld", "Satın alımlar geri yüklendi"],
 };
 
 const DE_FALLBACK: Record<string, string> = {
