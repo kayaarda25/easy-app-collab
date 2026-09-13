@@ -8,6 +8,7 @@ import { PLAN_INFO, type PlanId } from "@/lib/subscription";
 import { getMyEntitlement } from "@/lib/subscription.functions";
 import { toast } from "sonner";
 import { useT } from "@/lib/i18n";
+import { isNativeApp, purchasePlan, restorePurchases } from "@/lib/revenuecat";
 
 export const Route = createFileRoute("/_authenticated/paywall")({
   head: () => ({ meta: [{ title: "Plans — flatch." }] }),
@@ -21,18 +22,56 @@ function PaywallPage() {
   const ent = useQuery({ queryKey: ["entitlement"], queryFn: () => fetchEnt() });
 
   const [isNative, setIsNative] = useState(false);
+  const [busy, setBusy] = useState<PlanId | "restore" | null>(null);
   useEffect(() => {
-    setIsNative(/Capacitor/i.test((window as any).Capacitor?.platform ?? ""));
+    setIsNative(isNativeApp());
   }, []);
 
-  const handlePurchase = (planId: PlanId) => {
+  const handlePurchase = async (planId: PlanId) => {
+    if (planId === "basic") return;
     if (!isNative) {
       toast.info(t("Subscriptions are available in the iOS & Android app"), {
         description: t("Download flatch. from the App Store or Google Play to upgrade."),
       });
       return;
     }
-    toast.info(`Starting ${planId} purchase via App Store…`);
+    setBusy(planId);
+    try {
+      const result = await purchasePlan(planId as "standard" | "premium");
+      if (result === "success") {
+        toast.success(t("Willkommen im Upgrade!"), {
+          description: t("Dein Abo wird aktiviert – das kann einen Moment dauern."),
+        });
+        setTimeout(() => ent.refetch(), 4000);
+      } else if (result === "cancelled") {
+        toast.info(t("Kauf abgebrochen"));
+      } else if (result === "unavailable") {
+        toast.error(t("Abo derzeit nicht verfügbar"), {
+          description: t("Bitte versuche es später erneut."),
+        });
+      } else {
+        toast.error(t("Kauf fehlgeschlagen"), { description: t("Bitte versuche es erneut.") });
+      }
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleRestore = async () => {
+    setBusy("restore");
+    try {
+      const result = await restorePurchases();
+      if (result === "restored") {
+        toast.success(t("Käufe wiederhergestellt"));
+        setTimeout(() => ent.refetch(), 4000);
+      } else if (result === "nothing") {
+        toast.info(t("Keine aktiven Käufe gefunden"));
+      } else {
+        toast.error(t("Wiederherstellung fehlgeschlagen"));
+      }
+    } finally {
+      setBusy(null);
+    }
   };
 
   const manageSubscription = () => {
