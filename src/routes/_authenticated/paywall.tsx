@@ -129,21 +129,37 @@ function PaywallPage() {
                 ))}
               </ul>
               <button
-                disabled={isCurrent || id === "basic"}
+                disabled={isCurrent || id === "basic" || busy !== null}
                 onClick={() => handlePurchase(id)}
                 className={`mt-5 w-full rounded-full py-3 text-sm font-semibold transition ${
                   isCurrent
                     ? "bg-secondary text-muted-foreground"
                     : id === "basic"
                       ? "bg-secondary text-muted-foreground"
-                      : "bg-primary text-primary-foreground hover:opacity-90"
+                      : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
                 }`}
               >
-                {isCurrent ? t("Current plan") : id === "basic" ? t("Free") : `${t("Upgrade to")} ${info.name}`}
+                {busy === id
+                  ? t("Wird verarbeitet…")
+                  : isCurrent
+                    ? t("Current plan")
+                    : id === "basic"
+                      ? t("Free")
+                      : `${t("Upgrade to")} ${info.name}`}
               </button>
             </div>
           );
         })}
+
+        {isNative && (
+          <button
+            onClick={handleRestore}
+            disabled={busy !== null}
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 text-sm font-semibold disabled:opacity-60"
+          >
+            {busy === "restore" ? t("Wird geprüft…") : t("Käufe wiederherstellen")}
+          </button>
+        )}
 
         {ent.data && ent.data.plan !== "basic" && (
           <button
