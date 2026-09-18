@@ -9,7 +9,8 @@ function createSupabaseAdminClient() {
   // Migrated to user-owned project (oycvnsproonwbgfignvs): prefer the
   // NEW_SUPABASE_* runtime secrets; URL is hardcoded (not sensitive).
   const SUPABASE_URL = process.env.NEW_SUPABASE_URL || 'https://oycvnsproonwbgfignvs.supabase.co';
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.NEW_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Strip whitespace: pasted keys sometimes contain stray spaces/newlines.
+  const SUPABASE_SERVICE_ROLE_KEY = (process.env.NEW_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '').replace(/\s+/g, '');
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
