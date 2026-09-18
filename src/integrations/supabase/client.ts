@@ -4,10 +4,11 @@ import type { Database } from './types';
 import { brokeredPreviewStorage } from './previewAuthStorage';
 
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  // Migrated to user-owned project (oycvnsproonwbgfignvs). Hardcoded values are
+  // intentional: the publishable key is public and this pins the app to the new
+  // project even if the platform regenerates VITE_ env vars for the old project.
+  const SUPABASE_URL = 'https://oycvnsproonwbgfignvs.supabase.co' || import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LnRuYZJPBUu8GfdYVk30rw_79f4UYJ9' || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
