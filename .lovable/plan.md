@@ -1,44 +1,47 @@
-## Ziel
-Das hochgeladene Logo (`flatch_icon_beige.pdf`) wird zum offiziellen Logo der App und ersetzt alle bisherigen „flatch."-Textmarken sowie die generischen Icon-Platzhalter.
+# Umzug auf eine eigene Datenbank (voller Zugriff für Cursor)
 
-## Was ich tun werde
+Ziel: Die App läuft künftig auf einem Supabase-Projekt, das dir gehört. Damit hast du Datenbank-Passwort, Service-Key und Direktverbindung – Cursor kann alles lesen und schreiben.
 
-### 1. Logo aus PDF in PNGs konvertieren
-- PDF rendern via ImageMagick in mehreren Auflösungen
-- Hochgeladene PNGs zu Lovable CDN-Assets hochladen (`lovable-assets create`)
-- Versionen: `512×512` (App Icon), `192×192` (PWA), `180×180` (Apple Touch), `32×32` (Favicon), plus eine transparente Variante für inline Wordmark-Ersatz
+Wichtig vorab: Die aktuelle, in Lovable verwaltete Datenbank gibt ihre Zugangsdaten grundsätzlich nicht heraus. Deshalb ist ein eigenes Projekt der einzige Weg zu echtem Fremdzugriff.
 
-### 2. Favicon / PWA Icons ersetzen
-- `public/icon-192.png` und `public/icon-512.png` durch neues Logo ersetzen
-- `public/manifest.webmanifest` Icons-Pfade aktualisieren (bleiben gleich, nur Inhalt neu)
-- Favicon-Link in `src/routes/__root.tsx` hinzufügen (aktuell nur `apple-touch-icon` + manifest)
+## Was du tun musst (ohne dich geht es nicht)
 
-### 3. Wiederverwendbare `<Logo />` Komponente
-- Neue Datei `src/components/Logo.tsx` mit Props `size` und `variant` (icon-only oder icon+wordmark)
-- Nutzt das neue Asset
+1. Konto auf supabase.com anlegen und ein neues Projekt erstellen (Region: Frankfurt/Zürich-nah).
+2. Mir folgende Werte über das sichere Geheimnis-Formular geben:
+   - Projekt-URL und öffentlicher Schlüssel (publishable/anon)
+   - Service-Schlüssel (geheim)
+   - Datenbank-Passwort bzw. Verbindungsstring (für die Übertragung der Daten)
+3. Im neuen Projekt E-Mail-Login aktivieren und Google/Apple-Anmeldung neu einrichten (Zugangsdaten wandern nicht automatisch mit).
 
-### 4. Überall einsetzen
-Ersetze die aktuell als reiner Text gerenderten „flatch."-Wortmarken durch `<Logo />` in:
-- `src/routes/index.tsx` (Onboarding Topbar)
-- `src/routes/auth.tsx` (Login/Signup Header)
-- `src/routes/_authenticated/home.tsx`, `swipe.tsx`, `matches.tsx`, `inbox.tsx`, `profile.tsx`, `settings.tsx`, `notifications.tsx`, `paywall.tsx`, `onboarding.tsx`, `property.new.tsx`, `search.tsx`, `u.$userId.tsx`, `chat.$matchId.tsx`
-- `src/routes/_authenticated/admin.*.tsx` (alle Admin-Seiten)
-- `src/routes/reset-password.tsx`
-- Komponenten: `NotificationsBell.tsx`, `HomeFeed.tsx`, `Reviews.tsx`, `Recommendations.tsx`
+## Was ich übernehme
 
-Wo „flatch." nur als Erwähnung im Fließtext steht (z.B. „Willkommen bei flatch."), bleibt es als Text — Logo ersetzt nur Header/Branding-Stellen.
+1. **Struktur übertragen**: Alle vorhandenen Änderungsdateien (rund 30 Stück) der Reihe nach im neuen Projekt anwenden – Tabellen, Rechte, Regeln, Funktionen, Auslöser.
+2. **Nachziehen, was nur live existiert**: Ich vergleiche den tatsächlichen aktuellen Stand der bestehenden Datenbank mit den Dateien und schreibe fehlende Teile als zusätzliche Änderungsdatei nach, damit nichts fehlt.
+3. **Ablagen anlegen**: Die vier Dateiablagen (Profilbilder, Chat-Anhänge, Objektfotos, Empfehlungs-Medien) samt Zugriffsregeln neu erstellen.
+4. **Daten kopieren**: Bestehende Inhalte (Nutzerkonten, Profile, Objekte, Chats, Punkte usw.) vom alten ins neue Projekt übertragen, Reihenfolge beachtend. Dateien in den Ablagen werden ebenfalls kopiert.
+5. **App umstellen**: Die Verbindungsdaten der App auf das neue Projekt zeigen lassen und alle Geheimnisse (Resend, Google Maps, RevenueCat-Webhook, KI-Schlüssel) dort neu hinterlegen.
+6. **Automatische Tagesaufgaben** (Punkte-Verfall, Check-in-Erinnerungen) im neuen Projekt neu einplanen.
+7. **Durchtesten**: Anmelden, Objekt anlegen, Swipen/Match, Chat, Admin-Bereich, Abo-Anzeige.
 
-### 5. Email-Logo
-- `src/lib/email.server.ts`: Logo-URL (CDN) in Email-Templates einsetzen
+## Technische Details
 
-### 6. Verifikation
-- Build laufen lassen
-- Preview-Screenshot der Startseite zur Kontrolle
+- `.env` / `VITE_SUPABASE_*` und die servergenutzten `SUPABASE_*`-Werte zeigen künftig auf das neue Projekt. Da einige Dateien unter `src/integrations/supabase/` generiert sind, erfolgt die Umstellung über die Umgebungswerte, nicht durch Bearbeiten dieser Dateien.
+- Migrationen aus `supabase/migrations/` werden chronologisch eingespielt; danach ein Abgleich gegen den Live-Stand (Funktionen wie `record_swipe`, `flatch_points_*`, `has_role`, Trigger auf `auth.users`) und eine Ergänzungsmigration.
+- Datenkopie per `pg_dump`/`pg_restore` auf Datenebene inkl. `auth.users` (Passwort-Hashes bleiben erhalten, niemand muss sich neu registrieren).
+- `supabase/functions/` (support-send, support-escalate, translate-text) werden im neuen Projekt neu bereitgestellt.
+- Die Webhook-Adresse für RevenueCat bleibt unverändert, da sie in der App liegt.
 
-## Was ich NICHT tue
-- Keine Farbänderungen am Theme (Logo ist beige — falls Background/Theme angepasst werden soll, frag ich danach separat)
-- Keine neuen Brand-Guidelines / Typografie-Änderungen
-- Keine Splash-Screens für iOS (separate Größen — kann ich nachschieben falls gewünscht)
+## Risiken und Hinweise
 
-## Frage vor Start
-Soll ich beim PWA Icon das Logo **mit Hintergrundfarbe** (z.B. dunkler Hintergrund passend zum Beige) oder **transparent** verwenden? iOS rundet transparente Icons mit weißem Hintergrund — sieht oft schlechter aus als ein gefüllter Hintergrund.
+- Kosten: Ein eigenes Supabase-Projekt hat ein kostenloses Kontingent, wächst aber mit Nutzung in einen bezahlten Tarif.
+- Kurze Umschaltphase: Zwischen Datenkopie und Umstellung sollten keine neuen Inhalte entstehen, sonst gehen sie verloren. Am besten zu einer ruhigen Tageszeit.
+- Google- und Apple-Anmeldung müssen mit der neuen Rückruf-Adresse beim jeweiligen Anbieter nachgetragen werden, sonst schlägt der Login fehl.
+- Die Lovable-eigene Datenbank bleibt als Sicherung bestehen, bis alles läuft.
+
+## Reihenfolge
+
+1. Du legst das Projekt an und gibst mir die Zugangsdaten.
+2. Ich baue Struktur und Ablagen auf.
+3. Ich kopiere die Daten.
+4. Ich stelle die App um und teste.
+5. Du verbindest Cursor direkt mit dem neuen Projekt.
