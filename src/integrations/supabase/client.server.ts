@@ -6,8 +6,10 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 function createSupabaseAdminClient() {
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Migrated to user-owned project (oycvnsproonwbgfignvs): prefer the
+  // NEW_SUPABASE_* runtime secrets; URL is hardcoded (not sensitive).
+  const SUPABASE_URL = process.env.NEW_SUPABASE_URL || 'https://oycvnsproonwbgfignvs.supabase.co';
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.NEW_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
